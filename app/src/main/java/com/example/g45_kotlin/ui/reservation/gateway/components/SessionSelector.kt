@@ -21,13 +21,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.g45_kotlin.ui.reservation.gateway.ReservationGatewayState
-import com.example.g45_kotlin.utilities.getWorkingHours
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
-import kotlin.collections.forEach
 
 @Composable
 fun SessionSelection(modifier: Modifier = Modifier,
@@ -54,7 +53,7 @@ fun SessionSelection(modifier: Modifier = Modifier,
                 )
             }
         }
-        HoursSelector(modifier = modifier.heightIn(max =100.dp), hours = hours, selectedHour = state.selectedHour, onHourSelection=onHourSelection)
+        HoursSelector(modifier = modifier.heightIn(max =100.dp), hours = hours, selectedHour = state.selectedHour, onHourSelection=onHourSelection, workingHours = hours)
     }
 }
 
@@ -63,7 +62,7 @@ fun DaySelector(modifier: Modifier = Modifier,
                 date: LocalDate,
                 selected:Boolean,
                 onClick:() -> Unit){
-    val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+    val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
     val enabled = date >= LocalDate.now()
     val borderWidth = if (selected) 4.dp else 0.dp
 
@@ -94,8 +93,8 @@ fun DaySelector(modifier: Modifier = Modifier,
 }
 
 @Composable()
-fun HoursSelector(modifier: Modifier = Modifier, hours:List<String>, selectedHour:String, onHourSelection:(String) -> Unit) {
-    val horas:List<String> =getWorkingHours()
+fun HoursSelector(modifier: Modifier = Modifier, hours:List<String>, selectedHour:String, onHourSelection:(String) -> Unit, workingHours:List<String>) {
+    val horas:List<String> =workingHours
     LazyVerticalGrid(columns= GridCells.Adaptive(minSize=100.dp), modifier=Modifier.heightIn(min=100.dp, max=120.dp)){
         items(horas.size){
             HourOption(hour = horas[it],
@@ -115,7 +114,7 @@ fun HourOption (modifier: Modifier = Modifier,
                 selected:Boolean,
                 enabled:Boolean,
                 onClick:(String) -> Unit){
-    val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+    val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
     val borderWidth = if (selected) 4.dp else 0.dp
     Surface(modifier=modifier
         .padding(5.dp)
@@ -128,7 +127,8 @@ fun HourOption (modifier: Modifier = Modifier,
     ){
         Text(text=hour,
             modifier=modifier.clickable { onClick(hour) },
-            style=MaterialTheme.typography.titleMedium
+            style=MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center
         )
     }
 }

@@ -1,5 +1,6 @@
 package com.example.g45_kotlin.ui.reservation.gateway
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,9 +15,9 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,21 +36,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.g45_kotlin.ui.LoadingDialog
 import com.example.g45_kotlin.ui.reservation.gateway.components.PaymentSelection
 import com.example.g45_kotlin.ui.reservation.gateway.components.SessionSelection
 import com.example.g45_kotlin.ui.reservation.gateway.components.TutorBanner
-import com.example.g45_kotlin.ui.theme.G45KOTLINTheme
+import com.example.g45_kotlin.ui.theme.AppTheme
 import kotlinx.coroutines.launch
 
 class ReservationGateWayActivity {
     /*TODO*/
-    //Implementar API/ViewModel//
+    //Implementar API/ViewModel/Activity on create/
     @Composable
-    fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationViewModel){
-        val selectionState=viewModel.sessionSelection.collectAsState()
+    fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGatewayViewModel=viewModel()){
+        val selectionState by viewModel.sessionSelection.collectAsState()
         val listState = rememberLazyListState()
         val scope = rememberCoroutineScope()
-        val currentPaymentType = selectionState.value.selectedPaymentType
+        val currentPaymentType = selectionState.selectedPaymentType
 
         LaunchedEffect(currentPaymentType){
             if (currentPaymentType==PaymentType.CARD){
@@ -58,6 +61,7 @@ class ReservationGateWayActivity {
                 }
             }
         }
+        LoadingDialog(show=selectionState.isLoading, modifier=Modifier.requiredSize(200.dp))
         Column(modifier=modifier){
             Spacer(modifier=modifier.height(10.dp))
             Row(modifier=modifier.fillMaxWidth(),
@@ -84,7 +88,7 @@ class ReservationGateWayActivity {
                     state = listState,
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    item { TutorBanner(modifier = modifier.fillMaxWidth()) }
+                    item { TutorBanner(modifier = modifier.fillMaxWidth(), tutorInfo=selectionState.sessionTutor) }
                     item {
                         StepLabel(
                             modifier = modifier,
@@ -93,7 +97,7 @@ class ReservationGateWayActivity {
                         )
                     }
                     item { SessionSelection(modifier = modifier.fillMaxWidth(),
-                        state=selectionState.value,
+                        state=selectionState,
                         onDateSelection = {viewModel.selectDate(it)},
                         onHourSelection = {viewModel.selectHour(it)},
                         days=viewModel.getDates(),
@@ -102,63 +106,64 @@ class ReservationGateWayActivity {
                     ) }
                     item { StepLabel(modifier = modifier, step = 2, label = "Método de Pago") }
                     item { PaymentSelection(modifier = modifier.fillMaxWidth(),
-                        state=selectionState.value,
+                        state=selectionState,
                         paymentMethods= viewModel.getPaymentMethods(),
                         onPaymentMethodSelection = {viewModel.selectPaymentMethod(it)},
                         onPaymentSelection = {viewModel.selectPaymentType(it)}
                         ) }
                 }
-                ConfirmationBanner(modifier = modifier.align(Alignment.BottomCenter), state = selectionState.value)
+                ConfirmationBanner(modifier = modifier.align(Alignment.BottomCenter), state = selectionState)
+
             }
         }
     }
 
 
     @Composable
-    fun ConfirmationBanner(modifier: Modifier = Modifier, state: ReservationGatewayState){
+    fun ConfirmationBanner(modifier: Modifier = Modifier, state: ReservationGatewayState) {
         /*TODO*/
         var showDialog by remember { mutableStateOf(false) }
-        Button(onClick = { /*TODO*/showDialog = true }, modifier=modifier){
-            Text(text="Confirmation Banner",
-                modifier=modifier,
-                style=MaterialTheme.typography.headlineSmall
-            )
-        }
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = {
-                    // Called when the user taps outside or presses the back button
-                    showDialog = false
-                },
-                title = {
-                    Text(text = "Reserva \"exitosa\"")
-                },
-                text = {
-                    Text(text = "Hiciste una reserva para las ${state.selectedHour} del ${state.selectedDate} mediante ${state.selectedPaymentType} ${if (state.selectedPaymentType == PaymentType.CARD) "con ${state.selectedPaymentMethod.number.takeLast(4)}" else ""}")
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            showDialog = false // Dismiss the dialog on button click
-                            // Perform the confirmed action here
-                        }
-                    ) {
-                        Text("OK")
+        Surface(
+            modifier = modifier.fillMaxWidth(),
+            shape=RoundedCornerShape(25.dp),
+            color = MaterialTheme.colorScheme.secondary
+        ){
+            Column(
+                modifier=Modifier,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
+            ){
+                Row(modifier=modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Column(modifier=modifier.fillMaxWidth(fraction=0.25f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceEvenly
+                    ){
+                        Text(
+                            text = "Total a pagar",
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign= TextAlign.Start
+                        )
+                        Text(
+                            text = "$${state.sessionTutor.sessionPrice}",
+                            style = MaterialTheme.typography.headlineLarge,
+                            textAlign= TextAlign.Center
+                        )
                     }
-                },
-                dismissButton = {
-                    Button(
-                        onClick = {
-                            showDialog = false
-                        }
-                    ) {
-                        Text("Ah bueno")
+                    Button(onClick = { /*TODO*/showDialog = true }, modifier = modifier.fillMaxWidth(fraction=0.7f)) {
+                        Text(
+                            text = "Confirmar Reserva",
+                            modifier = modifier,
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign= TextAlign.Center
+                        )
                     }
                 }
-            )
+
+            }
         }
-
-
     }
 
     @Composable
@@ -176,7 +181,7 @@ class ReservationGateWayActivity {
                     .fillMaxSize(),
                     contentAlignment = Alignment.Center){
                     Text(text = "$step",
-                        modifier = modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center
                     )
@@ -189,16 +194,20 @@ class ReservationGateWayActivity {
         }
     }
 
+    @SuppressLint("ViewModelConstructorInComposable")
     @Preview(showBackground = true)
     @Composable
     fun ReservationGateWayPreview(){
-        G45KOTLINTheme(darkTheme = false) {
+        val viewModel: ReservationGatewayViewModel = ReservationGatewayViewModel()
+        AppTheme (darkTheme = true) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = MaterialTheme.colorScheme.surface
             ){
-                ReservationGateWay(modifier = Modifier.padding(5.dp), viewModel = ReservationViewModel())
+                ReservationGateWay(modifier = Modifier.padding(5.dp), viewModel = viewModel)
             }
         }
     }
+
+
 }

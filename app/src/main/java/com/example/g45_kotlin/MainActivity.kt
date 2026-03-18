@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Favorite
@@ -17,18 +16,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.g45_kotlin.ui.theme.G45KOTLINTheme
-import com.example.g45_kotlin.ui.reservation.gateway.ReservationGateWayActivity
-import com.example.g45_kotlin.ui.reservation.gateway.ReservationViewModel
-
+import com.example.g45_kotlin.ui.reservation.summary.ReservationSummary
+import com.example.g45_kotlin.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            G45KOTLINTheme {
+            AppTheme {
                 G45KOTLINApp()
             }
         }
@@ -39,9 +35,9 @@ class MainActivity : ComponentActivity() {
 fun G45KOTLINApp() {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.primaryContainer
+        color = MaterialTheme.colorScheme.surface
     ){
-        ReservationGateWayActivity().ReservationGateWay(modifier = Modifier.padding(5.dp), viewModel = ReservationViewModel())
+        ReservationSummary()
     }
 }
 
@@ -67,11 +63,12 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    G45KOTLINTheme {
-        Surface(modifier = Modifier.fillMaxSize(),
-            color= MaterialTheme.colorScheme.primaryContainer) {
-            G45KOTLINApp()
+    AppTheme(
+        content = {
+            Surface(modifier = Modifier.fillMaxSize(),
+                color= MaterialTheme.colorScheme.surface) {
+            }
         }
+    )
 
-    }
 }

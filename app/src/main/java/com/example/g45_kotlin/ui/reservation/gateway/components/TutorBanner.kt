@@ -20,22 +20,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.g45_kotlin.R
+import com.example.g45_kotlin.ui.reservation.gateway.TutorUser
 
 @Composable
-fun TutorBanner(modifier: Modifier = Modifier){
+fun TutorBanner(modifier: Modifier = Modifier, tutorInfo: TutorUser){
     /*TODO*/
     //Implementar API/ViewModel//
     ElevatedCard(modifier=modifier.clip(RoundedCornerShape(50.dp)), colors= CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.primary,),
+        containerColor = MaterialTheme.colorScheme.secondary),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp
         )){
         Row(modifier=modifier.padding(2.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start) {
-            TutorIcon(modifier=modifier.fillMaxWidth(fraction = 0.40f))
+            TutorIcon(modifier=modifier.fillMaxWidth(fraction = 0.40f), url=tutorInfo.picture)
             Column(modifier=modifier.fillMaxWidth(fraction = 0.60f)) {
-                Text(text="Nombre de Tutor",
+                Text(text=tutorInfo.name,
                     modifier=modifier,
                     style=MaterialTheme.typography.headlineSmall
                 )
@@ -43,7 +44,7 @@ fun TutorBanner(modifier: Modifier = Modifier){
                     modifier=modifier,
                     style=MaterialTheme.typography.bodyMedium
                 )
-                Text(text="★ Puntaje",
+                Text(text="${tutorInfo.currentRating}",
                     modifier=modifier,
                     style=MaterialTheme.typography.bodyMedium
                 )

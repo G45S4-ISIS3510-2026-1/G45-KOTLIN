@@ -35,7 +35,6 @@ import com.example.g45_kotlin.R
 import com.example.g45_kotlin.ui.reservation.gateway.PaymentMethod
 import com.example.g45_kotlin.ui.reservation.gateway.PaymentType
 import com.example.g45_kotlin.ui.reservation.gateway.ReservationGatewayState
-import kotlin.collections.forEach
 
 @Composable
 fun PaymentSelection(modifier: Modifier = Modifier,
@@ -67,7 +66,7 @@ fun PaymentSelection(modifier: Modifier = Modifier,
 
 @Composable
 fun PaymentOption(modifier:Modifier, type: PaymentType, selected:Boolean, onClick: (PaymentType) -> Unit){
-    val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+    val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
     val borderWidth = if (selected) 4.dp else 0.dp
     val label = when (type) {
         PaymentType.RECEIPT -> "Recibo Uniandes"
@@ -91,7 +90,7 @@ fun PaymentOption(modifier:Modifier, type: PaymentType, selected:Boolean, onClic
             Icon(
                 painter = painterResource(id = icono),
                 contentDescription = "PaymentTypeIcon",
-                tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary,
                 modifier = Modifier.requiredSize(50.dp)
             )
             Spacer(modifier=Modifier.width(10.dp))
@@ -107,7 +106,7 @@ fun PaymentOption(modifier:Modifier, type: PaymentType, selected:Boolean, onClic
 fun PaymentMethodGroupSelector(modifier: Modifier, paymentMethods: MutableSet<PaymentMethod>, onSelection: (PaymentMethod) -> Unit, state: ReservationGatewayState) {
 
     val currentMethod = state.selectedPaymentMethod
-    Surface(modifier= Modifier, shape=RoundedCornerShape(50.dp)){
+    Surface(modifier= Modifier, shape=RoundedCornerShape(50.dp), color = MaterialTheme.colorScheme.secondary){
         Column(Modifier.selectableGroup()) {
             Spacer(Modifier.requiredHeight(100.dp))
             paymentMethods.forEach { method ->
