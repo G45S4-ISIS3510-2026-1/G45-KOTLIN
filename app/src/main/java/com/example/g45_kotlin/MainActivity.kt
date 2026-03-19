@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -23,8 +23,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.example.g45_kotlin.ui.theme.G45KOTLINTheme
+import com.example.g45_kotlin.ui.tutor.catalog.CatalogoScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun G45KOTLINApp() {
-    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
+    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.CATALOGO) }
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -59,12 +59,27 @@ fun G45KOTLINApp() {
             }
         }
     ) {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Greeting(
-                name = "Android",
-                modifier = Modifier.padding(innerPadding)
-            )
+        when (currentDestination) {
+            AppDestinations.CATALOGO -> {
+                CatalogoScreen()
+            }
+            AppDestinations.FAVORITES -> {
+                PlaceholderScreen("Favoritos")
+            }
+            AppDestinations.PROFILE -> {
+                PlaceholderScreen("Perfil")
+            }
         }
+    }
+}
+
+@Composable
+fun PlaceholderScreen(name: String) {
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Greeting(
+            name = name,
+            modifier = Modifier.padding(innerPadding)
+        )
     }
 }
 
@@ -72,17 +87,17 @@ enum class AppDestinations(
     val label: String,
     val icon: ImageVector,
 ) {
-    HOME("Home", Icons.Default.Home),
-    FAVORITES("Favorites", Icons.Default.Favorite),
-    PROFILE("Profile", Icons.Default.AccountBox),
+    CATALOGO("Catálogo", Icons.Default.Search),
+    FAVORITES("Favoritos", Icons.Default.Favorite),
+    PROFILE("Perfil", Icons.Default.AccountBox),
 }
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
-        text = "Hello $name!",
+        text = "Pantalla de $name",
         modifier = modifier,
-        style = MaterialTheme.typography.bodyLarge
+        style = MaterialTheme.typography.headlineMedium
     )
 }
 
@@ -90,6 +105,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     G45KOTLINTheme {
-        Greeting("Android")
+        Greeting("Catálogo")
     }
 }
