@@ -16,7 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.g45_kotlin.ui.reservation.summary.ReservationSummary
+import com.example.g45_kotlin.ui.auth.LoginScreen
+import com.example.g45_kotlin.ui.home.HomeScreen
 import com.example.g45_kotlin.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,7 +25,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppTheme {
+            AppTheme(darkTheme = true) {
                 G45KOTLINApp()
             }
         }
@@ -37,7 +38,7 @@ fun G45KOTLINApp() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface
     ){
-        ReservationSummary()
+        LoginScreen()
     }
 }
 
