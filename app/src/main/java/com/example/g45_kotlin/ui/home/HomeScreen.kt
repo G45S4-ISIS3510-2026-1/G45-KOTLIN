@@ -1,0 +1,152 @@
+package com.example.g45_kotlin.ui.home
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.g45_kotlin.data.user.TutorSummaryDto
+
+@Composable
+fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+    val state by viewModel.state.collectAsState()
+
+    Scaffold(
+        bottomBar = {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ) {
+                NavigationBarItem(icon = { Icon(Icons.Default.Home, "Inicio") }, label = { Text("Inicio") }, selected = true, onClick = {})
+                NavigationBarItem(icon = { Icon(Icons.Default.Search, "Catálogo") }, label = { Text("Catálogo") }, selected = false, onClick = {})
+                NavigationBarItem(icon = { Icon(Icons.Default.DateRange, "Agenda") }, label = { Text("Agenda") }, selected = false, onClick = {})
+                NavigationBarItem(icon = { Icon(Icons.Default.Person, "Perfil") }, label = { Text("Perfil") }, selected = false, onClick = {})
+            }
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+
+            // Saludo
+            item {
+                Text(
+                    text = "¡Hola, ${state.userName}!",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            // Próxima Sesión
+            item {
+                Text("Próxima Sesión", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(modifier = Modifier.height(12.dp))
+                if (state.nextSession == null) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Box(modifier = Modifier.padding(24.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            Text("No hay próxima sesión programada", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                } else {
+                    // Aquí iría el diseño de la sesión
+                }
+            }
+
+            // Botones de Acción
+            item {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Button(
+                        onClick = {},
+                        modifier = Modifier.weight(1f).height(100.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Add, null)
+                            Text("Agendar Tutoría", textAlign = androidx.compose.ui.text.style.TextAlign.Center, fontSize = 12.sp)
+                        }
+                    }
+                    Button(
+                        onClick = {},
+                        modifier = Modifier.weight(1f).height(100.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Star, null)
+                            Text("Ser Tutor", textAlign = androidx.compose.ui.text.style.TextAlign.Center, fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
+
+            // Tutores Destacados
+            item {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text("Tutores Destacados", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    TextButton(onClick = {}) { Text("Ver todos") }
+                }
+            }
+
+            if (state.isLoading) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+            } else {
+                items(state.featuredTutors) { tutor ->
+                    TutorItem(tutor)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TutorItem(tutor: TutorSummaryDto) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(modifier = Modifier.size(50.dp), shape = RoundedCornerShape(25.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+                Box(contentAlignment = Alignment.Center) { Text(tutor.name.take(1)) }
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(tutor.name, fontWeight = FontWeight.Bold)
+                Text(tutor.major, fontSize = 12.sp, color = Color.Gray)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Star, null, tint = Color(0xFFFFD700), modifier = Modifier.size(16.dp))
+                Text(tutor.average_rating.toString(), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}

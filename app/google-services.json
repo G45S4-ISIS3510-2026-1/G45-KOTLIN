@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "442653183551",
+    "project_id": "mobileapps-g45-tutoriauniandes",
+    "storage_bucket": "mobileapps-g45-tutoriauniandes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:442653183551:android:68cc8e2fad2cd6b216728a",
+        "android_client_info": {
+          "package_name": "com.uniandes.tutorias_g45k"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD16FnzXBgDUzTOi0Xeh0UveuKepdS2vBw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
