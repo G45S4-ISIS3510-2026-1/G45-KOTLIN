@@ -55,7 +55,6 @@ fun LoadingDialog(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    // Animación de carga
                     CircularProgressIndicator(
                         modifier = Modifier.size(48.dp),
                         color = MaterialTheme.colorScheme.primary,
@@ -64,7 +63,6 @@ fun LoadingDialog(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Texto
                     Text(
                         text = "Cargando...",
                         style = MaterialTheme.typography.headlineMedium,
