@@ -6,9 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.g45_kotlin"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.uniandes.tutorias_g45k"
@@ -44,8 +42,12 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.zxing.android.embedded)
+    
+    // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.10.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    
     implementation(libs.coil.compose)
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.core.ktx)

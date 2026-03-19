@@ -1,0 +1,117 @@
+package com.example.g45_kotlin.ui.auth
+
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.OAuthProvider
+
+@Composable
+fun LoginScreen(
+    viewModel: LoginViewModel = viewModel()
+) {
+    val context = LocalContext.current
+    val state by viewModel.state.collectAsState()
+
+    fun signInWithMicrosoft() {
+        viewModel.onLoginStarted()
+        val provider = OAuthProvider.newBuilder("microsoft.com")
+        provider.addCustomParameter("prompt", "select_account")
+        
+        val auth = FirebaseAuth.getInstance()
+        auth.startActivityForSignInWithProvider(context as ComponentActivity, provider.build())
+            .addOnSuccessListener { 
+                viewModel.onLoginSuccess()
+                Toast.makeText(context, "Bienvenido", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                viewModel.onLoginError(e.message ?: "Error desconocido")
+                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.background,
+                            MaterialTheme.colorScheme.surfaceVariant,
+                            MaterialTheme.colorScheme.background
+                        )
+                    )
+                )
+        ) {
+            // Contenido del Login
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 40.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (state.isLoading) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                } else {
+
+                    Surface(
+                        modifier = Modifier.size(95.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                        shape = RoundedCornerShape(28.dp),
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(text = "🎓", fontSize = 42.sp)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Text(
+                        text = "Tutorias Uniandes",
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(48.dp))
+
+                    Button(
+                        onClick = { signInWithMicrosoft() },
+                        modifier = Modifier.fillMaxWidth().height(54.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        shape = RoundedCornerShape(27.dp)
+                    ) {
+                        Text(text = "Continuar con Microsoft", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+    }
+}
