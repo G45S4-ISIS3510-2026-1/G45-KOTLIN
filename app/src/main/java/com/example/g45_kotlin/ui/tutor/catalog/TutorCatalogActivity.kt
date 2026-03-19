@@ -9,14 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.g45_kotlin.ui.theme.G45KOTLINTheme
+import com.example.g45_kotlin.ui.theme.AppTheme
 
 class TutorCatalogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            G45KOTLINTheme {
+            AppTheme() {
                 CatalogoScreen()
             }
         }

@@ -88,7 +88,7 @@ fun MainScreen(modifier: Modifier = Modifier, navController: NavHostController= 
             composable(Routes.home) { Text(text="Inicio")}
             composable(Routes.catalog) { Text(text="Catalogo")}
             composable(Routes.agenda) { PendingPage(modifier=Modifier.fillMaxSize())}
-            composable(Routes.messages) { Text(text="Mensajes")}
+            composable(Routes.messages) { PendingPage(modifier=Modifier.fillMaxSize())}
             composable(Routes.profile) { Text(text="Perfil")}
             composable(Routes.tutorDetail) { Text(text="Tutor Detail")}
             composable(Routes.reservationSummary+"/{session_id}") { Text(text="Reservation Summary")}

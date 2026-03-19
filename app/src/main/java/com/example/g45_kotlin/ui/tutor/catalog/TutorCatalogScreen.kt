@@ -49,7 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.g45_kotlin.ui.theme.G45KOTLINTheme
+import com.example.g45_kotlin.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -334,7 +334,7 @@ fun TutorCard(tutor: Tutor, onClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun CatalogoPreview() {
-    G45KOTLINTheme {
+    AppTheme {
         val mockState = CatalogoUiState(
             tutores = listOf(
                 Tutor("1", "Preview Tutor", "Carrera", "Ingeniería", listOf("Tag1"), "$10/h", 10000, "5.0", Color.Cyan)

@@ -44,7 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.g45_kotlin.ui.theme.G45KOTLINTheme
+import com.example.g45_kotlin.ui.theme.AppTheme
 
 @Composable
 fun TutorDetailScreen(tutor: Tutor, onBack: () -> Unit) {
@@ -338,7 +338,7 @@ fun ReviewCard(reseña: Reseña, colorScheme: androidx.compose.material3.ColorSc
 @Preview(showBackground = true)
 @Composable
 fun DetailPreview() {
-    G45KOTLINTheme {
+    AppTheme {
         TutorDetailScreen(
             tutor = Tutor(
                 id = "1",
