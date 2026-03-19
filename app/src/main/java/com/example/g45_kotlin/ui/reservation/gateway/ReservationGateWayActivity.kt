@@ -111,8 +111,9 @@ class ReservationGateWayActivity {
                         onPaymentMethodSelection = {viewModel.selectPaymentMethod(it)},
                         onPaymentSelection = {viewModel.selectPaymentType(it)}
                         ) }
+                    item { Spacer(modifier = modifier.height(100.dp)) }
                 }
-                ConfirmationBanner(modifier = modifier.align(Alignment.BottomCenter), state = selectionState)
+                ConfirmationBanner(modifier = modifier.align(Alignment.BottomCenter), state = selectionState, onConfirm = {viewModel.registerSession()})
 
             }
         }
@@ -120,7 +121,7 @@ class ReservationGateWayActivity {
 
 
     @Composable
-    fun ConfirmationBanner(modifier: Modifier = Modifier, state: ReservationGatewayState) {
+    fun ConfirmationBanner(modifier: Modifier = Modifier, state: ReservationGatewayState, onConfirm: () -> Unit = {}) {
         /*TODO*/
         var showDialog by remember { mutableStateOf(false) }
         Surface(
@@ -152,7 +153,7 @@ class ReservationGateWayActivity {
                             textAlign= TextAlign.Center
                         )
                     }
-                    Button(onClick = { /*TODO*/showDialog = true }, modifier = modifier.fillMaxWidth(fraction=0.7f)) {
+                    Button(onClick = {onConfirm()}, modifier = modifier.fillMaxWidth(fraction=0.7f)) {
                         Text(
                             text = "Confirmar Reserva",
                             modifier = modifier,
