@@ -3,6 +3,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.g45_kotlin.data.reservation.ReservationRepository
+import com.example.g45_kotlin.data.reservation.SessionDto
+import com.example.g45_kotlin.data.reservation.SkillDto
 import com.example.g45_kotlin.utilities.getDaysOfCurrentWeek
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +14,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 
 enum class PaymentType {
@@ -33,8 +36,14 @@ class ReservationGatewayViewModel():ViewModel(/*savedStateHandle*/ ) {
     //Fetch from API//
     val mockUser: TutorUser = TutorUser()
 
-    val tesTutorId="3kN2ROLVPylTO4d85dA3"
-    val testStudentId="63yxDXGgQFpI1JgkpfZY"
+    val tesTutorId="58PqX2xVHy1Lv3cz54r5"
+    val testStudentId="JUk1eiohzohYZfWs3fle"
+    val testinSkill= SkillDto(
+        id="2uHReQcbxH9sxpvdD91r",
+        major = "Música",
+        label = "",
+        iconUrl = ""
+    )
 
     private val _sessionSelection = MutableStateFlow(ReservationGatewayState())
     val sessionSelection: StateFlow<ReservationGatewayState> =_sessionSelection.asStateFlow()
@@ -96,13 +105,42 @@ class ReservationGatewayViewModel():ViewModel(/*savedStateHandle*/ ) {
     }
 
     fun parsecheduling():String {
-        val hour = currentHour
+        val hour = LocalTime.parse(currentHour)
         val day = currentDate
-        val date = LocalDateTime.of(
-            day,
-            Instant.parse(hour).atZone(ZoneId.systemDefault()).toLocalDateTime().toLocalTime()
-        )
+        val date = LocalDateTime.of(day, hour)
         return date.toString()
+    }
+
+    fun registerSession(){
+        if(this::currentHour.isInitialized){
+            val scheduling=parsecheduling()
+            Log.d("ReservationGatewayViewModel", "Scheduling: $scheduling")
+            _sessionSelection.value = _sessionSelection.value.copy(isLoading = true)
+            viewModelScope.launch(Dispatchers.IO){
+                val session= SessionDto(
+                    id = null,
+                    studentId = testStudentId,
+                    tutorId = tesTutorId,
+                    skill = testinSkill,
+                    scheduledAt = scheduling,
+                    status = "Pendiente",
+                    verifCode = null
+                )
+                try{
+                    val response=reservationRep.createSession(session)
+                    if (response.isSuccessful){
+                        Log.d("ReservationGatewayViewModel", "Session created successfully")
+                    }else{
+                        Log.d("ReservationGatewayViewModel", "Error creating session: ${response.errorBody()?.string()}")
+                    }
+
+                    _sessionSelection.value = _sessionSelection.value.copy(isLoading = false)
+                }catch (e:Exception){
+                    Log.d("ReservationGatewayViewModel", "Error creating session: ${e.message}")
+                    _sessionSelection.value = _sessionSelection.value.copy(isLoading = false)
+                }
+            }
+        }
     }
 
 
@@ -148,5 +186,7 @@ class ReservationGatewayViewModel():ViewModel(/*savedStateHandle*/ ) {
 
     init {
         fetchData()
+        paymentMethods.clear()
+        mockPayments.forEach { addPaymentMethod(it) }
     }
 }

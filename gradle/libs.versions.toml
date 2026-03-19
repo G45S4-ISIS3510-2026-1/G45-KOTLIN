@@ -1,5 +1,5 @@
 [versions]
-agp = "9.0.0"
+agp = "9.1.0"
 coilCompose = "2.7.0"
 converterGson = "3.0.0"
 coreKtx = "1.17.0"
@@ -19,6 +19,7 @@ material3 = "1.4.0"
 animation = "1.10.3"
 firebaseMessaging = "25.0.1"
 zxingAndroidEmbedded = "4.3.0"
+navigationCompose = "2.9.7"
 
 [libraries]
 androidx-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIconsCore" }
@@ -51,6 +52,7 @@ androidx-compose-animation = { group = "androidx.compose.animation", name = "ani
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroidEmbedded" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
