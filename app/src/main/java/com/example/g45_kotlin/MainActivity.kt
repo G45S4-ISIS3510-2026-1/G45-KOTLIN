@@ -8,7 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.g45_kotlin.ui.auth.LoginScreen
 import com.example.g45_kotlin.ui.theme.AppTheme
 
-class MainActivity2 : ComponentActivity() {
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -21,17 +21,6 @@ class MainActivity2 : ComponentActivity() {
     }
 }
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            AppTheme {
-                LoginScreen()
-            }
-        }
-    }
-}
 
 
 
