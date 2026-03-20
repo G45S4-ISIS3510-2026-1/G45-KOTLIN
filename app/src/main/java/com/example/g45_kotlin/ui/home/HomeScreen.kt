@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -18,10 +19,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.example.g45_kotlin.utilities.AnalyticsManager
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     val state by viewModel.state.collectAsState()
+
+    // Reportamos a Analytics que estamos en el servicio de Home
+    LaunchedEffect(Unit) {
+        AnalyticsManager.setCurrentService("HOME_SERVICE")
+    }
 
     Scaffold(
         bottomBar = {
@@ -118,6 +125,13 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             } else {
                 items(state.featuredTutors) { tutor ->
                     TutorItem(tutor)
+                }
+            }
+            
+            // Botón de prueba para simular error en Home (Borrar luego de testear)
+            item {
+                TextButton(onClick = { throw RuntimeException("Error de prueba para Santiago en HOME") }) {
+                    Text("Simular Error en Home", color = Color.Gray.copy(alpha = 0.5f))
                 }
             }
         }
