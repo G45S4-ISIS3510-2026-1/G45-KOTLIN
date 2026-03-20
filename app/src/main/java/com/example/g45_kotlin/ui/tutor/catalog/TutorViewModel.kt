@@ -2,6 +2,7 @@ package com.example.g45_kotlin.ui.tutor.catalog
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.g45_kotlin.data.catalog.TutorRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -9,7 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class TutorViewModel(
-    private val repository: TutorRepository = TutorRepository()
+    private val repository: TutorRepository = TutorRepository(),
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CatalogoUiState())
     val uiState: StateFlow<CatalogoUiState> = _uiState.asStateFlow()

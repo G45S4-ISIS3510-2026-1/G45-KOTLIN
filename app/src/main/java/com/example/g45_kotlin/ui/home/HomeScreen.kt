@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.example.g45_kotlin.ui.LoadingDialog
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
@@ -25,17 +26,10 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 
     Scaffold(
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ) {
-                NavigationBarItem(icon = { Icon(Icons.Default.Home, "Inicio") }, label = { Text("Inicio") }, selected = true, onClick = {})
-                NavigationBarItem(icon = { Icon(Icons.Default.Search, "Catálogo") }, label = { Text("Catálogo") }, selected = false, onClick = {})
-                NavigationBarItem(icon = { Icon(Icons.Default.DateRange, "Agenda") }, label = { Text("Agenda") }, selected = false, onClick = {})
-                NavigationBarItem(icon = { Icon(Icons.Default.Person, "Perfil") }, label = { Text("Perfil") }, selected = false, onClick = {})
-            }
+
         }
     ) { padding ->
+        LoadingDialog(show = state.isLoading)
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -49,8 +43,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             item {
                 Text(
                     text = "¡Hola, ${state.userName}!",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.displayMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
@@ -116,8 +109,13 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                     }
                 }
             } else {
-                items(state.featuredTutors) { tutor ->
-                    TutorItem(tutor)
+                item {
+                    LazyColumn(modifier=Modifier.heightIn(min=100.dp, max=200.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)){
+                        items(state.featuredTutors) { tutor ->
+                            TutorItem(tutor)
+                        }
+                    }
                 }
             }
         }
@@ -141,7 +139,7 @@ fun TutorItem(tutor: TutorSummaryDto) {
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(tutor.name, fontWeight = FontWeight.Bold)
-                Text(tutor.major, fontSize = 12.sp, color = Color.Gray)
+                Text(tutor.major, style=MaterialTheme.typography.bodySmall)
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Star, null, tint = Color(0xFFFFD700), modifier = Modifier.size(16.dp))

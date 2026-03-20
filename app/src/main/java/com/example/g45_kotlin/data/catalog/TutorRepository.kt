@@ -1,6 +1,8 @@
-package com.example.g45_kotlin.ui.tutor.catalog
+package com.example.g45_kotlin.data.catalog
 
 import androidx.compose.ui.graphics.Color
+import com.example.g45_kotlin.ui.tutor.catalog.Reseña
+import com.example.g45_kotlin.ui.tutor.catalog.Tutor
 
 class TutorRepository(private val apiService: ApiService = RetrofitClient.apiService) {
     
@@ -19,7 +21,8 @@ class TutorRepository(private val apiService: ApiService = RetrofitClient.apiSer
                     rating = res.averageRating?.toString() ?: "4.8",
                     colorAvatar = Color.Gray,
                     email = res.email,
-                    descripcion = res.bio ?: "Estudiante destacado con amplia experiencia en las materias mencionadas."
+                    descripcion = res.bio
+                        ?: "Estudiante destacado con amplia experiencia en las materias mencionadas."
                 )
             }
             Result.success(tutores)
@@ -51,7 +54,7 @@ class TutorRepository(private val apiService: ApiService = RetrofitClient.apiSer
                 descripcion = res.bio ?: "Sin descripción.",
                 email = res.email,
                 reseñas = reviewsRes.map { rev ->
-                    Reseña(
+                    `Reseña`(
                         autor = "Usuario",
                         fecha = formatearFecha(rev.createdAt),
                         estrellas = rev.rating.toInt(),

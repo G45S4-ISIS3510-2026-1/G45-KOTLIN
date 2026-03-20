@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.g45_kotlin.data.auth.AuthHolder
+import com.example.g45_kotlin.data.auth.AuthRepository
 import com.example.g45_kotlin.data.reservation.ReservationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +21,7 @@ class ReservationSummaryViewModel  (
     private val savedStateHandle: SavedStateHandle
 ):ViewModel(){
     private val reservationRepository = ReservationRepository
+    private val authRepository=AuthHolder.authRepo
 
 
     private val _summaryState = MutableStateFlow(ReservationSummaryState(isLoading = savedStateHandle["isLoading"] as? Boolean  ?: false))
@@ -30,9 +33,12 @@ class ReservationSummaryViewModel  (
     val testingId="PD54rQeGzxAye0mcIuwd"
     val testingVerifCode="540CL3213123"
 
-    private val sessionId:String=savedStateHandle["reservationId"] as String? ?: testingId
+    private val sessionId:String=savedStateHandle["session_id"] as String? ?: testingId
 
-    val isTutor=false
+    val isTutor= authRepository.getCurrentUser()?.uid==summaryState.value.tutor.id
+
+
+
 
     fun verifyScanCode(code:String){
         viewModelScope.launch(Dispatchers.IO){
@@ -64,7 +70,7 @@ class ReservationSummaryViewModel  (
         viewModelScope.launch(Dispatchers.IO){
             _summaryState.value=_summaryState.value.copy(isLoading = true)
             try{
-                val response=reservationRepository.cancelSession(testingId)
+                val response=reservationRepository.cancelSession(sessionId)
                 if (response.isSuccessful){
                     _summaryState.update{it.copy(status = Status.CANCELLED)}
                 _summaryState.value=_summaryState.value.copy(isLoading = false)
@@ -135,6 +141,8 @@ class ReservationSummaryViewModel  (
                             student = student
                         )
                     }
+                }else{
+                    _summaryState.value=_summaryState.value.copy(isLoading = false)
                 }
 
                 Log.d("ReservationSummaryViewModel", "Session data fetched. ${summaryState.value}")

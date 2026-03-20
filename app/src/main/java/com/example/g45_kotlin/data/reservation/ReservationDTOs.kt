@@ -29,10 +29,10 @@ data class ParticipantDto(
 )
 
 data class AvailabilityDto(
-    val monday: List<String>,
-    val tuesday: List<String>,
-    val wednesday: List<String>,
-    val thursday: List<String>,
-    val friday: List<String>,
-    val saturday: List<String>
+    val monday: List<String> = emptyList(),
+    val tuesday: List<String> = emptyList(),
+    val wednesday: List<String> = emptyList(),
+    val thursday: List<String> = emptyList(),
+    val friday: List<String> = emptyList(),
+    val saturday: List<String> = emptyList()
 )
