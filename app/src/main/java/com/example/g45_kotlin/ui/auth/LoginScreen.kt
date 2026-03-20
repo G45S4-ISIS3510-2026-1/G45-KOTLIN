@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.g45_kotlin.utilities.AnalyticsManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
 
@@ -30,6 +32,11 @@ fun LoginScreen(
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
+
+    // Reportamos a Analytics que estamos en el servicio de Autenticación
+    LaunchedEffect(Unit) {
+        AnalyticsManager.setCurrentService("AUTH_SERVICE")
+    }
 
     fun signInWithMicrosoft() {
         viewModel.onLoginStarted()
@@ -44,6 +51,8 @@ fun LoginScreen(
             }
             .addOnFailureListener { e ->
                 viewModel.onLoginError(e.message ?: "Error desconocido")
+                // También logueamos el error de forma personalizada
+                AnalyticsManager.logError("AUTH_SERVICE", "Login fallido: ${e.message}", e as? Exception)
                 Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             }
             .addOnCompleteListener {task->
@@ -123,9 +132,13 @@ fun LoginScreen(
                     ) {
                         Text(text = "Continuar con Microsoft", fontWeight = FontWeight.Bold)
                     }
+                    
+                    // Botón de prueba para simular error (Borrar luego de testear)
+                    TextButton(onClick = { throw RuntimeException("Error de prueba para Santiago en AUTH") }) {
+                        Text("Simular Error en Auth", color = Color.Gray.copy(alpha = 0.5f))
+                    }
                 }
             }
         }
     }
 }
-

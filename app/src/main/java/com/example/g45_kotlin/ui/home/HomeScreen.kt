@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -18,11 +19,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.example.g45_kotlin.utilities.AnalyticsManager
 import com.example.g45_kotlin.ui.LoadingDialog
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     val state by viewModel.state.collectAsState()
+    LaunchedEffect(Unit) {
+        AnalyticsManager.setCurrentService("HOME_SERVICE")
+    }
 
     Scaffold(
         bottomBar = {
