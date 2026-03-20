@@ -15,6 +15,9 @@ interface SessionApi {
     @POST("sessions/")
     suspend fun createSession(@Body session: SessionDto): Response<SessionDto>
 
+    @GET("sessions/")
+    suspend fun getAllSessions(): Response<List<SessionDto>>
+
     @GET("sessions/{sessionId}")
     suspend fun getSession(@Path("sessionId") sessionId: String): Response<SessionDto>
 

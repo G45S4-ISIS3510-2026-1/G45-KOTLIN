@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.sp
 import com.example.g45_kotlin.ui.theme.AppTheme
 
 @Composable
-fun TutorDetailScreen(tutor: Tutor, onBack: () -> Unit) {
+fun TutorDetailScreen(tutor: Tutor, onBack: () -> Unit, onBook: () -> Unit ={}) {
     val colorScheme = MaterialTheme.colorScheme
 
     Surface(
@@ -254,7 +254,7 @@ fun TutorDetailScreen(tutor: Tutor, onBack: () -> Unit) {
                     .padding(24.dp)
             ) {
                 Button(
-                    onClick = { },
+                    onClick = {onBook()},
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(64.dp),

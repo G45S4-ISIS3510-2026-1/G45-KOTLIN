@@ -1,5 +1,6 @@
 package com.example.g45_kotlin.ui.reservation.gateway
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.g45_kotlin.data.reservation.ReservationRepository
@@ -23,7 +24,7 @@ enum class PaymentType {
 }
 
 
-class ReservationGatewayViewModel():ViewModel(/*savedStateHandle*/ ) {
+class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel() {
     private val reservationRep = ReservationRepository
     /*TODO*/
     //Fetch from API//
@@ -37,9 +38,9 @@ class ReservationGatewayViewModel():ViewModel(/*savedStateHandle*/ ) {
     val mockUser: TutorUser = TutorUser()
 
     val tesTutorId="58PqX2xVHy1Lv3cz54r5"
-    val testStudentId="JUk1eiohzohYZfWs3fle"
+    val testStudentId="zkTm5R9xU2d5rbmlKfl5"
     val testinSkill= SkillDto(
-        id="2uHReQcbxH9sxpvdD91r",
+        id="032n4ymNojuQXynRwBHg",
         major = "Música",
         label = "",
         iconUrl = ""
@@ -111,7 +112,7 @@ class ReservationGatewayViewModel():ViewModel(/*savedStateHandle*/ ) {
         return date.toString()
     }
 
-    fun registerSession(){
+    fun registerSession(onSuccess:(String)->Unit={}){
         if(this::currentHour.isInitialized){
             val scheduling=parsecheduling()
             Log.d("ReservationGatewayViewModel", "Scheduling: $scheduling")
@@ -129,19 +130,23 @@ class ReservationGatewayViewModel():ViewModel(/*savedStateHandle*/ ) {
                 try{
                     val response=reservationRep.createSession(session)
                     if (response.isSuccessful){
+                        onSuccess(response.body()?.id ?: "")
                         Log.d("ReservationGatewayViewModel", "Session created successfully")
                     }else{
-                        Log.d("ReservationGatewayViewModel", "Error creating session: ${response.errorBody()?.string()}")
+                        Log.d("ReservationGatewayViewModel111", "Error creating session: ${response.errorBody()?.string()}")
                     }
 
                     _sessionSelection.value = _sessionSelection.value.copy(isLoading = false)
                 }catch (e:Exception){
-                    Log.d("ReservationGatewayViewModel", "Error creating session: ${e.message}")
+                    Log.d("ReservationGatewayViewModel222", "Error creating session: ${e.message}")
                     _sessionSelection.value = _sessionSelection.value.copy(isLoading = false)
                 }
             }
         }
     }
+
+    val tutorId=savedStateHandle.get<String>("tutor_id") ?: tesTutorId
+
 
 
     private fun fetchData (){
@@ -155,7 +160,7 @@ class ReservationGatewayViewModel():ViewModel(/*savedStateHandle*/ ) {
         _sessionSelection.value = _sessionSelection.value.copy(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
             try{
-                val response=reservationRep.getParticipant(tesTutorId)
+                val response=reservationRep.getParticipant(tutorId)
                 if (response.isSuccessful){
                     val tutorData=response.body()
                     val tutor=TutorUser(
