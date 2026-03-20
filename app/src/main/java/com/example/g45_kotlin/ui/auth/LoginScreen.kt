@@ -27,7 +27,8 @@ import com.google.firebase.auth.OAuthProvider
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = viewModel(),
+    onLoginSuccess: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
@@ -44,8 +45,8 @@ fun LoginScreen(
         
         val auth = FirebaseAuth.getInstance()
         auth.startActivityForSignInWithProvider(context as ComponentActivity, provider.build())
-            .addOnSuccessListener { 
-                viewModel.onLoginSuccess()
+            .addOnSuccessListener {
+                viewModel.onLoginSuccess(onLoginSuccess)
                 Toast.makeText(context, "Bienvenido", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { e ->
@@ -54,6 +55,18 @@ fun LoginScreen(
                 AnalyticsManager.logError("AUTH_SERVICE", "Login fallido: ${e.message}", e as? Exception)
                 Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             }
+            .addOnCompleteListener {task->
+                if(task.isSuccessful){
+                    val user=task.result?.user
+                    val isNewUser=task.result?.additionalUserInfo?.isNewUser
+                    if (isNewUser==true){
+                        viewModel.onNewLogin()
+                    }else{
+                        viewModel.onPreviousLogin()
+                    }
+                }
+            }
+
     }
 
     Scaffold(

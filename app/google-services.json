@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:442653183551:android:895e5f9695ffe01116728a",
+        "android_client_info": {
+          "package_name": "com.example.g45_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD16FnzXBgDUzTOi0Xeh0UveuKepdS2vBw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:442653183551:android:68cc8e2fad2cd6b216728a",
         "android_client_info": {
           "package_name": "com.uniandes.tutorias_g45k"

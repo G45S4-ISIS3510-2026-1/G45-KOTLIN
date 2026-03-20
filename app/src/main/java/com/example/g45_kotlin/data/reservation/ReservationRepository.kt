@@ -32,6 +32,10 @@ object ReservationRepository {
     suspend fun createSession (session: SessionDto): Response<SessionDto>{
         return apiService.createSession(session)
     }
+
+    suspend fun getAll(): Response<List<SessionDto>> {
+        return apiService.getAllSessions()
+    }
 }
 
 
