@@ -21,12 +21,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.g45_kotlin.data.user.TutorSummaryDto
 import com.example.g45_kotlin.utilities.AnalyticsManager
 import com.example.g45_kotlin.ui.LoadingDialog
+import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     val state by viewModel.state.collectAsState()
     LaunchedEffect(Unit) {
         AnalyticsManager.setCurrentService("HOME_SERVICE")
+        GoogleAnalyticsService.logScreenAccess("HomeScreen")
     }
 
     Scaffold(

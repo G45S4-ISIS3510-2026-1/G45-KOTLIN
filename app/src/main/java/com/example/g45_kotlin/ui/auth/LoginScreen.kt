@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.g45_kotlin.utilities.AnalyticsManager
+import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
 
@@ -36,6 +37,7 @@ fun LoginScreen(
     // Reportamos a Analytics que estamos en el servicio de Autenticación
     LaunchedEffect(Unit) {
         AnalyticsManager.setCurrentService("AUTH_SERVICE")
+        GoogleAnalyticsService.logScreenAccess("LoginScreen")
     }
 
     fun signInWithMicrosoft() {

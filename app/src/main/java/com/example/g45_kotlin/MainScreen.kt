@@ -53,6 +53,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.g45_kotlin.data.auth.AuthHolder
 import com.example.g45_kotlin.ui.auth.LoginScreen
 import com.example.g45_kotlin.ui.home.HomeScreen
+import com.example.g45_kotlin.ui.provisional_profile.ProvisionalScreen
 import com.example.g45_kotlin.ui.reservation.gateway.ReservationGateWay
 import com.example.g45_kotlin.ui.reservation.summary.ReservationSummary
 import com.example.g45_kotlin.ui.theme.AppTheme
@@ -141,30 +142,24 @@ fun MainScreen(modifier: Modifier = Modifier,
             composable(Routes.messages) { PendingPage(modifier=Modifier.fillMaxSize())}
             composable(Routes.profile) {
                 Surface(modifier=Modifier.fillMaxSize()){
-                    Box(contentAlignment = Alignment.Center){
-                        Button(onClick = {
-                            scope.launch(Dispatchers.IO) {
-                                authRepository.signOut();
-                            }
-                            navController.navigate(route= Routes.home){
-                                popUpTo(Routes.home) {
-                                    inclusive = false
+                    Column(verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.CenterHorizontally){
+                        ProvisionalScreen(onReservationClick = {id->navController.navigate(Routes.reservationSummary+"/${id}")})
+                        Box(contentAlignment = Alignment.Center){
+                            Button(onClick = {
+                                scope.launch(Dispatchers.IO) {
+                                    authRepository.signOut();
                                 }
-                                launchSingleTop = true
+                                navController.navigate(route= Routes.home){
+                                    popUpTo(Routes.home) {
+                                        inclusive = false
+                                    }
+                                    launchSingleTop = true
+                                }
+                                isLogged=false
+                            }) {
+                                Text(text = "Sign Out")
                             }
-                            isLogged=false
-                        }) {
-                            Text(text = "Sign Out")
-                        }
-                    }
-                    Column(){
-                        sessionIds.forEach { id->
-                            ProvisionalSessionCard(modifier=Modifier.fillMaxWidth(),
-                                onClick = {
-                                    navController.navigate(Routes.reservationSummary+"/$id")
-                                },
-                                id = id
-                            )
                         }
                     }
                 }

@@ -36,12 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.g45_kotlin.ui.LoadingDialog
 import com.example.g45_kotlin.ui.reservation.gateway.components.PaymentSelection
 import com.example.g45_kotlin.ui.reservation.gateway.components.SessionSelection
 import com.example.g45_kotlin.ui.reservation.gateway.components.TutorBanner
 import com.example.g45_kotlin.ui.theme.AppTheme
+import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 import kotlinx.coroutines.launch
 
 class ReservationGateWayActivity {
@@ -60,6 +62,10 @@ class ReservationGateWayActivity {
                     listState.animateScrollBy(1000f)
                 }
             }
+        }
+
+        LaunchedEffect(Unit){
+            GoogleAnalyticsService.logScreenAccess("ReservationGateWay")
         }
         LoadingDialog(show=selectionState.isLoading, modifier=Modifier.requiredSize(200.dp))
         Column(modifier=modifier){
@@ -198,7 +204,7 @@ class ReservationGateWayActivity {
     @Preview(showBackground = true)
     @Composable
     fun ReservationGateWayPreview(){
-        val viewModel: ReservationGatewayViewModel = ReservationGatewayViewModel()
+        val viewModel: ReservationGatewayViewModel = ReservationGatewayViewModel(SavedStateHandle())
         AppTheme (darkTheme = true) {
             Surface(
                 modifier = Modifier.fillMaxSize(),

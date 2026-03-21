@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +44,7 @@ import com.example.g45_kotlin.ui.reservation.summary.components.DetailsBanner
 import com.example.g45_kotlin.ui.reservation.summary.components.Participants
 import com.example.g45_kotlin.ui.reservation.summary.components.QrBanner
 import com.example.g45_kotlin.ui.theme.AppTheme
+import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 import java.time.LocalDateTime
 
 @Composable
@@ -55,6 +57,9 @@ fun ReservationSummary(
     val summaryState by viewModel.summaryState.collectAsState()
     val qrResult by viewModel.scanResult.collectAsState()
 
+    LaunchedEffect(Unit){
+        GoogleAnalyticsService.logScreenAccess("ReservationSummary")
+    }
 
     Column(modifier=modifier.padding(10.dp)){
         Spacer(modifier=modifier.height(10.dp))
