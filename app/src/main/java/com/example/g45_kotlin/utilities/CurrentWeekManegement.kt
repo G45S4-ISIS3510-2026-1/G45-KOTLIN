@@ -7,10 +7,8 @@ import java.time.temporal.TemporalAdjusters
 
 
 fun getDaysOfCurrentWeek(): List<LocalDate> {
-    val today = LocalDate.now(ZoneId.systemDefault())
-
+    val today = LocalDate.now(ZoneId.of("America/Bogota"))
     val monday = if (today.dayOfWeek != DayOfWeek.SUNDAY) today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)) else today.with(TemporalAdjusters.next(DayOfWeek.MONDAY))
-
     // Entresemana
     return (0..5).map { monday.plusDays(it.toLong()) }
 }

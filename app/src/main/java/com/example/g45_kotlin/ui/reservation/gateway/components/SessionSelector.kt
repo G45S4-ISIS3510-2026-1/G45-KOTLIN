@@ -25,6 +25,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.g45_kotlin.ui.reservation.gateway.ReservationGatewayState
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -53,7 +55,8 @@ fun SessionSelection(modifier: Modifier = Modifier,
                 )
             }
         }
-        HoursSelector(modifier = modifier.heightIn(max =100.dp), hours = hours, selectedHour = state.selectedHour, onHourSelection=onHourSelection, workingHours = hours)
+        Spacer(modifier = modifier.height(16.dp))
+        HoursSelector(modifier = modifier.heightIn(max =100.dp), hours = hours, selectedDate=state.selectedDate, selectedHour = state.selectedHour, onHourSelection=onHourSelection, workingHours = hours)
     }
 }
 
@@ -63,7 +66,7 @@ fun DaySelector(modifier: Modifier = Modifier,
                 selected:Boolean,
                 onClick:() -> Unit){
     val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-    val enabled = date >= LocalDate.now()
+    val enabled = date >= LocalDate.now().plusDays(1)
     val borderWidth = if (selected) 4.dp else 0.dp
 
     Surface(modifier=modifier
@@ -93,18 +96,35 @@ fun DaySelector(modifier: Modifier = Modifier,
 }
 
 @Composable()
-fun HoursSelector(modifier: Modifier = Modifier, hours:List<String>, selectedHour:String, onHourSelection:(String) -> Unit, workingHours:List<String>) {
+fun HoursSelector(modifier: Modifier = Modifier, hours:List<String>, selectedDate: LocalDate, selectedHour:String, onHourSelection:(String) -> Unit, workingHours:List<String>) {
     val horas:List<String> =workingHours
-    LazyVerticalGrid(columns= GridCells.Adaptive(minSize=100.dp), modifier=Modifier.heightIn(min=100.dp, max=120.dp)){
-        items(horas.size){
-            HourOption(hour = horas[it],
-                selected = horas[it] == selectedHour,
-                enabled = true,
-                onClick = onHourSelection,
-                modifier = modifier
+    if (horas.isEmpty()){
+        Surface(Modifier.heightIn(min = 50.dp, max = 120.dp).fillMaxWidth()){
+            Text(
+                text="No hay horas disponibles",
+                style=MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                color=MaterialTheme.colorScheme.error
             )
         }
+    }else {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 100.dp),
+            modifier = Modifier.heightIn(min = 50.dp, max = 120.dp)
+        ) {
+            items(horas.size) {
+                val enabled =
+                    LocalDateTime.now() < LocalDateTime.of(selectedDate, LocalTime.parse(horas[it]))
+                HourOption(
+                    hour = horas[it],
+                    selected = horas[it] == selectedHour,
+                    enabled = enabled,
+                    onClick = onHourSelection,
+                    modifier = modifier
+                )
+            }
 
+        }
     }
 }
 
@@ -125,10 +145,12 @@ fun HourOption (modifier: Modifier = Modifier,
 
         color = if (enabled) backgroundColor else MaterialTheme.colorScheme.surfaceVariant,
     ){
-        Text(text=hour,
-            modifier=modifier.clickable { onClick(hour) },
-            style=MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center
-        )
+        Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
+            Text(text=hour,
+                modifier=modifier.clickable { onClick(hour) },
+                style=MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }

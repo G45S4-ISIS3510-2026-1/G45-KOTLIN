@@ -65,11 +65,11 @@ fun ParticipantCard (modifier: Modifier = Modifier, url:String=urlPlacer, name:S
             defaultElevation = 10.dp
         )
     ){
-        Row(modifier=Modifier.padding(10.dp),
+        Row(modifier=Modifier.padding(10.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start){
             ParticipantIcon(modifier=Modifier.fillMaxWidth(fraction = 0.40f), url=url)
-            Column(modifier=Modifier.fillMaxWidth(fraction = 0.60f).padding(start = 10.dp),
+            Column(modifier=Modifier.fillMaxWidth().padding(start = 10.dp),
                 horizontalAlignment = Alignment.Start){
                 Text(text=name,
                     modifier=Modifier.fillMaxWidth(),

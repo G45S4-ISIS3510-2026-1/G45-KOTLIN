@@ -6,7 +6,5 @@ import retrofit2.http.Query
 
 interface UserApi {
     @GET("users/tutors/search")
-    suspend fun searchTutors(
-        @Query("limit") limit: Int? = null
-    ): Response<List<TutorSummaryDto>>
+    suspend fun searchTutors(): Response<List<TutorSummaryDto>>
 }

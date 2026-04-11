@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.ZoneId
 
 class ReservationSummaryViewModel  (
@@ -96,33 +97,15 @@ class ReservationSummaryViewModel  (
                 if (response.isSuccessful) {
                     val session = response.body()
                     val parsedDate =try{
-                        Instant.parse(session?.scheduledAt).atZone(ZoneId.systemDefault()).toLocalDateTime()}
+                        OffsetDateTime.parse(session?.scheduledAt).toLocalDateTime()
+                    }
                     catch (e:Exception){
                         Log.d("ReservationSummaryViewModel", "Error parsing date: ${e.message}")
                         LocalDateTime.now()
                     }
-                    val student:UserData;
-                    val tutor:UserData;
-                    val studentQuery=reservationRepository.getParticipant(session?.studentId ?: "")
-                    Log.d("ReservationSummaryViewModel", "Student data response: ${studentQuery.body()}")
-                    if (studentQuery.isSuccessful){
-                        val studentData=studentQuery.body()
-                        student=UserData(
-                            id = studentData?.id ?: "",
-                            name = studentData?.name ?: "",
-                            picture = studentData?.profileImageUrl ?: ""
-                        )
+                    val student:UserData=UserData(id=session?.student?.id ?: "studentId", name = session?.student?.name ?: "studentName", picture = session?.student?.profileImageUrl ?: "studentPicture");
+                    val tutor:UserData=UserData(id = session?.tutor?.id ?: "tutorId", name = session?.tutor?.name ?: "tutorName", picture = session?.tutor?.profileImageUrl ?: "tutorPicture")
 
-                    }else{student=UserData()}
-                    val tutorQuery=reservationRepository.getParticipant(session?.tutorId ?: "")
-                    Log.d("ReservationSummaryViewModel", "Tutor data response: ${tutorQuery.body()}")
-                    if (tutorQuery.isSuccessful){
-                        val tutorData=tutorQuery.body()
-                        tutor=UserData(
-                            id = tutorData?.id ?: "",
-                            name = tutorData?.name ?: "",
-                            picture = tutorData?.profileImageUrl ?: "")
-                    }else{tutor=UserData()}
                     _summaryState.update {
                         it.copy(
                             id = session?.id ?: testingId,

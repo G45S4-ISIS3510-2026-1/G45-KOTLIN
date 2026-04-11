@@ -50,7 +50,8 @@ import java.time.LocalDateTime
 @Composable
 fun ReservationSummary(
     modifier: Modifier = Modifier,
-    viewModel: ReservationSummaryViewModel = viewModel()
+    viewModel: ReservationSummaryViewModel = viewModel(),
+    onBack:()->Unit={}
 ) {
 
 
@@ -67,7 +68,7 @@ fun ReservationSummary(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ){
-            Button(onClick = { /*TODO*/ }, modifier=modifier.requiredSize(50.dp), shape= CircleShape) {
+            Button(onClick = { onBack() }, modifier=modifier.requiredSize(50.dp), shape= CircleShape) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "GoBack",

@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.g45_kotlin.ui.LoadingDialog
 import com.example.g45_kotlin.ui.reservation.gateway.components.PaymentSelection
 import com.example.g45_kotlin.ui.reservation.gateway.components.SessionSelection
+import com.example.g45_kotlin.ui.reservation.gateway.components.SkillSelector
 import com.example.g45_kotlin.ui.reservation.gateway.components.TutorBanner
 import com.example.g45_kotlin.ui.theme.AppTheme
 import kotlinx.coroutines.launch
@@ -51,6 +53,7 @@ fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGate
     val scope = rememberCoroutineScope()
     val currentPaymentType = selectionState.selectedPaymentType
 
+
     LaunchedEffect(currentPaymentType){
         if (currentPaymentType==PaymentType.CARD){
             scope.launch {
@@ -59,6 +62,10 @@ fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGate
         }
     }
     LoadingDialog(show=selectionState.isLoading, modifier=Modifier.requiredSize(200.dp))
+    if (selectionState.error!=""){
+        ErrorDialog(message = selectionState.error, onDismiss = {viewModel.clearError()})
+    }
+
     Column(modifier=modifier){
         Spacer(modifier=modifier.height(10.dp))
         Row(modifier=modifier.fillMaxWidth(),
@@ -79,7 +86,7 @@ fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGate
                 style=MaterialTheme.typography.displaySmall
             )
         }
-        Box(modifier=modifier.fillMaxSize()) {
+        Box(modifier=modifier.fillMaxSize().padding(5.dp)) {
             LazyColumn(
                 modifier = modifier,
                 state = listState,
@@ -101,14 +108,16 @@ fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGate
                     hours=viewModel.getHours()
 
                 ) }
-                item { StepLabel(modifier = modifier, step = 2, label = "Método de Pago") }
+                item { StepLabel(modifier = modifier, step = 2, label = "Habilidad a Trabajar") }
+                item { SkillSelector(modifier = modifier.fillMaxWidth(),skillsData=selectionState.tutorSkills, onSkillSelection = {viewModel.selectSkill(it)}, selectedSkill = selectionState.selectedSkill.id ?: "")}
+                item { StepLabel(modifier = modifier, step = 3, label = "Método de Pago") }
                 item { PaymentSelection(modifier = modifier.fillMaxWidth(),
                     state=selectionState,
                     paymentMethods= viewModel.getPaymentMethods(),
                     onPaymentMethodSelection = {viewModel.selectPaymentMethod(it)},
                     onPaymentSelection = {viewModel.selectPaymentType(it)}
                     ) }
-                item { Spacer(modifier = modifier.height(100.dp)) }
+                item { Spacer(modifier = modifier.height(30.dp)) }
             }
             ConfirmationBanner(modifier = modifier.align(Alignment.BottomCenter), state = selectionState, onConfirm = {viewModel.registerSession(onConfirm)})
 
@@ -120,7 +129,6 @@ fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGate
 @Composable
 fun ConfirmationBanner(modifier: Modifier = Modifier, state: ReservationGatewayState, onConfirm: () -> Unit = {}) {
     /*TODO*/
-    var showDialog by remember { mutableStateOf(false) }
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape=RoundedCornerShape(25.dp),
@@ -145,7 +153,7 @@ fun ConfirmationBanner(modifier: Modifier = Modifier, state: ReservationGatewayS
                         textAlign= TextAlign.Start
                     )
                     Text(
-                        text = "$${state.sessionTutor.sessionPrice}",
+                        text = "$${state.sessionTutor.sessionPrice/1000}k/hora",
                         style = MaterialTheme.typography.titleLarge,
                         textAlign= TextAlign.Center
                     )
@@ -190,6 +198,30 @@ fun StepLabel(modifier: Modifier = Modifier, step:Int, label:String) {
             style = MaterialTheme.typography.headlineSmall
         )
     }
+}
+
+@Composable
+fun ErrorDialog(modifier: Modifier = Modifier, message:String, onDismiss:()->Unit={}){
+    AlertDialog(
+        onDismissRequest = {
+            onDismiss()
+        },
+        title = {
+            Text(text = "Error")
+        },
+        text = {
+            Text(text = message)
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onDismiss()
+                }
+            ) {
+                Text("OK")
+            }
+        }
+    )
 }
 
 @SuppressLint("ViewModelConstructorInComposable")

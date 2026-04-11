@@ -166,8 +166,10 @@ fun MainScreen(modifier: Modifier = Modifier,
             }
             composable(Routes.tutorDetail) {
                 val tutor = tutorsState.selectedTutor
+                val reseñas=tutorsState.selectedTutorReviews
+                val skills=tutorsState.selectedTutorSkills
                 if (tutor != null) {
-                    TutorDetailScreen(tutor = tutor,
+                    TutorDetailScreen(tutor = tutor, reseñas=reseñas, skills=skills,
                         onBack = { navController.popBackStack()},
                         onBook = { navController.navigate(Routes.reservationGateway+"/${tutor.id}")})
                 }
@@ -177,7 +179,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                 val sessionId = backStackEntry.arguments?.getString("session_id")
                 if (sessionId != null) {
                     Surface(modifier=modifier.padding(10.dp)){
-                        ReservationSummary()
+                        ReservationSummary(onBack = {navController.popBackStack()})
                     }
                 }
             }
@@ -186,7 +188,12 @@ fun MainScreen(modifier: Modifier = Modifier,
                 val tutorId = backStackEntry.arguments?.getString("tutor_id")
                 if (tutorId != null) {
                     Surface(modifier=modifier.padding(10.dp)){
-                        ReservationGateWay(onBack = {navController.popBackStack()}, onConfirm = {sessionId->navController.navigate(Routes.reservationSummary+"/$sessionId")})
+                        ReservationGateWay(onBack = {navController.popBackStack()}, onConfirm = {sessionId->navController.navigate(Routes.reservationSummary+"/$sessionId"){
+                            popUpTo(Routes.home){
+                                inclusive=false
+                            }
+                            launchSingleTop=true
+                        } })
                     }
                 }
 

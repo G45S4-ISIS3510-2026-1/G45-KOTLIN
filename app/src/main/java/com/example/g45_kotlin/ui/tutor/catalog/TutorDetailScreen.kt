@@ -28,6 +28,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,11 +46,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.g45_kotlin.data.catalog.ReviewResponse
+import com.example.g45_kotlin.data.catalog.TutorResponse
 import com.example.g45_kotlin.ui.theme.AppTheme
 import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 
 @Composable
-fun TutorDetailScreen(tutor: Tutor, onBack: () -> Unit, onBook: () -> Unit ={}) {
+fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skills: List<String> = emptyList(), onBack: () -> Unit, onBook: () -> Unit ={}) {
     val colorScheme = MaterialTheme.colorScheme
 
     LaunchedEffect(Unit){
@@ -76,11 +79,11 @@ fun TutorDetailScreen(tutor: Tutor, onBack: () -> Unit, onBook: () -> Unit ={}) 
                             .fillMaxSize()
                             .background(
                                 brush = Brush.verticalGradient(
-                                    colors = listOf(Color.Transparent, colorScheme.background),
+                                    colors = listOf(Color.Transparent, colorScheme.surfaceVariant),
                                     startY = 500f
                                 )
                             )
-                            .background(tutor.colorAvatar.copy(alpha = 0.5f))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                     )
 
                     Row(
@@ -113,12 +116,12 @@ fun TutorDetailScreen(tutor: Tutor, onBack: () -> Unit, onBook: () -> Unit ={}) 
                                 .background(colorScheme.surface)
                                 .padding(2.dp)
                                 .clip(RoundedCornerShape(14.dp))
-                                .background(tutor.colorAvatar)
+                                .background(MaterialTheme.colorScheme.background)
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(modifier = Modifier.padding(bottom = 8.dp)) {
                             Text(
-                                text = tutor.nombre,
+                                text = tutor.name,
                                 style = MaterialTheme.typography.headlineMedium,
                                 color = colorScheme.onBackground,
                                 fontWeight = FontWeight.Bold
@@ -132,7 +135,7 @@ fun TutorDetailScreen(tutor: Tutor, onBack: () -> Unit, onBook: () -> Unit ={}) 
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = tutor.carrera,
+                                    text = tutor.major,
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = colorScheme.primary
                                 )
@@ -148,11 +151,11 @@ fun TutorDetailScreen(tutor: Tutor, onBack: () -> Unit, onBook: () -> Unit ={}) 
                         .padding(vertical = 24.dp, horizontal = 16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    StatItem("PUNTAJE", "${tutor.rating} ★", colorScheme.onBackground)
+                    StatItem("PUNTAJE", "${tutor.tutorRating} ★", colorScheme.onBackground)
                     VerticalDivider(colorScheme.outlineVariant)
-                    StatItem("TUTORÍAS", tutor.numTutorias, colorScheme.onBackground)
+                    StatItem("TUTORÍAS", 5.toString(), colorScheme.onBackground)
                     VerticalDivider(colorScheme.outlineVariant)
-                    StatItem("NIVEL", tutor.nivel, colorScheme.onBackground)
+                    StatItem("NIVEL", "Pregrado", colorScheme.onBackground)
                 }
 
                 // 3. Especialidades
@@ -170,7 +173,7 @@ fun TutorDetailScreen(tutor: Tutor, onBack: () -> Unit, onBook: () -> Unit ={}) 
                             .horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        tutor.tags.forEach { tag ->
+                        skills.forEach { tag ->
                             Surface(
                                 color = colorScheme.surfaceVariant,
                                 shape = RoundedCornerShape(20.dp),
@@ -244,7 +247,7 @@ fun TutorDetailScreen(tutor: Tutor, onBack: () -> Unit, onBook: () -> Unit ={}) 
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    tutor.reseñas.forEach { reseña ->
+                    reseñas.forEach { reseña ->
                         ReviewCard(reseña, colorScheme)
                         Spacer(modifier = Modifier.height(12.dp))
                     }
@@ -299,10 +302,10 @@ fun VerticalDivider(color: Color) {
 }
 
 @Composable
-fun ReviewCard(reseña: Reseña, colorScheme: androidx.compose.material3.ColorScheme) {
+fun ReviewCard(reseña: ReviewResponse, colorScheme: ColorScheme) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainer),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -315,15 +318,15 @@ fun ReviewCard(reseña: Reseña, colorScheme: androidx.compose.material3.ColorSc
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = reseña.autor, color = colorScheme.onSurface, fontWeight = FontWeight.Bold)
-                    Text(text = reseña.fecha, color = colorScheme.onSurfaceVariant, fontSize = 10.sp)
+                    Text(text = reseña.authorName, color = colorScheme.onSurface, fontWeight = FontWeight.Bold)
+                    Text(text = reseña.createdAt, color = colorScheme.onSurfaceVariant, fontSize = 10.sp)
                 }
                 Row {
                     repeat(5) { index ->
                         Icon(
                             Icons.Default.Star,
                             contentDescription = null,
-                            tint = if (index < reseña.estrellas) Color(0xFFFFD700) else colorScheme.outlineVariant,
+                            tint = if (index < reseña.rating) Color(0xFFFFD700) else colorScheme.outlineVariant,
                             modifier = Modifier.size(14.dp)
                         )
                     }
@@ -331,7 +334,7 @@ fun ReviewCard(reseña: Reseña, colorScheme: androidx.compose.material3.ColorSc
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = reseña.comentario,
+                text = reseña.details,
                 color = colorScheme.onSurface,
                 fontSize = 13.sp,
                 lineHeight = 18.sp
@@ -345,17 +348,13 @@ fun ReviewCard(reseña: Reseña, colorScheme: androidx.compose.material3.ColorSc
 fun DetailPreview() {
     AppTheme {
         TutorDetailScreen(
-            tutor = Tutor(
+            tutor = TutorResponse(
                 id = "1",
-                nombre = "Camilo Rivas",
-                carrera = "Ingenieria de Sistemas",
-                facultad = "Ingeniería",
-                tags = listOf("Cálculo Diferencial", "Física Mecánica", "Algoritmica", "Estructuras de Datos"),
-                precio = "$35k/h",
-                precioValor = 35000,
-                rating = "4.9",
-                colorAvatar = Color.Gray
+                email = "ksdajidas",
+                name = "Manolo",
+                profileImageUrl = "toffoe"
             ),
+            reseñas=emptyList(),
             onBack = {}
         )
     }

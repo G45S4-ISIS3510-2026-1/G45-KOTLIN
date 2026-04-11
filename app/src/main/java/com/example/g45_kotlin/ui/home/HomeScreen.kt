@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,7 +37,6 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 
         }
     ) { padding ->
-        LoadingDialog(show = state.isLoading)
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -116,11 +116,27 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                     }
                 }
             } else {
-                item {
-                    LazyColumn(modifier=Modifier.heightIn(min=100.dp, max=200.dp),
+                if (!state.featuredTutors.isEmpty()) {
+                    item {
+                        LazyColumn(modifier=Modifier.heightIn(min=100.dp, max=200.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)){
-                        items(state.featuredTutors) { tutor ->
-                            TutorItem(tutor)
+                            items(state.featuredTutors) { tutor ->
+                                TutorItem(tutor)
+                            }
+                        }
+                    }
+                }else{
+                    item{
+                        Column(){
+                            Text(
+                                modifier=Modifier.fillMaxWidth(),
+                                text=state.error ?: "Error cargando tutores destacados",
+                                color=MaterialTheme.colorScheme.error,
+                                textAlign = TextAlign.Center
+                            )
+                            Button(onClick=viewModel::loadHomeData){
+                                Text("Reintentar")
+                            }
                         }
                     }
                 }
@@ -150,7 +166,7 @@ fun TutorItem(tutor: TutorSummaryDto) {
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Star, null, tint = Color(0xFFFFD700), modifier = Modifier.size(16.dp))
-                Text(tutor.average_rating.toString(), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text(tutor.rating.toString(), fontSize = 14.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

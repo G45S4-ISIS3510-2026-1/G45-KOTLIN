@@ -15,9 +15,6 @@ interface SessionApi {
     @POST("sessions/")
     suspend fun createSession(@Body session: SessionDto): Response<SessionDto>
 
-    @GET("sessions/")
-    suspend fun getAllSessions(): Response<List<SessionDto>>
-
     @GET("sessions/{sessionId}")
     suspend fun getSession(@Path("sessionId") sessionId: String): Response<SessionDto>
 
@@ -51,7 +48,10 @@ interface SessionApi {
     @DELETE("sessions/{sessionId}")
     suspend fun deleteSession(@Path("sessionId") sessionId: String): Response<Unit>
 
-    @GET("users/{user_id}")
-    suspend fun getParticipant(@Path("user_id") userId: String): Response<ParticipantDto>
+    @GET("users/tutor/{userId}")
+    suspend fun getParticipantData(@Path("userId") userId: String): Response<ParticipantDetailDto>
+
+    @GET ("skills/by-ids")
+    suspend fun getTutorSkillsByIds(@Query("ids") ids: List<String>): Response<List<SkillSummaryDto>>
 
 }
