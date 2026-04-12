@@ -1,10 +1,11 @@
 package com.example.g45_kotlin.data.catalog
 
+import com.example.g45_kotlin.data.baseUrl
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://dave-umbrellaless-nonsecretively.ngrok-free.dev"
+    private const val BASE_URL = baseUrl
 
     val apiService: ApiService by lazy {
         Retrofit.Builder()

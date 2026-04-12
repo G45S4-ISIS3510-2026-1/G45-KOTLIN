@@ -4,10 +4,11 @@ import android.util.Log
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.example.g45_kotlin.data.baseUrl
 
 object ReservationRepository {
     private val apiService by lazy {Retrofit.Builder()
-        .baseUrl("https://dave-umbrellaless-nonsecretively.ngrok-free.dev")
+        .baseUrl(baseUrl)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(SessionApi::class.java)}

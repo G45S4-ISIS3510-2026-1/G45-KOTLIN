@@ -2,6 +2,7 @@ package com.example.g45_kotlin.data.auth
 
 import android.content.Context
 import android.util.Log
+import com.example.g45_kotlin.data.baseUrl
 import com.google.android.gms.tasks.Tasks.await
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -14,7 +15,7 @@ class AuthRepository (context: Context) {
     private val fcm= FirebaseMessaging.getInstance()
     private val db=AuthDataBase.getInstance(context)
     private val apiService by lazy {Retrofit.Builder()
-        .baseUrl("https://dave-umbrellaless-nonsecretively.ngrok-free.dev")
+        .baseUrl(baseUrl)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(AuthUserApiInterface::class.java)}

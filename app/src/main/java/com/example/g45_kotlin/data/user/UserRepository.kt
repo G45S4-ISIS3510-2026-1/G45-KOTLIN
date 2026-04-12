@@ -1,6 +1,7 @@
 package com.example.g45_kotlin.data.user
 
 import android.util.Log
+import com.example.g45_kotlin.data.baseUrl
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -8,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object UserRepository {
     private val apiService by lazy {
         Retrofit.Builder()
-            .baseUrl("https://dave-umbrellaless-nonsecretively.ngrok-free.dev")
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(UserApi::class.java)
