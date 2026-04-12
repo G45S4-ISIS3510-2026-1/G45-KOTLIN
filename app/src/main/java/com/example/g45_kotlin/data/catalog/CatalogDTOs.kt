@@ -1,6 +1,5 @@
 package com.example.g45_kotlin.data.catalog
 
-import com.example.g45_kotlin.data.reservation.AvailabilityDto
 import com.google.gson.annotations.SerializedName
 
 // DTO para la respuesta del listado y detalle

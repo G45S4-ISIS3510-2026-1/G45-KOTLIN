@@ -28,10 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -46,6 +43,7 @@ import com.example.g45_kotlin.ui.reservation.gateway.components.SkillSelector
 import com.example.g45_kotlin.ui.reservation.gateway.components.TutorBanner
 import com.example.g45_kotlin.ui.theme.AppTheme
 import kotlinx.coroutines.launch
+
 @Composable
 fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGatewayViewModel=viewModel(), onBack: () -> Unit = {}, onConfirm: (String) -> Unit){
     val selectionState by viewModel.sessionSelection.collectAsState()

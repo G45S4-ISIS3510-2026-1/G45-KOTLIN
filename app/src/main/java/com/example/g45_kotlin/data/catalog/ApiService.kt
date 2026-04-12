@@ -2,7 +2,6 @@ package com.example.g45_kotlin.data.catalog
 
 import com.example.g45_kotlin.data.reservation.SkillSummaryDto
 import com.example.g45_kotlin.data.user.TutorSummaryDto
-import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query

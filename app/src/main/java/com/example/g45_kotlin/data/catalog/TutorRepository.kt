@@ -1,7 +1,5 @@
 package com.example.g45_kotlin.data.catalog
 
-import androidx.compose.ui.graphics.Color
-import com.example.g45_kotlin.data.reservation.SkillSummaryDto
 import com.example.g45_kotlin.data.user.TutorSummaryDto
 
 class TutorRepository(private val apiService: ApiService = RetrofitClient.apiService) {

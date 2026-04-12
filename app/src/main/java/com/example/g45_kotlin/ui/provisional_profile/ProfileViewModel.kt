@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.g45_kotlin.data.auth.AuthHolder
 import com.example.g45_kotlin.data.reservation.ReservationRepository
 import com.example.g45_kotlin.data.reservation.SessionDto
-import com.example.g45_kotlin.ui.reservation.gateway.PaymentMethod
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
