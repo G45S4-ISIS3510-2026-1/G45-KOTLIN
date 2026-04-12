@@ -1,28 +1,20 @@
 package com.example.g45_kotlin.data.catalog
 
-import androidx.compose.ui.graphics.Color
-import com.example.g45_kotlin.ui.tutor.catalog.Reseña
-import com.example.g45_kotlin.ui.tutor.catalog.Tutor
+import com.example.g45_kotlin.data.user.TutorSummaryDto
 
 class TutorRepository(private val apiService: ApiService = RetrofitClient.apiService) {
     
-    suspend fun searchTutors(name: String? = null, major: String? = null): Result<List<Tutor>> {
+    suspend fun searchTutors(name: String? = null, major: String? = null): Result<List<TutorSummaryDto>> {
         return try {
             val response = apiService.searchTutors(name, major)
             val tutores = response.map { res ->
-                Tutor(
-                    id = res.id,
-                    nombre = res.name,
-                    carrera = res.major,
-                    facultad = mapearFacultad(res.major),
-                    tags = res.tutoringSkills,
-                    precio = "$${res.sessionPrice / 1000}k/h",
-                    precioValor = res.sessionPrice,
-                    rating = res.averageRating?.toString() ?: "4.8",
-                    colorAvatar = Color.Gray,
-                    email = res.email,
-                    descripcion = res.bio
-                        ?: "Estudiante destacado con amplia experiencia en las materias mencionadas."
+                TutorSummaryDto(
+                    id=res.id,
+                    name = res.name,
+                    major = res.major,
+                    rating=res.rating,
+                    profileImageUrl = res.profileImageUrl,
+                    sessionPrice = res.sessionPrice
                 )
             }
             Result.success(tutores)
@@ -31,54 +23,34 @@ class TutorRepository(private val apiService: ApiService = RetrofitClient.apiSer
         }
     }
 
-    suspend fun getTutorDetail(userId: String): Result<Tutor> {
+    suspend fun getTutorDetail(userId: String): Result<TutorResponse> {
         return try {
             val res = apiService.getTutorDetail(userId)
-            
-            val reviewsRes = try {
-                apiService.getTutorReviews(userId)
-            } catch (e: Exception) {
-                emptyList()
-            }
-            
-            val tutor = Tutor(
-                id = res.id,
-                nombre = res.name,
-                carrera = res.major,
-                facultad = mapearFacultad(res.major),
-                tags = res.tutoringSkills,
-                precio = "$${res.sessionPrice / 1000}k/h",
-                precioValor = res.sessionPrice,
-                rating = res.averageRating?.toString() ?: "4.8",
-                colorAvatar = Color.Gray,
-                descripcion = res.bio ?: "Sin descripción.",
-                email = res.email,
-                reseñas = reviewsRes.map { rev ->
-                    `Reseña`(
-                        autor = "Usuario",
-                        fecha = formatearFecha(rev.createdAt),
-                        estrellas = rev.rating.toInt(),
-                        comentario = "${rev.label}: ${rev.details}"
-                    )
-                }
-            )
-            Result.success(tutor)
+            Result.success(res)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    private fun mapearFacultad(major: String): String {
-        return when {
-            major.contains("Ingeniería", ignoreCase = true) -> "Ingeniería"
-            major.contains("Matemáticas", ignoreCase = true) || major.contains("Física", ignoreCase = true) -> "Ciencias"
-            major.contains("Economía", ignoreCase = true) || major.contains("Administración", ignoreCase = true) -> "Economía"
-            major.contains("Artes", ignoreCase = true) || major.contains("Diseño", ignoreCase = true) -> "Artes"
-            else -> "Otras"
+    suspend fun getTutorReviews(tutorId: String): Result<List<ReviewResponse>> {
+        return try {
+            val response = apiService.getTutorReviews(tutorId)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
-    private fun formatearFecha(isoDate: String): String {
-        return isoDate.split("T").firstOrNull() ?: "Reciente"
+    suspend fun getTutorSkillsByIds(ids: List<String>): Result<List<String>> {
+        return try{
+            val response = apiService.getTutorSkillsByIds(ids)
+            val skills = response.map { res ->
+                res.label
+            }
+            Result.success(skills)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
+
 }

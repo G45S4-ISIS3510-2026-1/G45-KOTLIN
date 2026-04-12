@@ -28,5 +28,7 @@ data class UserBackDto(
     val interestedSkills: List<String> = emptyList(),
     val availability: AvailabilityDto=AvailabilityDto(),
     val paymentMethods: List<String> = emptyList(),
-    val sessionPrice: Int = 0
+    val sessionPrice: Int = 0,
+    val tutorRating: Double = 0.0,
+    val receivedRatings: Int = 0,
 )

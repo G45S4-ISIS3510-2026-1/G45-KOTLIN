@@ -1,5 +1,6 @@
 package com.example.g45_kotlin.ui.reservation.gateway
 
+import com.example.g45_kotlin.data.reservation.SkillSummaryDto
 import java.time.LocalDate
 
 
@@ -9,7 +10,10 @@ data class ReservationGatewayState (
     val selectedHour : String = "",
     val selectedPaymentType : PaymentType = PaymentType.RECEIPT,
     val selectedPaymentMethod : PaymentMethod = PaymentMethod(),
-    val sessionTutor: TutorUser = TutorUser()
+    val selectedSkill : SkillSummaryDto = SkillSummaryDto(null, label=""),
+    val sessionTutor: TutorUser = TutorUser(),
+    val tutorSkills: List<SkillSummaryDto> = emptyList(),
+    val error:String = ""
 )
 
 data class PaymentMethod (
@@ -21,8 +25,9 @@ data class PaymentMethod (
 
 data class TutorUser (
     val name:String = "",
-    val skills:Set<String> = setOf(),
-    val sessionPrice:Double = 0.0,
+    val major:String = "Música",
+    val skills:List<String> = emptyList(),
+    val sessionPrice:Int = 0,
     val currentRating:Double = 0.0,
     val picture: String=""
 )

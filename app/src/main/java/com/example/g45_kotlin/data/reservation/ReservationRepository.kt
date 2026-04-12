@@ -21,20 +21,24 @@ object ReservationRepository {
         return apiService.confirmSession(sessionId, verifCode)
     }
 
-    suspend fun cancelSession (sessionId:String): Response<SessionDto>{
-        return apiService.cancelSession(sessionId)
-    }
-
-    suspend fun getParticipant (userId:String): Response<ParticipantDto>{
-        return apiService.getParticipant(userId)
+    suspend fun cancelSession (sessionId:String, participantId:String): Response<SessionDto>{
+        return apiService.cancelSession(sessionId, participantId)
     }
 
     suspend fun createSession (session: SessionDto): Response<SessionDto>{
         return apiService.createSession(session)
     }
 
-    suspend fun getAll(): Response<List<SessionDto>> {
-        return apiService.getAllSessions()
+    suspend fun getUserSessions(studentId:String): Response<List<SessionDto>> {
+        return apiService.getSessionsByStudent(studentId)
+    }
+
+    suspend fun getTutorSkills(ids: List<String>): Response<List<SkillSummaryDto>> {
+        return apiService.getTutorSkillsByIds(ids)
+    }
+
+    suspend fun getParticipantData(userId: String): Response<ParticipantDetailDto> {
+        return apiService.getParticipantData(userId)
     }
 }
 

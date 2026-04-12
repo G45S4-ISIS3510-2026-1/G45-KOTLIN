@@ -14,8 +14,8 @@ object UserRepository {
             .create(UserApi::class.java)
     }
 
-    suspend fun getTutors(limit: Int? = 3): Response<List<TutorSummaryDto>> {
+    suspend fun getTutors(): Response<List<TutorSummaryDto>> {
         Log.d("UserRepository", "Fetching tutors...")
-        return apiService.searchTutors(limit)
+        return apiService.searchTutors()
     }
 }

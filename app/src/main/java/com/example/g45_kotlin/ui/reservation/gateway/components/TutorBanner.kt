@@ -35,16 +35,16 @@ fun TutorBanner(modifier: Modifier = Modifier, tutorInfo: TutorUser){
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start) {
             TutorIcon(modifier=modifier.fillMaxWidth(fraction = 0.40f), url=tutorInfo.picture)
-            Column(modifier=modifier.fillMaxWidth(fraction = 0.60f)) {
+            Column(modifier=modifier.fillMaxWidth(fraction = 0.60f).padding(5.dp)) {
                 Text(text=tutorInfo.name,
                     modifier=modifier,
                     style=MaterialTheme.typography.headlineSmall
                 )
-                Text(text="Experticia del Tutor/Area",
+                Text(text=tutorInfo.major,
                     modifier=modifier,
                     style=MaterialTheme.typography.bodyMedium
                 )
-                Text(text="${tutorInfo.currentRating}",
+                Text(text="${tutorInfo.currentRating} ★",
                     modifier=modifier,
                     style=MaterialTheme.typography.bodyMedium
                 )

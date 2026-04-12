@@ -15,9 +15,6 @@ interface SessionApi {
     @POST("sessions/")
     suspend fun createSession(@Body session: SessionDto): Response<SessionDto>
 
-    @GET("sessions/")
-    suspend fun getAllSessions(): Response<List<SessionDto>>
-
     @GET("sessions/{sessionId}")
     suspend fun getSession(@Path("sessionId") sessionId: String): Response<SessionDto>
 
@@ -39,8 +36,8 @@ interface SessionApi {
         @Path("tutorId") tutorId: String
     ): Response<List<SessionDto>>
 
-    @PATCH("sessions/{sessionId}/cancel")
-    suspend fun cancelSession(@Path("sessionId") sessionId: String): Response<SessionDto>
+    @PATCH("sessions/{sessionId}/{participant_id}/cancel")
+    suspend fun cancelSession(@Path("sessionId") sessionId: String, @Path("participant_id") participantId: String): Response<SessionDto>
 
     @PATCH("sessions/{sessionId}/confirm")
     suspend fun confirmSession(
@@ -51,7 +48,10 @@ interface SessionApi {
     @DELETE("sessions/{sessionId}")
     suspend fun deleteSession(@Path("sessionId") sessionId: String): Response<Unit>
 
-    @GET("users/{user_id}")
-    suspend fun getParticipant(@Path("user_id") userId: String): Response<ParticipantDto>
+    @GET("users/tutor/{userId}")
+    suspend fun getParticipantData(@Path("userId") userId: String): Response<ParticipantDetailDto>
+
+    @GET ("skills/by-ids")
+    suspend fun getTutorSkillsByIds(@Query("ids") ids: List<String>): Response<List<SkillSummaryDto>>
 
 }

@@ -5,7 +5,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.g45_kotlin.data.auth.AuthHolder
-import com.example.g45_kotlin.data.auth.AuthRepository
 import com.example.g45_kotlin.data.reservation.ReservationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,9 +12,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.OffsetDateTime
 
 class ReservationSummaryViewModel  (
     private val savedStateHandle: SavedStateHandle
@@ -35,7 +33,7 @@ class ReservationSummaryViewModel  (
 
     private val sessionId:String=savedStateHandle["session_id"] as String? ?: testingId
 
-    val isTutor= authRepository.getCurrentUser()?.uid==summaryState.value.tutor.id
+    private var isTutor= authRepository.getCurrentUser()?.uid==summaryState.value.tutor.id
 
 
 
@@ -70,7 +68,7 @@ class ReservationSummaryViewModel  (
         viewModelScope.launch(Dispatchers.IO){
             _summaryState.value=_summaryState.value.copy(isLoading = true)
             try{
-                val response=reservationRepository.cancelSession(sessionId)
+                val response=reservationRepository.cancelSession(sessionId, authRepository.getCurrentUser()?.uid ?: "")
                 if (response.isSuccessful){
                     _summaryState.update{it.copy(status = Status.CANCELLED)}
                 _summaryState.value=_summaryState.value.copy(isLoading = false)
@@ -96,33 +94,15 @@ class ReservationSummaryViewModel  (
                 if (response.isSuccessful) {
                     val session = response.body()
                     val parsedDate =try{
-                        Instant.parse(session?.scheduledAt).atZone(ZoneId.systemDefault()).toLocalDateTime()}
+                        OffsetDateTime.parse(session?.scheduledAt).toLocalDateTime()
+                    }
                     catch (e:Exception){
                         Log.d("ReservationSummaryViewModel", "Error parsing date: ${e.message}")
                         LocalDateTime.now()
                     }
-                    val student:UserData;
-                    val tutor:UserData;
-                    val studentQuery=reservationRepository.getParticipant(session?.studentId ?: "")
-                    Log.d("ReservationSummaryViewModel", "Student data response: ${studentQuery.body()}")
-                    if (studentQuery.isSuccessful){
-                        val studentData=studentQuery.body()
-                        student=UserData(
-                            id = studentData?.id ?: "",
-                            name = studentData?.name ?: "",
-                            picture = studentData?.profileImageUrl ?: ""
-                        )
-
-                    }else{student=UserData()}
-                    val tutorQuery=reservationRepository.getParticipant(session?.tutorId ?: "")
-                    Log.d("ReservationSummaryViewModel", "Tutor data response: ${tutorQuery.body()}")
-                    if (tutorQuery.isSuccessful){
-                        val tutorData=tutorQuery.body()
-                        tutor=UserData(
-                            id = tutorData?.id ?: "",
-                            name = tutorData?.name ?: "",
-                            picture = tutorData?.profileImageUrl ?: "")
-                    }else{tutor=UserData()}
+                    val student:UserData=UserData(id=session?.student?.id ?: "studentId", name = session?.student?.name ?: "studentName", picture = session?.student?.profileImageUrl ?: "studentPicture");
+                    val tutor:UserData=UserData(id = session?.tutor?.id ?: "tutorId", name = session?.tutor?.name ?: "tutorName", picture = session?.tutor?.profileImageUrl ?: "tutorPicture")
+                    isTutor= authRepository.getCurrentUser()?.uid==tutor.id
                     _summaryState.update {
                         it.copy(
                             id = session?.id ?: testingId,

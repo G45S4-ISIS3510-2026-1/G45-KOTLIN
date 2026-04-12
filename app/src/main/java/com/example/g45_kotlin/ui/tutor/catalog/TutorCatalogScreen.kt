@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.g45_kotlin.data.user.TutorSummaryDto
 import com.example.g45_kotlin.ui.theme.AppTheme
 import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 
@@ -63,7 +64,7 @@ fun CatalogoContent(
     onSearchTextChange: (String) -> Unit,
     onOrderChange: (String) -> Unit,
     onFacultadChange: (String) -> Unit,
-    onTutorClick: (Tutor) -> Unit
+    onTutorClick: (TutorSummaryDto) -> Unit
 ) {
     LaunchedEffect(Unit){
         GoogleAnalyticsService.logScreenAccess("TutorCatalog")
@@ -104,7 +105,7 @@ fun CatalogoContent(
                     placeholder = {
                         Text(
                             text = "Buscar por materia o tutor...",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -204,7 +205,7 @@ fun FilterSection(
     Column {
         Text(
             text = title,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold
         )
@@ -219,7 +220,7 @@ fun FilterSection(
                     label = {
                         Text(
                             text = option,
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                         )
                     },
                     shape = RoundedCornerShape(20.dp),
@@ -237,7 +238,7 @@ fun FilterSection(
 }
 
 @Composable
-fun TutorCard(tutor: Tutor, onClick: () -> Unit) {
+fun TutorCard(tutor: TutorSummaryDto, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -252,7 +253,7 @@ fun TutorCard(tutor: Tutor, onClick: () -> Unit) {
                         modifier = Modifier
                             .size(80.dp)
                             .clip(RoundedCornerShape(16.dp))
-                            .background(tutor.colorAvatar)
+                            .background(color=MaterialTheme.colorScheme.primary)
                     )
                     Surface(
                         color = MaterialTheme.colorScheme.primary,
@@ -270,7 +271,7 @@ fun TutorCard(tutor: Tutor, onClick: () -> Unit) {
                                 modifier = Modifier.size(12.dp)
                             )
                             Text(
-                                text = tutor.rating,
+                                text = tutor.rating.toString(),
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold
@@ -287,40 +288,25 @@ fun TutorCard(tutor: Tutor, onClick: () -> Unit) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = tutor.nombre,
+                            text = tutor.name,
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
                         Text(
-                            text = tutor.precio,
+                            text = "$ ${tutor.sessionPrice?.div(1000)}k/h",
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Text(
-                        text = "${tutor.carrera} (${tutor.facultad})",
+                        text = "${tutor.major} (${mapearFacultad(tutor.major)})",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        tutor.tags.take(2).forEach { tag ->
-                            Surface(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f),
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Text(
-                                    text = tag,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 10.sp,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
-                            }
-                        }
-                    }
                 }
             }
 
@@ -348,10 +334,13 @@ fun CatalogoPreview() {
     AppTheme {
         val mockState = CatalogoUiState(
             tutores = listOf(
-                Tutor("1", "Preview Tutor", "Carrera", "Ingeniería", listOf("Tag1"), "$10/h", 10000, "5.0", Color.Cyan)
+                TutorSummaryDto("1", "Preview Tutor", "Carrera", 4.5, "", 10000),
+                TutorSummaryDto("1", "Preview Tutor", "Carrera", 4.5, "", 10000)
             ),
             filtrados = listOf(
-                Tutor("1", "Preview Tutor", "Carrera", "Ingeniería", listOf("Tag1"), "$10/h", 10000, "5.0", Color.Cyan)
+                TutorSummaryDto("1", "Preview Tutor", "Carrera", 4.5, "", 10000),
+                TutorSummaryDto("1", "Preview Tutor", "Carrera", 4.5, "", 10000)
+
             )
         )
         CatalogoContent(
@@ -361,5 +350,15 @@ fun CatalogoPreview() {
             onFacultadChange = {},
             onTutorClick = {}
         )
+    }
+}
+
+private fun mapearFacultad(major: String): String {
+    return when {
+        major.contains("Ingeniería", ignoreCase = true) -> "Ingeniería"
+        major.contains("Matemáticas", ignoreCase = true) || major.contains("Física", ignoreCase = true) -> "Ciencias"
+        major.contains("Economía", ignoreCase = true) || major.contains("Administración", ignoreCase = true) -> "Economía"
+        major.contains("Artes", ignoreCase = true) || major.contains("Diseño", ignoreCase = true) -> "Artes"
+        else -> "Otras"
     }
 }

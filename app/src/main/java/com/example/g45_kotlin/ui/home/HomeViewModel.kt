@@ -19,21 +19,21 @@ class HomeViewModel : ViewModel() {
         loadHomeData()
     }
 
-    private fun loadHomeData() {
+    fun loadHomeData() {
         _state.update{it.copy(userName = authRepository.getCurrentUser()?.displayName?:"Amigo")}
         viewModelScope.launch (Dispatchers.IO){
             val userName=authRepository.getLocalUser() ?: authRepository.getCurrentUser()
             _state.update { it.copy(isLoading = true) }
             try {
-                val response = UserRepository.getTutors(limit = 3)
+                val response = UserRepository.getTutors()
                 if (response.isSuccessful) {
                     _state.update { it.copy(
-                        featuredTutors = response.body() ?: emptyList(),
+                        featuredTutors = response.body()?.take(3) ?: emptyList(),
                         isLoading = false,
                         userName = userName?.displayName ?: "Amigo"
                     ) }
                 } else {
-                    _state.update { it.copy(isLoading = false, error = "Error al cargar tutores") }
+                    _state.update { it.copy(isLoading = false, error = "Error al cargar tutores destacados") }
                 }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
