@@ -21,8 +21,8 @@ object ReservationRepository {
         return apiService.confirmSession(sessionId, verifCode)
     }
 
-    suspend fun cancelSession (sessionId:String): Response<SessionDto>{
-        return apiService.cancelSession(sessionId)
+    suspend fun cancelSession (sessionId:String, participantId:String): Response<SessionDto>{
+        return apiService.cancelSession(sessionId, participantId)
     }
 
     suspend fun createSession (session: SessionDto): Response<SessionDto>{

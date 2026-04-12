@@ -18,7 +18,7 @@ object GoogleAnalyticsService {
         }
     }
 
-    fun logButtonClick(buttonName: String, screenName: String = "unknown") {
+    fun logButtonClick(buttonName: String, screenName: String = "unknown", buttonAction: String = "unknown") {
         Log.d("Analytics", "Logging button click: $buttonName, in screen $screenName")
         analytics.logEvent("button_click") {
             param(FirebaseAnalytics.Param.ITEM_NAME, buttonName)

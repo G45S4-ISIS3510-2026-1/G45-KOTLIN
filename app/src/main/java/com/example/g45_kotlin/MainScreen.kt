@@ -145,7 +145,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                     Column(verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.CenterHorizontally){
                         ProvisionalScreen(onReservationClick = {id->navController.navigate(Routes.reservationSummary+"/${id}")})
-                        Box(contentAlignment = Alignment.Center){
+                        Surface(){
                             Button(onClick = {
                                 scope.launch(Dispatchers.IO) {
                                     authRepository.signOut();

@@ -36,8 +36,8 @@ interface SessionApi {
         @Path("tutorId") tutorId: String
     ): Response<List<SessionDto>>
 
-    @PATCH("sessions/{sessionId}/cancel")
-    suspend fun cancelSession(@Path("sessionId") sessionId: String): Response<SessionDto>
+    @PATCH("sessions/{sessionId}/{participant_id}/cancel")
+    suspend fun cancelSession(@Path("sessionId") sessionId: String, @Path("participant_id") participantId: String): Response<SessionDto>
 
     @PATCH("sessions/{sessionId}/confirm")
     suspend fun confirmSession(
