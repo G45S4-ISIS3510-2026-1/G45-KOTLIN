@@ -5,7 +5,9 @@ import java.time.LocalDateTime
 enum class Status (val status:String) {
     PENDING("Pendiente"),
     CONCLUDED("Concluida"),
-    CANCELLED("Cancelada")
+    CANCELLED("Cancelada"),
+
+    OVERDUE("Vencida")
 }
 
 data class UserData (

@@ -19,13 +19,15 @@ class HomeViewModel : ViewModel() {
         loadHomeData()
     }
 
+
+
     fun loadHomeData() {
         _state.update{it.copy(userName = authRepository.getCurrentUser()?.displayName?:"Amigo")}
         viewModelScope.launch (Dispatchers.IO){
             val userName=authRepository.getLocalUser() ?: authRepository.getCurrentUser()
             _state.update { it.copy(isLoading = true) }
             try {
-                val response = UserRepository.getTutors()
+                val response = UserRepository.getRecommendations()
                 if (response.isSuccessful) {
                     _state.update { it.copy(
                         featuredTutors = response.body()?.take(3) ?: emptyList(),

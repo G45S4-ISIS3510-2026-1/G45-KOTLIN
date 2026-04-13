@@ -50,6 +50,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.g45_kotlin.data.auth.AuthHolder
+import com.example.g45_kotlin.data.local.SearchHistoryManager
 import com.example.g45_kotlin.ui.auth.LoginScreen
 import com.example.g45_kotlin.ui.home.HomeScreen
 import com.example.g45_kotlin.ui.provisional_profile.ProvisionalScreen
@@ -89,7 +90,8 @@ fun MainScreen(modifier: Modifier = Modifier,
     //Define shared viewmodel for tutor catalog and detail
     val scope = rememberCoroutineScope()
     val tutorsState by sharedViewModel.uiState.collectAsState()
-    val sessionIds = listOf("42RKMlHLiQdRDSvAx6Xl", "4By01RFbNvgQ2Znc920k", "4By01RFbNvgQ2Znc920k")
+    val searchManager= SearchHistoryManager.getInstance()
+
 
 
     Scaffold(modifier=modifier.fillMaxSize(),
@@ -117,7 +119,10 @@ fun MainScreen(modifier: Modifier = Modifier,
         ) {
             composable(Routes.home) {
                 if(isLogged){
-                    HomeScreen()
+                    HomeScreen(
+                        onTutorClick = {tutor->sharedViewModel.onTutorSelected(tutor);
+                            navController.navigate(Routes.tutorDetail)}
+                    , onMoreClick = {navController.navigate(Routes.catalog)})
                 }else{
                     LoginScreen(onLoginSuccess = {isLogged=true})
                 }
@@ -129,6 +134,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                     onOrderChange = sharedViewModel::onOrderChange,
                     onFacultadChange = sharedViewModel::onFacultadChange,
                     onTutorClick = {tutor->
+                        searchManager.saveQuery(tutor.id)
                         sharedViewModel.onTutorSelected(tutor)
                         navController.navigate(Routes.tutorDetail)
                     },

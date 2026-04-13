@@ -53,6 +53,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-crashlytics")
+
     
     implementation(libs.coil.compose)
     implementation(libs.androidx.compose.ui.text.google.fonts)

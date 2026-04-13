@@ -72,6 +72,8 @@ class ReservationSummaryViewModel  (
                 if (response.isSuccessful){
                     _summaryState.update{it.copy(status = Status.CANCELLED)}
                 _summaryState.value=_summaryState.value.copy(isLoading = false)
+                }else{
+                    _summaryState.value=_summaryState.value.copy(isLoading = false)
                 }
             }
                 catch (e:Exception){

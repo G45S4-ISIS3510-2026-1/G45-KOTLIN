@@ -127,7 +127,7 @@ fun ReservationSummary(
                     if (showconfirm){
                         CancelConfirmationDialog(modifier=Modifier.fillMaxWidth().padding(top=20.dp), onConfirm = { viewModel.cancelReservation(); showconfirm=false}, onDismiss = {showconfirm=false})
                     }
-                    CancelAcceptButtons(modifier=Modifier.fillMaxWidth().padding(top=20.dp), onCancel = { showconfirm=true }, onAccept = { /*TODO*/ }, enabled=isEnabled)
+                    CancelAcceptButtons(modifier=Modifier.fillMaxWidth().padding(top=20.dp), onCancel = { showconfirm=true }, onAccept = { onBack() }, enabled=isEnabled)
                     if (!isEnabled && summaryState.status==Status.PENDING){
                         Text(text="Cancelacion deshabilitada. Recuerda cancelar con mínimo 1 día de anticipación",
                             modifier=Modifier.fillMaxWidth().padding(bottom = 50.dp, top=20.dp),
@@ -154,6 +154,7 @@ fun StatusBanner(modifier: Modifier=Modifier, status:Status){
             Status.PENDING -> MaterialTheme.colorScheme.primary
             Status.CONCLUDED -> MaterialTheme.colorScheme.tertiary
             Status.CANCELLED -> MaterialTheme.colorScheme.error
+            Status.OVERDUE -> MaterialTheme.colorScheme.error
         },
         border = BorderStroke(width = 7.dp, color = MaterialTheme.colorScheme.tertiary)
     ){
@@ -209,7 +210,7 @@ fun CancelConfirmationDialog(modifier: Modifier=Modifier, onConfirm:()->Unit, on
             Text(text = "Confirmar Cancelacion")
         },
         text = {
-            Text(text = "¿Seguro que quieres cancelar la reserva?")
+            Text(text = "¿Seguro que quieres cancelar la reserva?", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
         },
         confirmButton = {
             Button(

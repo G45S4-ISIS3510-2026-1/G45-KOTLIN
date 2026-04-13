@@ -9,6 +9,7 @@ import com.example.g45_kotlin.data.reservation.ReservationRepository
 import com.example.g45_kotlin.data.reservation.SessionDto
 import com.example.g45_kotlin.data.reservation.SkillSummaryDto
 import com.example.g45_kotlin.utilities.getDaysOfCurrentWeek
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -136,8 +138,8 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
     val tutorId=savedStateHandle.get<String>("tutor_id") ?: "tesTutorId"
     val studentId=AuthHolder.authRepo.getCurrentUser()?.uid ?: "testStudentId"
     fun registerSession(onSuccess:(String)->Unit={}){
-        if(this::currentHour.isInitialized && currentDate!=null ){
-            if (currentHour!=""){
+        if(this::currentHour.isInitialized && currentSkill!=null ){
+            if (currentHour!="" ){
                 val scheduling=parsecheduling()
                 Log.d("ReservationGatewayViewModel", "Scheduling: $scheduling")
                 _sessionSelection.value = _sessionSelection.value.copy(isLoading = true)
@@ -159,8 +161,11 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
                             }
                             Log.d("ReservationGatewayViewModel", "Session created successfully, id=${response.body()?.id}")
                         }else{
-                            Log.d("ReservationGatewayViewModel111", "Error creating session: ${response.errorBody()?.string()}")
-                            _sessionSelection.value = _sessionSelection.value.copy(error = "Error creando la reserva, intenta denuevo: ${response.errorBody()?.toString()}")
+                            val rawBody=response.errorBody()?.string()
+                            val json=JSONObject(rawBody!!)
+                            val message=json.getString("detail")
+                            Log.d("ReservationGatewayViewModel", "Error creating session: $message")
+                            _sessionSelection.value = _sessionSelection.value.copy(error = "${message ?: "Hay problemas en servidor, por favor intentelo mas tarde"}")
                         }
 
                         _sessionSelection.value = _sessionSelection.value.copy(isLoading = false)
@@ -169,9 +174,13 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
                         _sessionSelection.value = _sessionSelection.value.copy(isLoading = false)
                     }
                 }
-            }else{
+            }else if (currentHour==null){
                 Log.d("ReservationGatewayViewModel", "No hour selected")
                 _sessionSelection.value = _sessionSelection.value.copy(error = "Selecciona una hora válida")
+            }else{
+                Log.d("ReservationGatewayViewModel", "No skill selected")
+                _sessionSelection.value = _sessionSelection.value.copy(error = "Selecciona una habilidad válida")
+
             }
         }else if (currentSkill==null){
             Log.d("ReservationGatewayViewModel", "No date/hour selected")

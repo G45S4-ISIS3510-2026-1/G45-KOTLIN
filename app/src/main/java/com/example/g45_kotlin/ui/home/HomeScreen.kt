@@ -1,5 +1,6 @@
 package com.example.g45_kotlin.ui.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,7 +48,7 @@ import com.example.g45_kotlin.utilities.AnalyticsManager
 import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSummaryDto) -> Unit = {}, onMoreClick: () -> Unit = {}) {
     val state by viewModel.state.collectAsState()
     LaunchedEffect(Unit) {
         AnalyticsManager.setCurrentService("HOME_SERVICE")
@@ -78,7 +80,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 
             // Próxima Sesión
             item {
-                Text("Próxima Sesión", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Text("Próximas Sesiones", fontSize = 20.sp, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.headlineLarge)
                 Spacer(modifier = Modifier.height(12.dp))
                 if (state.nextSession == null) {
                     Card(
@@ -86,7 +88,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         Box(modifier = Modifier.padding(24.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            Text("No hay próxima sesión programada", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("No hay sesiones próximas", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 } else {
@@ -98,14 +100,14 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             item {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Button(
-                        onClick = {},
+                        onClick = {onMoreClick()},
                         modifier = Modifier.weight(1f).height(100.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Default.Add, null)
-                            Text("Agendar Tutoría", textAlign = androidx.compose.ui.text.style.TextAlign.Center, fontSize = 12.sp)
+                            Text("Agendar Tutoría", textAlign = androidx.compose.ui.text.style.TextAlign.Center, style = MaterialTheme.typography.labelMedium)
                         }
                     }
                     Button(
@@ -116,49 +118,48 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Default.Star, null)
-                            Text("Ser Tutor", textAlign = androidx.compose.ui.text.style.TextAlign.Center, fontSize = 12.sp)
+                            Text("Ser Tutor", textAlign = androidx.compose.ui.text.style.TextAlign.Center, style = MaterialTheme.typography.labelMedium)
                         }
                     }
                 }
             }
 
-            // Tutores Destacados
+            // Tutores Recomendados
             item {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("Tutores Destacados", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                    TextButton(onClick = {}) { Text("Ver todos") }
+                    Text("Tutores Recomendados", fontSize = 20.sp, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.headlineLarge)
+                    TextButton(onClick = {onMoreClick()}) { Text("Ver todos", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.tertiary) }
                 }
             }
-
-            if (state.isLoading) {
-                item {
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                }
-            } else {
-                if (!state.featuredTutors.isEmpty()) {
-                    item {
-                        LazyColumn(modifier=Modifier.heightIn(min=100.dp, max=200.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)){
+            item {PullToRefreshBox(
+                isRefreshing = state.isLoading,
+                onRefresh = viewModel::loadHomeData
+            ) {
+                    LazyColumn(modifier=Modifier.heightIn(min=100.dp, max=200.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)){
+                        if (state.isLoading) {
+                            item {
+                                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        }else if (!state.featuredTutors.isEmpty()){
                             items(state.featuredTutors) { tutor ->
-                                TutorItem(tutor)
+                                TutorItem(tutor, onSelection = { onTutorClick(tutor) })
+                            }
+                        }else{
+                            item{
+                                Column(){
+                                    Text(
+                                        modifier=Modifier.fillMaxWidth(),
+                                        text= "Error cargando tutores destacados, arrastra para reintentar",
+                                        color=MaterialTheme.colorScheme.error,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
                             }
                         }
-                    }
-                }else{
-                    item{
-                        Column(){
-                            Text(
-                                modifier=Modifier.fillMaxWidth(),
-                                text=state.error ?: "Error cargando tutores destacados",
-                                color=MaterialTheme.colorScheme.error,
-                                textAlign = TextAlign.Center
-                            )
-                            Button(onClick=viewModel::loadHomeData){
-                                Text("Reintentar")
-                            }
-                        }
+
                     }
                 }
             }
@@ -167,9 +168,9 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 }
 
 @Composable
-fun TutorItem(tutor: TutorSummaryDto) {
+fun TutorItem(tutor: TutorSummaryDto, onSelection: () -> Unit = {}) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable(onClick=onSelection),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
