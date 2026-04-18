@@ -5,8 +5,10 @@ import com.example.g45_kotlin.data.user.TutorSummaryDto
 
 data class HomeState(
     val userName: String = "Amigo",
-    val nextSession: SessionDto? = null,
+    val nextSessions: List<SessionDto> = emptyList(),
+    val sessionError: String? = null,
     val featuredTutors: List<TutorSummaryDto> = emptyList(),
     val isLoading: Boolean = false,
+    val areSessionLoading: Boolean = false,
     val error: String? = null
 )

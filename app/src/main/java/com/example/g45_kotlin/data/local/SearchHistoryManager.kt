@@ -21,6 +21,10 @@ class SearchHistoryManager(context: Context) {
         val set = prefs.getStringSet("search_history", emptySet()) ?: emptySet()
         return set.toList()
     }
+
+    fun clearHistory(){
+        prefs.edit { clear() }
+    }
     companion object {
         @Volatile
         private var INSTANCE: SearchHistoryManager? = null

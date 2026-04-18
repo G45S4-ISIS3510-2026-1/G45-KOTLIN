@@ -42,6 +42,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -69,7 +70,7 @@ fun CatalogoContent(
     onTutorClick: (TutorSummaryDto) -> Unit
 ) {
     LaunchedEffect(Unit){
-        GoogleAnalyticsService.logScreenAccess("TutorCatalog")
+        GoogleAnalyticsService.logScreenAccess("TutorProfileReview", screenClass="TutorProfile")
     }
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -155,49 +156,48 @@ fun CatalogoContent(
             }
 
             item {
-                LazyColumn(modifier = Modifier.heightIn(min = 200.dp, max = 400.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)){
-                    if (uiState.isLoading) {
-                        item {
-                            Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                            }
-                        }
-                    } else if (uiState.error != null) {
-                        item {
-                            Column(
-                                modifier = Modifier.fillMaxWidth().padding(24.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = uiState.error,
-                                    color = MaterialTheme.colorScheme.error,
-                                    textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Button(onClick = {onRetry()}) {
-                                    Text("Reintentar")
+                PullToRefreshBox(isRefreshing = uiState.isLoading, onRefresh = {onRetry()}) {
+                    LazyColumn(modifier = Modifier.heightIn(min = 200.dp, max = 400.dp),
+                        verticalArrangement = Arrangement.spacedBy(20.dp)){
+                        if (uiState.isLoading) {
+                            item {
+                                Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                                 }
                             }
+                        } else if (uiState.error != null) {
+                            item {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(24.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = uiState.error,
+                                        color = MaterialTheme.colorScheme.error,
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
+                        } else if (uiState.filtrados.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "No se encontraron tutores",
+                                    modifier = Modifier.fillMaxWidth().padding(40.dp),
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        } else {
+                            items(uiState.filtrados) { tutor ->
+                                TutorCard(tutor, onClick = { onTutorClick(tutor) })
+                            }
                         }
-                    } else if (uiState.filtrados.isEmpty()) {
-                        item {
-                            Text(
-                                text = "No se encontraron tutores",
-                                modifier = Modifier.fillMaxWidth().padding(40.dp),
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    } else {
-                        items(uiState.filtrados) { tutor ->
-                            TutorCard(tutor, onClick = { onTutorClick(tutor) })
-                        }
+                        item { Spacer(modifier = Modifier.height(20.dp)) }
                     }
-                    item { Spacer(modifier = Modifier.height(20.dp)) }
                 }
+
             }
 
 

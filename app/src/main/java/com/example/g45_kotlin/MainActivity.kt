@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
         SearchHistoryManager.getInstance(this)
         setContent {
             val lux by lightSensorManager.luxValue.collectAsState()
-            AppTheme (luxValue = lux) {
+            AppTheme (luxValue = lux, useSensor = lightSensorManager.deviceHasLightSensor()) {
                 val navController = rememberNavController()
                 MainScreen(navController = navController)
             }

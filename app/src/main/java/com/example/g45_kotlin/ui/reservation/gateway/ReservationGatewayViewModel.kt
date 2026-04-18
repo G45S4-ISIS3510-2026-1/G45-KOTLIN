@@ -151,7 +151,8 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
                         skill = currentSkill ?: testinSkill,
                         scheduledAt = scheduling,
                         status = "Pendiente",
-                        verifCode = null
+                        verifCode = null,
+                        price = sessionSelection.value.sessionTutor.sessionPrice
                     )
                     try{
                         val response=reservationRep.createSession(session)

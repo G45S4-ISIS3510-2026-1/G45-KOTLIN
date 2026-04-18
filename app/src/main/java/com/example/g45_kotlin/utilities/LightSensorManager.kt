@@ -31,6 +31,10 @@ class LightSensorManager(context: Context) {
         }
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
     }
+    fun deviceHasLightSensor(): Boolean {
+        return lightSensor != null
+    }
+
     fun start() {
         // Solo sirve si el celular tiene sensor de luz
         if (lightSensor == null) return

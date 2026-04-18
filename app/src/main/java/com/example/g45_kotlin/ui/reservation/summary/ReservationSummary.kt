@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,7 +57,6 @@ fun ReservationSummary(
 
 
     val summaryState by viewModel.summaryState.collectAsState()
-    val qrResult by viewModel.scanResult.collectAsState()
 
     LaunchedEffect(Unit){
         GoogleAnalyticsService.logScreenAccess("ReservationSummary")
@@ -77,13 +77,12 @@ fun ReservationSummary(
                         .fillMaxSize()
                 )
             }
+            Spacer(modifier=Modifier.width(10.dp))
             Text(text="Detalles de Reserva",
                 modifier=modifier.fillMaxWidth(fraction = 0.75f),
                 style=MaterialTheme.typography.displaySmall
             )
         }
-        //Estado de reserva
-        /*TODO*/
         Box(modifier=Modifier.fillMaxSize()){
             //Content
             LazyColumn(
@@ -104,7 +103,7 @@ fun ReservationSummary(
                 val isTutor=viewModel.tutorSite()
                 val qrContent=summaryState.qrContent
                 if (status.status=="Pendiente"){
-                    item{QrBanner(modifier=Modifier.fillMaxWidth(), isTutor=isTutor, qrContent=qrContent, verifScan=viewModel::verifyScanCode, scanResult=qrResult ?: false )}
+                    item{QrBanner(modifier=Modifier.fillMaxWidth(), isTutor=isTutor, qrContent=qrContent, verifScan=viewModel::verifyScanCode)}
                     item{Spacer(modifier=Modifier.height(200.dp))}
                 }
             }
@@ -144,6 +143,9 @@ fun ReservationSummary(
 
     }
     LoadingDialog(modifier=Modifier.requiredSize(200.dp), show = summaryState.isLoading)
+    if (summaryState.qrResult!=null || summaryState.qrTitleResult!=null){
+        ScanResultAlert(title=summaryState.qrTitleResult!!, result=summaryState.qrResult!!, showDialog = true, onDismiss = viewModel::clearResult)
+    }
 }
 
 @Composable
@@ -228,6 +230,36 @@ fun CancelConfirmationDialog(modifier: Modifier=Modifier, onConfirm:()->Unit, on
                 }
             ) {
                 Text("NO")
+            }
+        }
+    )
+}
+
+@Composable
+fun ScanResultAlert(title:String, result:String, showDialog: Boolean, onDismiss: () -> Unit){
+    AlertDialog(
+        onDismissRequest = {
+            onDismiss()
+        },
+        title = {
+            Text(text = title,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        text = {
+            Text(text = result,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onDismiss()
+                }
+            ) {
+                Text("OK")
             }
         }
     )

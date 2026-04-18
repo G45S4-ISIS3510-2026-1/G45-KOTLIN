@@ -23,6 +23,8 @@ data class ReservationSummaryState (
     val date : LocalDateTime = LocalDateTime.now(),
     val skill : String = "Calculo Vectorial",
     val tutor : UserData = UserData(),
+    val qrResult : String? = null,
+    val qrTitleResult : String? = null,
     val student : UserData = UserData(),
     val qrContent: String = "www.google.com"
 )
