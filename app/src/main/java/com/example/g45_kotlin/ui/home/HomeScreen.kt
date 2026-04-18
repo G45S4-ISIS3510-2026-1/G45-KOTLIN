@@ -46,7 +46,10 @@ import com.example.g45_kotlin.utilities.AnalyticsManager
 import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel(),
+    onBecomeTutor: () -> Unit = {}
+) {
     val state by viewModel.state.collectAsState()
     LaunchedEffect(Unit) {
         AnalyticsManager.setCurrentService("HOME_SERVICE")
@@ -109,7 +112,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                         }
                     }
                     Button(
-                        onClick = {},
+                        onClick = onBecomeTutor,
                         modifier = Modifier.weight(1f).height(100.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)

@@ -1,5 +1,6 @@
 package com.example.g45_kotlin.data.catalog
 
+import com.example.g45_kotlin.data.reservation.SkillSummaryDto
 import com.example.g45_kotlin.data.user.TutorSummaryDto
 
 class TutorRepository(private val apiService: ApiService = RetrofitClient.apiService) {
@@ -41,6 +42,24 @@ class TutorRepository(private val apiService: ApiService = RetrofitClient.apiSer
         }
     }
 
+    suspend fun getReviewsByAuthor(authorId: String): Result<List<ReviewResponse>> {
+        return try {
+            val response = apiService.getReviewsByAuthor(authorId)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun createReview(request: CreateReviewRequest): Result<ReviewResponse> {
+        return try {
+            val response = apiService.createReview(request)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun getTutorSkillsByIds(ids: List<String>): Result<List<String>> {
         return try{
             val response = apiService.getTutorSkillsByIds(ids)
@@ -48,6 +67,33 @@ class TutorRepository(private val apiService: ApiService = RetrofitClient.apiSer
                 res.label
             }
             Result.success(skills)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getMajors(): Result<List<String>> {
+        return try {
+            val response = apiService.getMajors()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getSkillsByMajor(major: String): Result<List<SkillSummaryDto>> {
+        return try {
+            val response = apiService.getSkillsByMajor(major)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun becomeTutor(userId: String): Result<Unit> {
+        return try {
+            apiService.becomeTutor(userId)
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }

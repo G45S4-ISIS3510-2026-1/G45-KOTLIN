@@ -19,12 +19,22 @@ data class TutorResponse(
 
 data class ReviewResponse(
     val id: String?,
-    @SerializedName("label") val label: String,
+    @SerializedName("label") val label: String = "Reseña",
     @SerializedName("rating") val rating: Float,
     @SerializedName("details") val details: String,
     @SerializedName("createdAt") val createdAt: String,
     @SerializedName("authorId") val authorId: String,
     @SerializedName("authorName") val authorName: String,
-    @SerializedName("authorImageUrl") val authorImageUrl: String?
+    @SerializedName("authorImageUrl") val authorImageUrl: String?,
+    @SerializedName("tutorId") val tutorId: String? = null,
+    @SerializedName("tutor_id") val tutorIdSnake: String? = null
 )
 
+data class CreateReviewRequest(
+    @SerializedName("tutorId") val tutorId: String,
+    @SerializedName("authorId") val authorId: String,
+    @SerializedName("rating") val rating: Float,
+    @SerializedName("label") val label: String,
+    @SerializedName("details") val details: String,
+    @SerializedName("createdAt") val createdAt: String? = null
+)

@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,12 +51,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.g45_kotlin.data.auth.AuthHolder
+import com.example.g45_kotlin.ui.LoadingDialog
 import com.example.g45_kotlin.ui.auth.LoginScreen
 import com.example.g45_kotlin.ui.home.HomeScreen
 import com.example.g45_kotlin.ui.provisional_profile.ProvisionalScreen
+import com.example.g45_kotlin.ui.reservation.gateway.ErrorDialog
 import com.example.g45_kotlin.ui.reservation.gateway.ReservationGateWay
 import com.example.g45_kotlin.ui.reservation.summary.ReservationSummary
 import com.example.g45_kotlin.ui.theme.AppTheme
+import com.example.g45_kotlin.ui.tutor.become.BecomeTutorScheduleScreen
+import com.example.g45_kotlin.ui.tutor.become.BecomeTutorSkillsScreen
+import com.example.g45_kotlin.ui.tutor.become.BecomeTutorViewModel
 import com.example.g45_kotlin.ui.tutor.catalog.CatalogoContent
 import com.example.g45_kotlin.ui.tutor.catalog.TutorDetailScreen
 import com.example.g45_kotlin.ui.tutor.catalog.TutorViewModel
@@ -91,6 +97,10 @@ fun MainScreen(modifier: Modifier = Modifier,
     val tutorsState by sharedViewModel.uiState.collectAsState()
     val sessionIds = listOf("42RKMlHLiQdRDSvAx6Xl", "4By01RFbNvgQ2Znc920k", "4By01RFbNvgQ2Znc920k")
 
+    LoadingDialog(show = tutorsState.isLoading)
+    tutorsState.error?.let { error ->
+        ErrorDialog(message = error, onDismiss = { sharedViewModel.clearError() })
+    }
 
     Scaffold(modifier=modifier.fillMaxSize(),
         bottomBar = {
@@ -117,7 +127,7 @@ fun MainScreen(modifier: Modifier = Modifier,
         ) {
             composable(Routes.home) {
                 if(isLogged){
-                    HomeScreen()
+                    HomeScreen(onBecomeTutor = { navController.navigate(Routes.becomeTutorSkills) })
                 }else{
                     LoginScreen(onLoginSuccess = {isLogged=true})
                 }
@@ -128,6 +138,8 @@ fun MainScreen(modifier: Modifier = Modifier,
                     onSearchTextChange = sharedViewModel::onSearchTextChange,
                     onOrderChange = sharedViewModel::onOrderChange,
                     onFacultadChange = sharedViewModel::onFacultadChange,
+                    onLoadNextPage = sharedViewModel::loadNextPage,
+                    onOnlyFavoritesChange = sharedViewModel::onOnlyFavoritesChange,
                     onTutorClick = {tutor->
                         sharedViewModel.onTutorSelected(tutor)
                         navController.navigate(Routes.tutorDetail)
@@ -167,10 +179,21 @@ fun MainScreen(modifier: Modifier = Modifier,
                 val tutor = tutorsState.selectedTutor
                 val reseñas=tutorsState.selectedTutorReviews
                 val skills=tutorsState.selectedTutorSkills
-                if (tutor != null) {
-                    TutorDetailScreen(tutor = tutor, reseñas=reseñas, skills=skills,
-                        onBack = { navController.popBackStack()},
-                        onBook = { navController.navigate(Routes.reservationGateway+"/${tutor.id}")})
+                val tutorId = tutor?.id
+                if (tutor != null && tutorId != null) {
+                    TutorDetailScreen(
+                        tutor = tutor,
+                        reseñas = reseñas,
+                        skills = skills,
+                        isFavorite = tutorsState.favoriteTutorIds.contains(tutorId),
+                        isLoadingReviews = tutorsState.isLoadingReviews,
+                        onBack = { navController.popBackStack() },
+                        onToggleFavorite = { sharedViewModel.toggleFavorite(tutorId) },
+                        onBook = { navController.navigate(Routes.reservationGateway + "/$tutorId") },
+                        onCreateReview = { rating, details ->
+                            sharedViewModel.createReview(rating, details)
+                        }
+                    )
                 }
             }
             composable(Routes.reservationSummary+"/{session_id}") {
@@ -196,6 +219,34 @@ fun MainScreen(modifier: Modifier = Modifier,
                     }
                 }
 
+            }
+            composable(Routes.becomeTutorSkills) {
+                val becomeTutorViewModel: BecomeTutorViewModel = viewModel()
+                BecomeTutorSkillsScreen(
+                    viewModel = becomeTutorViewModel,
+                    onNext = { navController.navigate(Routes.becomeTutorSchedule) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Routes.becomeTutorSchedule) {
+                val becomeTutorViewModel: BecomeTutorViewModel = viewModel()
+                val uiState by becomeTutorViewModel.uiState.collectAsState()
+
+                LaunchedEffect(uiState.isSuccess) {
+                    if (uiState.isSuccess) {
+                        navController.navigate(Routes.home) {
+                            popUpTo(Routes.home) { inclusive = true }
+                        }
+                    }
+                }
+
+                BecomeTutorScheduleScreen(
+                    viewModel = becomeTutorViewModel,
+                    onPublish = {
+                        becomeTutorViewModel.publishProfile()
+                    },
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }
@@ -250,4 +301,3 @@ fun MainScreenPreview(){
         MainScreen()
     }
 }
-

@@ -2,6 +2,7 @@ package com.example.g45_kotlin.ui.tutor.catalog
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,44 +22,80 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.g45_kotlin.data.catalog.ReviewResponse
 import com.example.g45_kotlin.data.catalog.TutorResponse
 import com.example.g45_kotlin.ui.theme.AppTheme
 import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 
 @Composable
-fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skills: List<String> = emptyList(), onBack: () -> Unit, onBook: () -> Unit ={}) {
+fun TutorDetailScreen(
+    tutor: TutorResponse,
+    reseñas: List<ReviewResponse>,
+    skills: List<String> = emptyList(),
+    isFavorite: Boolean = false,
+    isLoadingReviews: Boolean = false,
+    onBack: () -> Unit,
+    onBook: () -> Unit = {},
+    onToggleFavorite: () -> Unit = {},
+    onCreateReview: (rating: Float, details: String) -> Unit = { _, _ -> }
+) {
     val colorScheme = MaterialTheme.colorScheme
+    var showReviewDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit){
         GoogleAnalyticsService.logScreenAccess("TutorDetail")
     }
+
+    if (showReviewDialog) {
+        CreateReviewDialog(
+            onDismiss = { showReviewDialog = false },
+            onSubmit = { rating, details ->
+                onCreateReview(rating, details)
+                showReviewDialog = false
+            }
+        )
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = colorScheme.background
@@ -74,16 +112,37 @@ fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skil
                         .fillMaxWidth()
                         .height(350.dp)
                 ) {
+                    if (tutor.profileImageUrl.isNullOrEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = tutor.name.take(1).uppercase(),
+                                color = colorScheme.primary,
+                                style = MaterialTheme.typography.displayLarge
+                            )
+                        }
+                    } else {
+                        AsyncImage(
+                            model = tutor.profileImageUrl,
+                            contentDescription = "Foto de portada de ${tutor.name}",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .background(
                                 brush = Brush.verticalGradient(
-                                    colors = listOf(Color.Transparent, colorScheme.surfaceVariant),
+                                    colors = listOf(Color.Transparent, colorScheme.surfaceVariant.copy(alpha = 0.8f)),
                                     startY = 500f
                                 )
                             )
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
                     )
 
                     Row(
@@ -98,8 +157,15 @@ fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skil
                         ) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = colorScheme.onBackground)
                         }
-                        IconButton(onClick = { }) {
-                            Icon(Icons.Default.FavoriteBorder, contentDescription = "Favorito", tint = Color.Red)
+                        IconButton(
+                            onClick = onToggleFavorite,
+                            modifier = Modifier.background(colorScheme.background.copy(alpha = 0.7f), CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favorito",
+                                tint = Color.Red
+                            )
                         }
                     }
 
@@ -117,13 +183,33 @@ fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skil
                                 .padding(2.dp)
                                 .clip(RoundedCornerShape(14.dp))
                                 .background(MaterialTheme.colorScheme.background)
-                        )
+                        ) {
+                            if (tutor.profileImageUrl.isNullOrEmpty()) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = tutor.name.take(1).uppercase(),
+                                        color = colorScheme.primary,
+                                        style = MaterialTheme.typography.headlineLarge
+                                    )
+                                }
+                            } else {
+                                AsyncImage(
+                                    model = tutor.profileImageUrl,
+                                    contentDescription = "Avatar de ${tutor.name}",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(modifier = Modifier.padding(bottom = 8.dp)) {
                             Text(
                                 text = tutor.name,
                                 style = MaterialTheme.typography.headlineMedium,
-                                color = colorScheme.onBackground,
+                                color = Color.White, // Usamos blanco para que resalte sobre el gradiente
                                 fontWeight = FontWeight.Bold
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -137,7 +223,7 @@ fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skil
                                 Text(
                                     text = tutor.major,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = colorScheme.primary
+                                    color = Color.White.copy(alpha = 0.9f)
                                 )
                             }
                         }
@@ -151,9 +237,9 @@ fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skil
                         .padding(vertical = 24.dp, horizontal = 16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    StatItem("PUNTAJE", "${tutor.tutorRating} ★", colorScheme.onBackground)
+                    StatItem("PUNTAJE", String.format("%.1f ★", tutor.tutorRating), colorScheme.onBackground)
                     VerticalDivider(colorScheme.outlineVariant)
-                    StatItem("TUTORÍAS", 5.toString(), colorScheme.onBackground)
+                    StatItem("TUTORÍAS", tutor.receivedRatings.toString(), colorScheme.onBackground)
                     VerticalDivider(colorScheme.outlineVariant)
                     StatItem("NIVEL", "Pregrado", colorScheme.onBackground)
                 }
@@ -240,16 +326,53 @@ fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skil
 
                 // 5. Reseñas
                 Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-                    Text(
-                        text = "Reseñas",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = colorScheme.onBackground,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Reseñas",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = colorScheme.onBackground,
+                            fontWeight = FontWeight.Bold
+                        )
+                        TextButton(
+                            onClick = { showReviewDialog = true },
+                            colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Nueva Reseña", fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
-                    reseñas.forEach { reseña ->
-                        ReviewCard(reseña, colorScheme)
-                        Spacer(modifier = Modifier.height(12.dp))
+                    
+                    if (isLoadingReviews) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                color = colorScheme.primary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+                    } else if (reseñas.isEmpty()) {
+                        Text(
+                            text = "Aún no hay reseñas para este tutor.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp)
+                        )
+                    } else {
+                        reseñas.forEach { reseña ->
+                            ReviewCard(reseña, colorScheme)
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
                     }
                 }
 
@@ -283,6 +406,63 @@ fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skil
 }
 
 @Composable
+fun CreateReviewDialog(
+    onDismiss: () -> Unit,
+    onSubmit: (rating: Float, details: String) -> Unit
+) {
+    var rating by remember { mutableFloatStateOf(0f) }
+    var details by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Nueva Reseña", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text("Califica al tutor:", style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    repeat(5) { index ->
+                        val currentStar = index + 1
+                        Icon(
+                            imageVector = if (rating >= currentStar) Icons.Default.Star else Icons.Outlined.Star,
+                            contentDescription = null,
+                            tint = if (rating >= currentStar) Color(0xFFFFD700) else MaterialTheme.colorScheme.outline,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clickable { rating = currentStar.toFloat() }
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = details,
+                    onValueChange = { details = it },
+                    label = { Text("Detalles de tu experiencia") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSubmit(rating, details) },
+                enabled = rating > 0 && details.isNotBlank()
+            ) {
+                Text("Publicar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@Composable
 fun StatItem(label: String, value: String, textColor: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = label, color = textColor.copy(alpha = 0.6f), fontSize = 12.sp, fontWeight = FontWeight.Medium)
@@ -310,12 +490,31 @@ fun ReviewCard(reseña: ReviewResponse, colorScheme: ColorScheme) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(colorScheme.outlineVariant)
-                )
+                if (reseña.authorImageUrl.isNullOrEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(colorScheme.primary.copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = reseña.authorName.take(1).uppercase(),
+                            color = colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                } else {
+                    AsyncImage(
+                        model = reseña.authorImageUrl,
+                        contentDescription = "Foto de ${reseña.authorName}",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = reseña.authorName, color = colorScheme.onSurface, fontWeight = FontWeight.Bold)
@@ -350,11 +549,33 @@ fun DetailPreview() {
         TutorDetailScreen(
             tutor = TutorResponse(
                 id = "1",
-                email = "ksdajidas",
+                email = "manolo@uniandes.edu.co",
                 name = "Manolo",
-                profileImageUrl = "toffoe"
+                profileImageUrl = null,
+                major = "Ingeniería de Sistemas",
+                tutorRating = 4.5
             ),
-            reseñas=emptyList(),
+            reseñas = listOf(
+                ReviewResponse(
+                    id = "r1",
+                    rating = 5f,
+                    details = "¡Excelente tutor! Explica los conceptos de forma muy clara y tiene mucha paciencia.",
+                    createdAt = "2023-10-25",
+                    authorId = "a1",
+                    authorName = "Juan Pérez",
+                    authorImageUrl = null
+                ),
+                ReviewResponse(
+                    id = "r2",
+                    rating = 4f,
+                    details = "Muy buena sesión, me ayudó mucho con mi proyecto de algoritmos.",
+                    createdAt = "2023-10-20",
+                    authorId = "a2",
+                    authorName = "Maria Garcia",
+                    authorImageUrl = null
+                )
+            ),
+            skills = listOf("Kotlin", "Java", "Algoritmos"),
             onBack = {}
         )
     }

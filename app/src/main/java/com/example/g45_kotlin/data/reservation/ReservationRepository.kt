@@ -34,6 +34,10 @@ object ReservationRepository {
         return apiService.getSessionsByStudent(studentId)
     }
 
+    suspend fun getSessionsBetween(studentId: String, tutorId: String): Response<List<SessionDto>> {
+        return apiService.getSessionsBetween(studentId, tutorId)
+    }
+
     suspend fun getTutorSkills(ids: List<String>): Response<List<SkillSummaryDto>> {
         return apiService.getTutorSkillsByIds(ids)
     }
@@ -42,5 +46,3 @@ object ReservationRepository {
         return apiService.getParticipantData(userId)
     }
 }
-
-

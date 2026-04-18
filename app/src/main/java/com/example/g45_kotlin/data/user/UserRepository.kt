@@ -19,4 +19,12 @@ object UserRepository {
         Log.d("UserRepository", "Fetching tutors...")
         return apiService.searchTutors()
     }
+
+    suspend fun getUser(userId: String): Response<UserBackDto> {
+        return apiService.getUserById(userId)
+    }
+
+    suspend fun updateFavoriteTutors(userId: String, favTutors: List<String>): Response<UserBackDto> {
+        return apiService.updateFavTutors(userId, favTutors)
+    }
 }
