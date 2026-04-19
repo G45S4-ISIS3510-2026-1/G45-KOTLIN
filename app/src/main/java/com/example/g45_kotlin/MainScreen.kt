@@ -16,7 +16,10 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -50,8 +53,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.g45_kotlin.data.auth.AuthHolder
+import com.example.g45_kotlin.data.local.SearchHistoryManager
+import com.example.g45_kotlin.data.novelty.NoveltyDto
+import com.example.g45_kotlin.data.novelty.NoveltyType
+import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.example.g45_kotlin.ui.MainNoveltyViewModel
 import com.example.g45_kotlin.ui.auth.LoginScreen
 import com.example.g45_kotlin.ui.home.HomeScreen
+import com.example.g45_kotlin.ui.novelties.NoveltyScreen
 import com.example.g45_kotlin.ui.provisional_profile.ProvisionalScreen
 import com.example.g45_kotlin.ui.reservation.gateway.ReservationGateWay
 import com.example.g45_kotlin.ui.reservation.summary.ReservationSummary
@@ -70,13 +79,15 @@ enum class AppDestinations(
     HOME("Inicio", Icons.Default.Home),
     CATALOG("Catalogo", Icons.Default.Search),
     AGENDA("Agenda", Icons.Default.DateRange),
-    MESSAGES("Mensajes", Icons.Default.Email),
+    NOVELTIES("Novedades", Icons.Default.Notifications),
     PROFILE("Perfil", Icons.Default.AccountCircle),
 }
+
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier,
                sharedViewModel: TutorViewModel = viewModel(),
+               noveltyViewModel: MainNoveltyViewModel = viewModel(),
                navController: NavHostController= rememberNavController()){
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry?.destination
@@ -85,12 +96,30 @@ fun MainScreen(modifier: Modifier = Modifier,
     //Verify logged in with firebase auth instance
     var isLogged by rememberSaveable { mutableStateOf(authRepository.isUserLoggedIn()) }
     //Check if logged in, then show navigation bar
-    val mostrarBottomBar = currentDestination?.route in setOf(AppDestinations.HOME.label, AppDestinations.CATALOG.label, AppDestinations.AGENDA.label, AppDestinations.MESSAGES.label, AppDestinations.PROFILE.label)
+    val mostrarBottomBar = currentDestination?.route in setOf(AppDestinations.HOME.label, AppDestinations.CATALOG.label, AppDestinations.AGENDA.label, AppDestinations.NOVELTIES.label, AppDestinations.PROFILE.label)
     //Define shared viewmodel for tutor catalog and detail
     val scope = rememberCoroutineScope()
     val tutorsState by sharedViewModel.uiState.collectAsState()
-    val sessionIds = listOf("42RKMlHLiQdRDSvAx6Xl", "4By01RFbNvgQ2Znc920k", "4By01RFbNvgQ2Znc920k")
+    val searchManager= SearchHistoryManager.getInstance()
+    val unReadCount by noveltyViewModel.unreadCount.collectAsState()
 
+    fun onNoveltyClick (novelty: NoveltyDto){
+        val entityId=novelty.entityId
+        if (entityId.isNotBlank()){
+            if (novelty.type==NoveltyType.SESSION.label || novelty.type==NoveltyType.INCOMING_SESION.label){
+                navController.navigate(Routes.reservationSummary+"/$entityId")
+            }else{
+                sharedViewModel.onTutorSelected(TutorSummaryDto(
+                    id =entityId,
+                    name = "Desconocido",
+                    major = "Desconocido",
+                    rating = 0.0,
+                    sessionPrice = 0
+                ))
+                navController.navigate(Routes.tutorDetail)
+            }
+        }
+    }
 
     Scaffold(modifier=modifier.fillMaxSize(),
         bottomBar = {
@@ -102,7 +131,21 @@ fun MainScreen(modifier: Modifier = Modifier,
                         NavigationBarItem(
                             selected = currentDestination?.route == it.label,
                             onClick = { navController.navigate(it.label) },
-                            icon = {Icon(imageVector = it.icon, contentDescription = it.label)},
+                            icon = {
+                                if (it.label==AppDestinations.NOVELTIES.label){
+                                    BadgedBox(badge={
+                                        if (unReadCount>0){
+                                            Badge(containerColor = MaterialTheme.colorScheme.error) {
+                                                Text(text = unReadCount.toString())
+                                            }
+                                        }
+                                    }){
+                                        Icon(imageVector = it.icon, contentDescription = it.label)
+                                    }
+                                }else{
+                                    Icon(imageVector = it.icon, contentDescription = it.label)
+                                }
+                           },
                             label = {Text(text = it.label)}
                         )
                     }
@@ -117,7 +160,13 @@ fun MainScreen(modifier: Modifier = Modifier,
         ) {
             composable(Routes.home) {
                 if(isLogged){
-                    HomeScreen()
+                    HomeScreen(
+                        onTutorClick = {tutor->sharedViewModel.onTutorSelected(tutor);
+                            searchManager.saveQuery(tutor.id);
+                            navController.navigate(Routes.tutorDetail)}
+                    , onMoreClick = {navController.navigate(Routes.catalog)}
+                    , onSessionClick = {id->navController.navigate(Routes.reservationSummary+"/$id")}
+                    )
                 }else{
                     LoginScreen(onLoginSuccess = {isLogged=true})
                 }
@@ -129,6 +178,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                     onOrderChange = sharedViewModel::onOrderChange,
                     onFacultadChange = sharedViewModel::onFacultadChange,
                     onTutorClick = {tutor->
+                        searchManager.saveQuery(tutor.id)
                         sharedViewModel.onTutorSelected(tutor)
                         navController.navigate(Routes.tutorDetail)
                     },
@@ -138,7 +188,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                 )
             }
             composable(Routes.agenda) { PendingPage(modifier=Modifier.fillMaxSize())}
-            composable(Routes.messages) { PendingPage(modifier=Modifier.fillMaxSize())}
+            composable(Routes.novelties) { NoveltyScreen(modifier=Modifier.fillMaxSize(), onNoveltyClick = {novelty->onNoveltyClick(novelty)})}
             composable(Routes.profile) {
                 Surface(modifier=Modifier.fillMaxSize()){
                     Column(verticalArrangement = Arrangement.SpaceBetween,

@@ -5,7 +5,9 @@ import java.time.LocalDateTime
 enum class Status (val status:String) {
     PENDING("Pendiente"),
     CONCLUDED("Concluida"),
-    CANCELLED("Cancelada")
+    CANCELLED("Cancelada"),
+
+    OVERDUE("Vencida")
 }
 
 data class UserData (
@@ -21,6 +23,8 @@ data class ReservationSummaryState (
     val date : LocalDateTime = LocalDateTime.now(),
     val skill : String = "Calculo Vectorial",
     val tutor : UserData = UserData(),
+    val qrResult : String? = null,
+    val qrTitleResult : String? = null,
     val student : UserData = UserData(),
     val qrContent: String = "www.google.com"
 )

@@ -37,8 +37,7 @@ import com.journeyapps.barcodescanner.ScanOptions
 fun QrBanner (modifier: Modifier = Modifier,
               isTutor: Boolean,
               qrContent: String = "www.google.com",
-              verifScan: (String) -> Unit,
-              scanResult:Boolean=false){
+              verifScan: (String) -> Unit){
     ElevatedCard(modifier=modifier.clip(RoundedCornerShape(50.dp)), colors= CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.secondary,),
         elevation = CardDefaults.cardElevation(
@@ -47,17 +46,6 @@ fun QrBanner (modifier: Modifier = Modifier,
         if (isTutor) {
             TutorQrBanner(modifier = modifier, qrContent = qrContent)
         } else {
-            var showDialog by remember { mutableStateOf(false) }
-            var onDismiss by remember { mutableStateOf({}) }
-
-            val resultTitle: String= when(scanResult){
-                true -> "Asistencia Confirmada"
-                false -> "Asistencia Rechazada"
-            }
-            val resultText: String = when(scanResult){
-                true -> "Tu asistencia ha sido confirmada"
-                false -> "Tu asistencia no ha sido confirmada, revisa el QR nuevamente"
-            }
 
             val scanLauncher = rememberLauncherForActivityResult(
                 contract = ScanContract(),
@@ -65,8 +53,6 @@ fun QrBanner (modifier: Modifier = Modifier,
                     if (result.contents != null) {
                         verifScan(result.contents)
                     }
-                    showDialog = true
-
                 }
             )
             StudentQrBanner(modifier = modifier, onScan = {
@@ -77,10 +63,6 @@ fun QrBanner (modifier: Modifier = Modifier,
                 options.setOrientationLocked(true)
                 scanLauncher.launch(options)
             })
-
-            if (showDialog) {
-                ScanResultAlert(title = resultTitle, result = resultText, showDialog = showDialog, onDismiss = {showDialog = false})
-            }
         }
     }
 }
@@ -154,29 +136,7 @@ fun TutorQrBanner (modifier: Modifier = Modifier, qrContent: String = "www.googl
 
 }
 
-@Composable
-fun ScanResultAlert(title:String, result:String, showDialog: Boolean, onDismiss: () -> Unit){
-        AlertDialog(
-            onDismissRequest = {
-                onDismiss()
-            },
-            title = {
-                Text(text = title)
-            },
-            text = {
-                Text(text = result)
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        onDismiss()
-                    }
-                ) {
-                    Text("OK")
-                }
-            }
-        )
-    }
+
 
 
 @Composable

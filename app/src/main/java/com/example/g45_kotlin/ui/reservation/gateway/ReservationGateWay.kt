@@ -205,10 +205,10 @@ fun ErrorDialog(modifier: Modifier = Modifier, message:String, onDismiss:()->Uni
             onDismiss()
         },
         title = {
-            Text(text = "Error")
+            Text(text = "Error", style = MaterialTheme.typography.headlineMedium)
         },
         text = {
-            Text(text = message)
+            Text(text = message, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
         },
         confirmButton = {
             Button(

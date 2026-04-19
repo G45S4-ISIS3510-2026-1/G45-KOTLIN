@@ -6,5 +6,6 @@ data class ProfileUiState (
     val isLoading:Boolean=false,
     val numSessions:Int=0,
     val sessions: MutableSet<SessionDto> = mutableSetOf(),
-    val error:String=""
+    val error:String="",
+    val connected:Boolean=true
 )

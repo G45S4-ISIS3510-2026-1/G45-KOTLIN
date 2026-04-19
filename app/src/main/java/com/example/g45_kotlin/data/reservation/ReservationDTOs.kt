@@ -1,13 +1,14 @@
 package com.example.g45_kotlin.data.reservation
 
 data class SessionDto(
-    val id: String?,
-    val student: ParticipantSummaryDto,
-    val tutor: ParticipantSummaryDto,
-    val skill: SkillSummaryDto,
-    val scheduledAt: String,
-    val status: String,
-    val verifCode: String?
+    val id: String?=null,
+    val student: ParticipantSummaryDto= ParticipantSummaryDto(null,"",""),
+    val tutor: ParticipantSummaryDto= ParticipantSummaryDto(null,"",""),
+    val skill: SkillSummaryDto= SkillSummaryDto(null, ""),
+    val scheduledAt: String="",
+    val status: String="Pendiente",
+    val verifCode: String?="",
+    val price: Int?=0
 )
 
 data class SkillSummaryDto(

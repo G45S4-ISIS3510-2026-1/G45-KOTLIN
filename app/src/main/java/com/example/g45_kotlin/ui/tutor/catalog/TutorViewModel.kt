@@ -35,7 +35,7 @@ class TutorViewModel(
                     )
                 }
             }.onFailure { error ->
-                _uiState.update { it.copy(isLoading = false, error = "Error al cargar tutores: ${error.message}") }
+                _uiState.update { it.copy(isLoading = false, error = "Error al cargar tutores, revise su conexión y arrastre para reintentar") }
             }
         }
     }

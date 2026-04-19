@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,6 +42,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -67,14 +70,15 @@ fun CatalogoContent(
     onTutorClick: (TutorSummaryDto) -> Unit
 ) {
     LaunchedEffect(Unit){
-        GoogleAnalyticsService.logScreenAccess("TutorCatalog")
+        GoogleAnalyticsService.logScreenAccess("TutorProfileReview", screenClass="TutorProfile")
     }
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         LazyColumn(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp).fillMaxHeight(),
+            userScrollEnabled = false,
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             item {
@@ -151,46 +155,54 @@ fun CatalogoContent(
                 )
             }
 
-            if (uiState.isLoading) {
-                item {
-                    Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    }
-                }
-            } else if (uiState.error != null) {
-                item {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = uiState.error,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = {onRetry()}) {
-                            Text("Reintentar")
+            item {
+                PullToRefreshBox(isRefreshing = uiState.isLoading, onRefresh = {onRetry()}) {
+                    LazyColumn(modifier = Modifier.heightIn(min = 200.dp, max = 400.dp),
+                        verticalArrangement = Arrangement.spacedBy(20.dp)){
+                        if (uiState.isLoading) {
+                            item {
+                                Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                                }
+                            }
+                        } else if (uiState.error != null) {
+                            item {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(24.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = uiState.error,
+                                        color = MaterialTheme.colorScheme.error,
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
+                        } else if (uiState.filtrados.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "No se encontraron tutores",
+                                    modifier = Modifier.fillMaxWidth().padding(40.dp),
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        } else {
+                            items(uiState.filtrados) { tutor ->
+                                TutorCard(tutor, onClick = { onTutorClick(tutor) })
+                            }
                         }
+                        item { Spacer(modifier = Modifier.height(20.dp)) }
                     }
                 }
-            } else if (uiState.filtrados.isEmpty()) {
-                item {
-                    Text(
-                        text = "No se encontraron tutores",
-                        modifier = Modifier.fillMaxWidth().padding(40.dp),
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            } else {
-                items(uiState.filtrados) { tutor ->
-                    TutorCard(tutor, onClick = { onTutorClick(tutor) })
-                }
+
             }
 
-            item { Spacer(modifier = Modifier.height(20.dp)) }
+
+
+
         }
     }
 }

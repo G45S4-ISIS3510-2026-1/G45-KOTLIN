@@ -1,6 +1,9 @@
 package com.example.g45_kotlin.ui.theme
 import android.os.Build
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -8,6 +11,11 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
@@ -248,29 +256,81 @@ data class ColorFamily(
     val onColorContainer: Color
 )
 
-val unspecified_scheme = ColorFamily(
-    Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
-)
+@Composable
+fun animateColorScheme(targetColorScheme: ColorScheme): ColorScheme {
+    val duration = 1000 // 1 segundo como definiste
+
+    @Composable
+    // Función para animar los colores de el colorScheme (para cambio mas fluido entre dark y light theme)
+    fun animateColor(target: Color): Color {
+        //convierte el color en estado para poder animarlo
+        return animateColorAsState(
+            targetValue = target,
+            animationSpec = tween(durationMillis = duration)
+        ).value
+    }
+    //lo aplica a "todos" los colores del materialTheme
+    return targetColorScheme.copy(
+        primary = animateColor(targetColorScheme.primary),
+        onPrimary = animateColor(targetColorScheme.onPrimary),
+        primaryContainer = animateColor(targetColorScheme.primaryContainer),
+        onPrimaryContainer = animateColor(targetColorScheme.onPrimaryContainer),
+        secondary = animateColor(targetColorScheme.secondary),
+        onSecondary = animateColor(targetColorScheme.onSecondary),
+        secondaryContainer = animateColor(targetColorScheme.secondaryContainer),
+        onSecondaryContainer = animateColor(targetColorScheme.onSecondaryContainer),
+        tertiary = animateColor(targetColorScheme.tertiary),
+        onTertiary = animateColor(targetColorScheme.onTertiary),
+        tertiaryContainer = animateColor(targetColorScheme.tertiaryContainer),
+        onTertiaryContainer = animateColor(targetColorScheme.onTertiaryContainer),
+        error = animateColor(targetColorScheme.error),
+        onError = animateColor(targetColorScheme.onError),
+        errorContainer = animateColor(targetColorScheme.errorContainer),
+        onErrorContainer = animateColor(targetColorScheme.onErrorContainer),
+        background = animateColor(targetColorScheme.background),
+        onBackground = animateColor(targetColorScheme.onBackground),
+        surface = animateColor(targetColorScheme.surface),
+        onSurface = animateColor(targetColorScheme.onSurface),
+        surfaceVariant = animateColor(targetColorScheme.surfaceVariant),
+        onSurfaceVariant = animateColor(targetColorScheme.onSurfaceVariant),
+        outline = animateColor(targetColorScheme.outline),
+        outlineVariant = animateColor(targetColorScheme.outlineVariant),
+        scrim = animateColor(targetColorScheme.scrim),
+        inverseSurface = animateColor(targetColorScheme.inverseSurface),
+        inverseOnSurface = animateColor(targetColorScheme.inverseOnSurface),
+        inversePrimary = animateColor(targetColorScheme.inversePrimary),
+        surfaceTint = animateColor(targetColorScheme.surfaceTint)
+    )
+}
 
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false,
+    luxValue: Float=10f,
+    useSensor: Boolean=true,
     content: @Composable() () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+    var isDarkBySensor by remember { mutableStateOf(false) }
 
+    // Definir el tema en función de la luz cuando cambie el registro del sensor de luz
+    LaunchedEffect(luxValue) {
+        if (luxValue < 8f) {
+            isDarkBySensor = true  // Entra a modo oscuro si está muy oscuro
+        } else if (luxValue > 15f) {
+            isDarkBySensor = false // Solo sale si la luz sube considerablemente
+        }
+    }
+    val colorScheme = when {
+        useSensor -> if (isDarkBySensor) darkScheme else lightScheme
         darkTheme -> darkScheme
         else -> lightScheme
     }
+    val animatedColorScheme = animateColorScheme(colorScheme)
+
+
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = animatedColorScheme,
         typography = AppTypography,
         content = content
     )

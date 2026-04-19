@@ -21,12 +21,12 @@ class ReservationSummaryViewModel  (
     private val reservationRepository = ReservationRepository
     private val authRepository=AuthHolder.authRepo
 
+    private val currentUserId=authRepository.getCurrentUser()?.uid
+
 
     private val _summaryState = MutableStateFlow(ReservationSummaryState(isLoading = savedStateHandle["isLoading"] as? Boolean  ?: false))
     val summaryState: StateFlow<ReservationSummaryState> =_summaryState.asStateFlow()
 
-    private val _scanResult = MutableStateFlow<Boolean?>(savedStateHandle["scanResult"] as Boolean?)
-    val scanResult: StateFlow<Boolean?> =_scanResult.asStateFlow()
 
     val testingId="PD54rQeGzxAye0mcIuwd"
     val testingVerifCode="540CL3213123"
@@ -39,26 +39,21 @@ class ReservationSummaryViewModel  (
 
 
     fun verifyScanCode(code:String){
+
+        _summaryState.value=_summaryState.value.copy(isLoading = true, qrResult = null, qrTitleResult = null)
         viewModelScope.launch(Dispatchers.IO){
-            _summaryState.value=_summaryState.value.copy(isLoading = true)
             try{
-                val response=reservationRepository.sessionConfirmation(testingId, code)
-                _summaryState.value=_summaryState.value.copy(isLoading = false)
+                val response=reservationRepository.sessionConfirmation(sessionId, currentUserId!!, code)
                 Log.d("ReservationSummaryViewModel", "Session confirmation response: ${response.body()}")
                 if (response.isSuccessful){
-                    _summaryState.update{it.copy(status = Status.CONCLUDED)}
-                    savedStateHandle["status"]=Status.CONCLUDED
-                    _scanResult.value=true
-                    savedStateHandle["scanResult"]=true
-                    savedStateHandle["isLoading"]=false
+                    _summaryState.update{it.copy(status = Status.CONCLUDED, qrResult = "Tu asistencia ha sido confirmada exitosamente", qrTitleResult = "Asistencia Confirmada")}
                 }
                 else{
-                    _scanResult.value=false
-                    savedStateHandle["scanResult"]=false
+                    _summaryState.update{it.copy(qrResult = "Tu asistencia no ha sido confirmada, revisa que el código sea el correcto", qrTitleResult = "Asistencia No Confirmada")}
                 }
             }
             catch (e:Exception){
-                _scanResult.value=false
+                _summaryState.update{it.copy(qrResult = "No pudimos verificar tu asistencia, por favor intentalo de nuevo.", qrTitleResult = "Asistencia No Confirmada")}
             }
             _summaryState.value=_summaryState.value.copy(isLoading = false)
         }
@@ -72,6 +67,8 @@ class ReservationSummaryViewModel  (
                 if (response.isSuccessful){
                     _summaryState.update{it.copy(status = Status.CANCELLED)}
                 _summaryState.value=_summaryState.value.copy(isLoading = false)
+                }else{
+                    _summaryState.value=_summaryState.value.copy(isLoading = false)
                 }
             }
                 catch (e:Exception){
@@ -84,10 +81,14 @@ class ReservationSummaryViewModel  (
         return isTutor
     }
 
+    fun clearResult(){
+        _summaryState.value=_summaryState.value.copy(qrResult = null, qrTitleResult = null)
+    }
+
     fun fetchSessionData(savedStateHandle: SavedStateHandle=this.savedStateHandle){
         Log.d("ReservationSummaryViewModel", "Fetching session data...")
+        _summaryState.update { it.copy(isLoading = true) }
         viewModelScope.launch(Dispatchers.IO){
-            _summaryState.update { it.copy(isLoading = true) }
             try {
                 val response = reservationRepository.getSession(sessionId)
                 Log.d("ReservationSummaryViewModel", "Session data response: ${response.body()}")
@@ -132,10 +133,7 @@ class ReservationSummaryViewModel  (
                 _summaryState.value=_summaryState.value.copy(isLoading = false)
             }
         }
-        _scanResult.value=savedStateHandle["scanResult"] as Boolean?
-        _summaryState.value=_summaryState.value.copy(isLoading = false)
         Log.d("ReservationSummaryViewModel", "Session data fetched. ${summaryState.value}")
-
 
     }
 
