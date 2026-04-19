@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.g45_kotlin.ui.LoadingDialog
 import com.example.g45_kotlin.ui.theme.AppTheme
 import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 
@@ -31,6 +32,10 @@ fun ProvisionalScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel
     LaunchedEffect(Unit) {
         GoogleAnalyticsService.logScreenAccess("ProfileScreen")
     }
+    LoadingDialog(
+        show = uiState.isLoading,
+        onDismissRequest = {}
+    )
     if (uiState.sessions.isNotEmpty()){
         LazyColumn(modifier=modifier.heightIn(min=300.dp, max=600.dp)
             .padding(10.dp),
@@ -49,7 +54,7 @@ fun ProvisionalScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel
             ){
             Text(
                 modifier=modifier.fillMaxWidth(),
-                text=uiState.error,
+                text=if (uiState.error!="" || !uiState.connected) uiState.error else "No se encontraron reservas",
                 color=MaterialTheme.colorScheme.error
             )
             Button(onClick = {viewModel.retriveSessions()}) {

@@ -4,7 +4,7 @@ object Routes {
     val home="Inicio"
     val catalog="Catalogo"
     val agenda="Agenda"
-    val messages="Mensajes"
+    val novelties="Novedades"
     val profile="Perfil"
     val tutorDetail="tutor_detail"
     val reservationSummary="reservation_summary"

@@ -17,6 +17,7 @@ import com.example.g45_kotlin.data.auth.AuthRepository
 import com.example.g45_kotlin.data.local.SearchHistoryManager
 import com.example.g45_kotlin.ui.theme.AppTheme
 import com.example.g45_kotlin.utilities.LightSensorManager
+import com.example.g45_kotlin.utilities.NetworkMonitor
 import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
         AuthHolder.authRepo= AuthRepository.getInstance(this)
         SearchHistoryManager.getInstance(this)
+        NetworkMonitor.startMonitoring(this)
         setContent {
             val lux by lightSensorManager.luxValue.collectAsState()
             AppTheme (luxValue = lux, useSensor = lightSensorManager.deviceHasLightSensor()) {
@@ -44,6 +46,11 @@ class MainActivity : ComponentActivity() {
     override fun onStop(){
         super.onStop()
         lightSensorManager.stop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        NetworkMonitor.stopMonitoring()
     }
 
 
