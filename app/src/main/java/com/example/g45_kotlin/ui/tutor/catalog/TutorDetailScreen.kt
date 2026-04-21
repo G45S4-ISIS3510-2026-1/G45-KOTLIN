@@ -36,6 +36,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,15 +53,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.g45_kotlin.data.catalog.ReviewResponse
 import com.example.g45_kotlin.data.catalog.TutorResponse
+import com.example.g45_kotlin.ui.CommonErrorDialog
 import com.example.g45_kotlin.ui.theme.AppTheme
 import com.example.g45_kotlin.utilities.GoogleAnalyticsService
+import com.example.g45_kotlin.utilities.NetworkMonitor
 
 @Composable
 fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skills: List<String> = emptyList(), onBack: () -> Unit, onBook: () -> Unit ={}) {
     val colorScheme = MaterialTheme.colorScheme
+    val connected by NetworkMonitor.isOnline.collectAsState()
+    var showConnectionError by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit){
-        GoogleAnalyticsService.logScreenAccess("TutorDetail")
+        GoogleAnalyticsService.logScreenAccess("TutorProfileReview", screenClass = "TutorProfile")
+    }
+    if (showConnectionError) {
+        CommonErrorDialog(message = "Sin conexión. Por favor revisa tu conexión a internet ante de entrar a la pasarela de reservas", onDismiss = { showConnectionError = false })
     }
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -262,7 +274,13 @@ fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skil
                     .padding(24.dp)
             ) {
                 Button(
-                    onClick = {onBook()},
+                    onClick = {if (connected){
+                        onBook()
+                        }
+                        else{
+                            showConnectionError=true
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(64.dp),

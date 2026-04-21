@@ -9,17 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +31,7 @@ import com.journeyapps.barcodescanner.ScanOptions
 @Composable
 fun QrBanner (modifier: Modifier = Modifier,
               isTutor: Boolean,
+              connected:Boolean,
               qrContent: String = "www.google.com",
               verifScan: (String) -> Unit){
     ElevatedCard(modifier=modifier.clip(RoundedCornerShape(50.dp)), colors= CardDefaults.cardColors(
@@ -62,14 +58,15 @@ fun QrBanner (modifier: Modifier = Modifier,
                 options.setCameraId(0)
                 options.setOrientationLocked(true)
                 scanLauncher.launch(options)
-            })
+            }, enabled = connected)
         }
     }
 }
 
 @Composable
 fun StudentQrBanner (modifier: Modifier = Modifier,
-                     onScan: () -> Unit) {
+                     onScan: () -> Unit,
+                     enabled: Boolean = true) {
     Column(modifier=modifier.padding(10.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally){
@@ -86,7 +83,7 @@ fun StudentQrBanner (modifier: Modifier = Modifier,
         Box(modifier=Modifier.padding(10.dp).fillMaxWidth(),
             contentAlignment = Alignment.Center
             ){
-            Button(onClick = onScan) {
+            Button(onClick = onScan, enabled = enabled) {
                 Text(text = "Escanear QR",
                     style = MaterialTheme.typography.headlineMedium
                 )
@@ -143,6 +140,6 @@ fun TutorQrBanner (modifier: Modifier = Modifier, qrContent: String = "www.googl
 @Preview
 fun QrBannerPreview(modifier: Modifier = Modifier){
     AppTheme() {
-        QrBanner(modifier = modifier, isTutor = true, qrContent = "www.google.com", verifScan = {true})
+        QrBanner(modifier = modifier, isTutor = true, qrContent = "www.google.com", verifScan = {true}, connected = true)
     }
 }

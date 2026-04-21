@@ -12,6 +12,9 @@ import kotlinx.coroutines.tasks.await
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import com.google.firebase.firestore.Filter
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import java.time.Duration
 import java.time.Instant
 import java.util.Date
@@ -84,6 +87,65 @@ class ReservationsFireStoreManager {
             throw e
         }
     }
+
+    suspend fun getSessionById(sessionId: String): SessionDto? {
+        return try {
+            val snapshot = db.collection("sessions").document(sessionId).get().await()
+            val session=mapSnapshotToSession(snapshot)
+            session
+
+        }catch(e: Exception){
+            Log.d("ReservationsFireStoreBridge", "Error getting session: ${e.message}")
+            throw e
+        }
+    }
+
+    fun listenToUserSessions(userId: String, tutor: Boolean = false, dayRange: Int? = null): Flow<List<SessionDto>> = callbackFlow {
+        // Buscar todas las notificaciones pendientes
+        var query: Query = db.collection("sessions")
+
+        if (tutor) {
+            query = query.whereEqualTo("tutor.id", userId)
+        } else {
+            query = query.whereEqualTo("student.id", userId)
+        }
+
+        // Aplicar filtro de fecha si corresponde
+        if (dayRange != null) {
+            val startOfDay = Instant.now().minus(Duration.ofDays(dayRange.toLong()))
+            val startTimeStamp = Timestamp(startOfDay.epochSecond, startOfDay.nano)
+            query = query.whereGreaterThanOrEqualTo("scheduledAt", startTimeStamp)
+        }
+
+        // Ordenar por fecha de creación
+        query = query.orderBy("scheduledAt", Query.Direction.DESCENDING)
+
+        // Registrar listener para obtener flujo directamente desde firestore
+        val registration = query.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                Log.e("ReservationFireStoreBridge", "Error en listener: ${error.message}")
+                close(error) // Cierra el flow si hay un error crítico
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null) {
+                // Aquí usamos toObjects para mapear automáticamente
+                val sessions = snapshot.documents.mapNotNull { mapSnapshotToSession(it) }
+
+                // Emitir la nueva lista al Flow
+                trySend(sessions)
+                Log.d("ReservationFireStoreBridge", "Reservas actualizadas: ${sessions.size}")
+            }
+        }
+
+        // Cerrar el listener/flujo cuando se deja de usar para evitar consumo excesivo de memoria
+        awaitClose {
+            Log.d("ReservationFireStoreBridge", "Cerrando SnapshotListener")
+            registration.remove()
+        }
+    }
+
+
 }
 
 

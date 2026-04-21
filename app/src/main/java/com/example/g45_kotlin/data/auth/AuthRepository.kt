@@ -3,6 +3,8 @@ package com.example.g45_kotlin.data.auth
 import android.content.Context
 import android.util.Log
 import com.example.g45_kotlin.data.baseUrl
+import com.example.g45_kotlin.data.local.SearchHistoryManager
+import com.example.g45_kotlin.data.recommendation.RecommendedUserRepository
 import com.google.android.gms.tasks.Tasks.await
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -20,6 +22,9 @@ class AuthRepository (context: Context) {
         .build()
         .create(AuthUserApiInterface::class.java)}
 
+    private val searchHistoryManager= SearchHistoryManager.getInstance()
+    private val recommendedUserRepository= RecommendedUserRepository
+
     fun getCurrentUser(): UserDto? {
         return auth.currentUser?.toDto()
     }
@@ -32,6 +37,8 @@ class AuthRepository (context: Context) {
 
     suspend fun signOut() {
         deleteLocalUser()
+        recommendedUserRepository.clearCache()
+        searchHistoryManager.clearHistory()
         fcm.deleteToken()
         auth.signOut()
     }

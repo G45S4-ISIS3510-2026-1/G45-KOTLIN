@@ -12,13 +12,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,12 +36,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.g45_kotlin.ui.CommonErrorDialog
 import com.example.g45_kotlin.ui.LoadingDialog
 import com.example.g45_kotlin.ui.reservation.gateway.components.PaymentSelection
 import com.example.g45_kotlin.ui.reservation.gateway.components.SessionSelection
 import com.example.g45_kotlin.ui.reservation.gateway.components.SkillSelector
 import com.example.g45_kotlin.ui.reservation.gateway.components.TutorBanner
 import com.example.g45_kotlin.ui.theme.AppTheme
+import com.example.g45_kotlin.utilities.NetworkMonitor
+import com.example.g45_kotlin.utilities.getDaysOfCurrentWeek
 import kotlinx.coroutines.launch
 
 @Composable
@@ -50,6 +53,7 @@ fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGate
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val currentPaymentType = selectionState.selectedPaymentType
+    val connected by NetworkMonitor.isOnline.collectAsState()
 
 
     LaunchedEffect(currentPaymentType){
@@ -59,9 +63,12 @@ fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGate
             }
         }
     }
-    LoadingDialog(show=selectionState.isLoading, modifier=Modifier.requiredSize(200.dp))
+    LoadingDialog(show=selectionState.isLoading, modifier=Modifier)
     if (selectionState.error!=""){
-        ErrorDialog(message = selectionState.error, onDismiss = {viewModel.clearError()})
+        if (selectionState.error.contains("No hay conexión a internet") || selectionState.error.contains("servidor")) {
+            CommonErrorDialog(message = selectionState.error, onDismiss = {viewModel.clearError();onBack()})
+        }else{
+        CommonErrorDialog(message = selectionState.error, onDismiss = {viewModel.clearError()})}
     }
 
     Column(modifier=modifier){
@@ -84,6 +91,22 @@ fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGate
                 style=MaterialTheme.typography.displaySmall
             )
         }
+        if (!connected){
+            Spacer(modifier=modifier.height(20.dp))
+            Column(){
+                Text(
+                    text="Sin conexión",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Text(
+                    text="Necesita conexión para agendar tutoría. Revise su conexión antes de continuar",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.error
+                )
+
+            }
+        }
         Box(modifier=modifier.fillMaxSize().padding(5.dp)) {
             LazyColumn(
                 modifier = modifier,
@@ -102,8 +125,8 @@ fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGate
                     state=selectionState,
                     onDateSelection = {viewModel.selectDate(it)},
                     onHourSelection = {viewModel.selectHour(it)},
-                    days=viewModel.getDates(),
-                    hours=viewModel.getHours()
+                    days= getDaysOfCurrentWeek(),
+                    hours= selectionState.hours
 
                 ) }
                 item { StepLabel(modifier = modifier, step = 2, label = "Habilidad a Trabajar") }
@@ -126,7 +149,6 @@ fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGate
 
 @Composable
 fun ConfirmationBanner(modifier: Modifier = Modifier, state: ReservationGatewayState, onConfirm: () -> Unit = {}) {
-    /*TODO*/
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape=RoundedCornerShape(25.dp),
@@ -185,41 +207,19 @@ fun StepLabel(modifier: Modifier = Modifier, step:Int, label:String) {
                 .fillMaxSize(),
                 contentAlignment = Alignment.Center){
                 Text(text = "$step",
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier,
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center
                 )
             }
         }
+        Spacer(modifier=modifier.width(10.dp))
         Text(text = label,
             modifier = modifier,
-            style = MaterialTheme.typography.headlineSmall
+            fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+            style = MaterialTheme.typography.headlineLarge
         )
     }
-}
-
-@Composable
-fun ErrorDialog(modifier: Modifier = Modifier, message:String, onDismiss:()->Unit={}){
-    AlertDialog(
-        onDismissRequest = {
-            onDismiss()
-        },
-        title = {
-            Text(text = "Error", style = MaterialTheme.typography.headlineMedium)
-        },
-        text = {
-            Text(text = message, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    onDismiss()
-                }
-            ) {
-                Text("OK")
-            }
-        }
-    )
 }
 
 @SuppressLint("ViewModelConstructorInComposable")

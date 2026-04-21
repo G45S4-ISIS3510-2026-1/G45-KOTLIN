@@ -26,5 +26,6 @@ data class ReservationSummaryState (
     val qrResult : String? = null,
     val qrTitleResult : String? = null,
     val student : UserData = UserData(),
-    val qrContent: String = "www.google.com"
+    val qrContent: String = "www.google.com",
+    val fetchError : String? = null
 )

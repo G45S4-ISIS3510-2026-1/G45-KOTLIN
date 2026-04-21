@@ -15,6 +15,7 @@ composeBom = "2024.09.00"
 material3Version = "1.2.0"
 materialIconsCore = "latest_version"
 retrofit = "3.0.0"
+securityCrypto = "1.1.0"
 uiTextGoogleFonts = "1.10.4"
 material3 = "1.4.0"
 animation = "1.10.3"
@@ -35,6 +36,7 @@ androidx-lifecycle-viewmodel-savedstate = { module = "androidx.lifecycle:lifecyc
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

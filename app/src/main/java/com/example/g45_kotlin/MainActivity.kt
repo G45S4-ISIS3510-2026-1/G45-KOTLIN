@@ -10,11 +10,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.g45_kotlin.data.auth.AuthHolder
 import com.example.g45_kotlin.data.auth.AuthRepository
 import com.example.g45_kotlin.data.local.SearchHistoryManager
+import com.example.g45_kotlin.data.recommendation.RecommendationDatabase
 import com.example.g45_kotlin.ui.theme.AppTheme
 import com.example.g45_kotlin.utilities.LightSensorManager
 import com.example.g45_kotlin.utilities.NetworkMonitor
@@ -22,17 +25,30 @@ import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
     private lateinit var lightSensorManager: LightSensorManager
+
+    private var liveTheme by mutableStateOf(true)
+
+    fun changeLiveTheme(value: Boolean){
+        liveTheme = value
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Initialize LightSensorManager
         lightSensorManager = LightSensorManager(this)
         enableEdgeToEdge()
-        FirebaseApp.initializeApp(this)
-        AuthHolder.authRepo= AuthRepository.getInstance(this)
+        // Initialize Search History Preference
         SearchHistoryManager.getInstance(this)
+        // Initialize Network Monitor
         NetworkMonitor.startMonitoring(this)
+        //Initialize Rooms
+        RecommendationDatabase.getInstance(this)
+        AuthHolder.authRepo= AuthRepository.getInstance(this)
+        // Initialize Firebase
+        FirebaseApp.initializeApp(this)
         setContent {
             val lux by lightSensorManager.luxValue.collectAsState()
-            AppTheme (luxValue = lux, useSensor = lightSensorManager.deviceHasLightSensor()) {
+            AppTheme (luxValue = lux, useSensor = lightSensorManager.deviceHasLightSensor() && liveTheme) {
                 val navController = rememberNavController()
                 MainScreen(navController = navController)
             }

@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
@@ -56,12 +55,12 @@ import com.example.g45_kotlin.data.auth.AuthHolder
 import com.example.g45_kotlin.data.local.SearchHistoryManager
 import com.example.g45_kotlin.data.novelty.NoveltyDto
 import com.example.g45_kotlin.data.novelty.NoveltyType
-import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.example.g45_kotlin.data.recommendation.TutorSummaryDto
 import com.example.g45_kotlin.ui.MainNoveltyViewModel
 import com.example.g45_kotlin.ui.auth.LoginScreen
 import com.example.g45_kotlin.ui.home.HomeScreen
 import com.example.g45_kotlin.ui.novelties.NoveltyScreen
-import com.example.g45_kotlin.ui.provisional_profile.ProvisionalScreen
+import com.example.g45_kotlin.ui.profile.pages.reservations.ReservationListScreen
 import com.example.g45_kotlin.ui.reservation.gateway.ReservationGateWay
 import com.example.g45_kotlin.ui.reservation.summary.ReservationSummary
 import com.example.g45_kotlin.ui.theme.AppTheme
@@ -193,7 +192,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                 Surface(modifier=Modifier.fillMaxSize()){
                     Column(verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.CenterHorizontally){
-                        ProvisionalScreen(onReservationClick = {id->navController.navigate(Routes.reservationSummary+"/${id}")})
+                        ReservationListScreen (onReservationClick = {id->navController.navigate(Routes.reservationSummary+"/${id}")})
                         Surface(){
                             Button(onClick = {
                                 scope.launch(Dispatchers.IO) {

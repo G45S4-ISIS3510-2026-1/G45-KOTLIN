@@ -2,7 +2,7 @@ package com.example.g45_kotlin.ui.tutor.catalog
 
 import com.example.g45_kotlin.data.catalog.ReviewResponse
 import com.example.g45_kotlin.data.catalog.TutorResponse
-import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.example.g45_kotlin.data.recommendation.TutorSummaryDto
 
 data class CatalogoUiState(
     val searchText: String = "",

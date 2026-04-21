@@ -8,8 +8,7 @@ import com.example.g45_kotlin.data.reservation.ParticipantSummaryDto
 import com.example.g45_kotlin.data.reservation.ReservationRepository
 import com.example.g45_kotlin.data.reservation.SessionDto
 import com.example.g45_kotlin.data.reservation.SkillSummaryDto
-import com.example.g45_kotlin.utilities.getDaysOfCurrentWeek
-import com.google.gson.Gson
+import com.example.g45_kotlin.utilities.NetworkMonitor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -66,7 +65,8 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
     fun selectDate (date:LocalDate) {
         currentDate = date
         currentHour=""
-        _sessionSelection.value = _sessionSelection.value.copy(selectedDate = date, selectedHour = "")
+        val weekday=currentDate.dayOfWeek.name
+        _sessionSelection.value = _sessionSelection.value.copy(selectedDate = date, selectedHour = "", hours = availability[weekday] ?: emptyList())
     }
 
     fun selectHour (hour:String) {
@@ -74,19 +74,6 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
         _sessionSelection.value = _sessionSelection.value.copy(selectedHour = hour)
     }
 
-    fun getSkillsData():List<SkillSummaryDto>{
-        return skillsData
-    }
-
-
-    fun getDates () : List<LocalDate> {
-        return getDaysOfCurrentWeek()
-    }
-
-    fun getHours () : List <String> {
-        val weekday=currentDate.dayOfWeek.name
-        return availability[weekday] ?: emptyList()
-    }
 
     fun getPaymentMethods () : MutableSet<PaymentMethod> {
         /*TODO*/
@@ -138,7 +125,12 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
     val tutorId=savedStateHandle.get<String>("tutor_id") ?: "tesTutorId"
     val studentId=AuthHolder.authRepo.getCurrentUser()?.uid ?: "testStudentId"
     fun registerSession(onSuccess:(String)->Unit={}){
-        if(this::currentHour.isInitialized && currentSkill!=null ){
+        if(!NetworkMonitor.isOnline.value){
+            Log.d("ReservationGatewayViewModel", "No internet connection")
+            _sessionSelection.value = _sessionSelection.value.copy(error = "No hay conexión a internet. Necesitamos conexión para confirmar tu reserva. Porfavor revisa tu conexión y vuelve a intentarlo.")
+            return
+        }
+        else if(this::currentHour.isInitialized && currentSkill!=null ){
             if (currentHour!="" ){
                 val scheduling=parsecheduling()
                 Log.d("ReservationGatewayViewModel", "Scheduling: $scheduling")
@@ -166,7 +158,10 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
                             val json=JSONObject(rawBody!!)
                             val message=json.getString("detail")
                             Log.d("ReservationGatewayViewModel", "Error creating session: $message")
-                            _sessionSelection.value = _sessionSelection.value.copy(error = "${message ?: "Hay problemas en servidor, por favor intentelo mas tarde"}")
+                            if (message.contains("Unable") || message.contains("Invalid") || message.contains("timeout")){
+                                _sessionSelection.value = _sessionSelection.value.copy(error = "Error conectando con el servidor. Revisa tu conexión e intentalo nuevamente.")
+                            }
+
                         }
 
                         _sessionSelection.value = _sessionSelection.value.copy(isLoading = false)
@@ -206,43 +201,66 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
         }else{
             selectDate(tomorrow.plusDays(1))
         }
+        if(!NetworkMonitor.isOnline.value){
+            _sessionSelection.value = _sessionSelection.value.copy(error = "No hay conexión a internet. La pasarela de reservas solo está disponible en línea. Por favor revisa tu conexión y vuelve a intentarlo.")
+            return
+        }
         skillsData.clear()
         viewModelScope.launch(Dispatchers.IO) {
             try{
                 val response=reservationRep.getParticipantData(tutorId)
                 if (response.isSuccessful){
                     val tutorData=response.body()
-                    val tutor=TutorUser(
-                        name = tutorData?.name ?: "",
-                        major = tutorData?.major ?: "",
-                        skills = tutorData?.tutoringSkills?: emptyList(),
-                        sessionPrice = tutorData?.sessionPrice ?: 0,
-                        currentRating = tutorData?.tutorRating ?: 0.0,
-                        picture = tutorData?.profileImageUrl ?: ""
-                    )
-                    _sessionSelection.value = _sessionSelection.value.copy(sessionTutor = tutor)
-                    val tutorAvailability=tutorData?.availability
-                    Log.d("ReservationGatewayViewModel", "Tutor availability: $tutorAvailability")
-                    if (tutorAvailability != null) {
-                        availability["MONDAY"] = tutorAvailability.monday.map { hour -> formatHour(hour) }
-                        availability["TUESDAY"] = tutorAvailability.tuesday.map { hour -> formatHour(hour) }
-                        availability["WEDNESDAY"] = tutorAvailability.wednesday.map { hour -> formatHour(hour) }
-                        availability["THURSDAY"] = tutorAvailability.thursday.map { hour -> formatHour(hour) }
-                        availability["FRIDAY"] = tutorAvailability.friday.map { hour -> formatHour(hour) }
-                        availability["SATURDAY"] = tutorAvailability.saturday.map { hour -> formatHour(hour) }
-                    }
-                    val skillsResponse=reservationRep.getTutorSkills(tutorData?.tutoringSkills ?: emptyList())
-                    if (skillsResponse.isSuccessful){
-                        Log.d("ReservationGatewayViewModel", "Tutor skills: ${skillsResponse.body()}")
-                        skillsData.addAll(skillsResponse.body() ?: emptyList())
-                        _sessionSelection.value = _sessionSelection.value.copy(tutorSkills = skillsResponse.body() ?: emptyList())
+                    withContext(Dispatchers.Main){
+                        val tutor=TutorUser(
+                            name = tutorData?.name ?: "",
+                            major = tutorData?.major ?: "",
+                            skills = tutorData?.tutoringSkills?: emptyList(),
+                            sessionPrice = tutorData?.sessionPrice ?: 0,
+                            currentRating = tutorData?.tutorRating ?: 0.0,
+                            picture = tutorData?.profileImageUrl ?: ""
+                        )
+                        _sessionSelection.value = _sessionSelection.value.copy(sessionTutor = tutor)
+                        val tutorAvailability=tutorData?.availability
+                        Log.d("ReservationGatewayViewModel", "Tutor availability: $tutorAvailability")
+                        if (tutorAvailability != null) {
+                            availability["MONDAY"] = tutorAvailability.monday.map { hour -> formatHour(hour) }
+                            availability["TUESDAY"] = tutorAvailability.tuesday.map { hour -> formatHour(hour) }
+                            availability["WEDNESDAY"] = tutorAvailability.wednesday.map { hour -> formatHour(hour) }
+                            availability["THURSDAY"] = tutorAvailability.thursday.map { hour -> formatHour(hour) }
+                            availability["FRIDAY"] = tutorAvailability.friday.map { hour -> formatHour(hour) }
+                            availability["SATURDAY"] = tutorAvailability.saturday.map { hour -> formatHour(hour) }
+                        }
+                        selectDate(currentDate)
                     }
 
+                    val skillsResponse=reservationRep.getTutorSkills(tutorData?.tutoringSkills ?: emptyList())
+                    withContext(Dispatchers.Main){
+                        if (skillsResponse.isSuccessful){
+                            Log.d("ReservationGatewayViewModel", "Tutor skills: ${skillsResponse.body()}")
+                            skillsData.addAll(skillsResponse.body() ?: emptyList())
+                            _sessionSelection.value = _sessionSelection.value.copy(tutorSkills = skillsResponse.body() ?: emptyList())
+                        }else{
+                            Log.d("ReservationGatewayViewModel", "Error fetching tutor skills: ${skillsResponse.errorBody()?.string()}")
+                            _sessionSelection.value = _sessionSelection.value.copy(error = "Error recuperando las habilidades del tutor del servidor. Revisa tu conexión e intentalo denuevo mas tarde.")
+                        }
+                    }
+
+                }else{
+                    Log.d("ReservationGatewayViewModel", "Error fetching tutor data: ${response.errorBody()?.string()}")
+                    withContext(Dispatchers.Main){
+                        _sessionSelection.value = _sessionSelection.value.copy(error = "Error recuperando la disponibilidad del tutor del servidor. Revisa tu conexión e intentalo denuevo mas tarde.")
+                    }
                 }
             }catch (e:Exception){
                 Log.d("ReservationGatewayViewModel", "Error fetching tutor data: ${e.message}")
+                withContext(Dispatchers.Main){
+                    _sessionSelection.value = _sessionSelection.value.copy(error = "Error recuperando la disponibilidad del tutor del servidor. Revisa tu conexión e intentalo denuevo mas tarde.")
+                }
             }
-            _sessionSelection.value = _sessionSelection.value.copy(isLoading = false)
+            withContext(Dispatchers.Main){
+                _sessionSelection.value = _sessionSelection.value.copy(isLoading = false)
+            }
         }
     }
 

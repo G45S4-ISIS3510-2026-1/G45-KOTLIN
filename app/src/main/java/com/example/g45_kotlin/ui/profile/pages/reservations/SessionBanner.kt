@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.home.components
+package com.example.g45_kotlin.ui.profile.pages.reservations
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,39 +31,19 @@ import com.example.g45_kotlin.R
 import com.example.g45_kotlin.data.reservation.ParticipantSummaryDto
 import com.example.g45_kotlin.data.reservation.SessionDto
 import com.example.g45_kotlin.data.reservation.SkillSummaryDto
+import com.example.g45_kotlin.ui.reservation.summary.Status
 import com.example.g45_kotlin.ui.theme.AppTheme
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
 import kotlin.math.abs
 
 @Composable
 fun SessionBanner(modifier: Modifier = Modifier,
                   session: SessionDto,
                   onClick: (String) -> Unit = {},
-                  currentUserId: String? = null,
-                  currentTime: LocalDateTime= LocalDateTime.now(ZoneId.of("America/Bogota"))) {
+                  currentUserId: String? = null,) {
 
     val sessionLocalDateTime= ZonedDateTime.parse(session.scheduledAt).toLocalDateTime()
-    val daysTillSession= ChronoUnit.DAYS.between(currentTime, sessionLocalDateTime)
-    val hoursTillSession= ChronoUnit.HOURS.between(currentTime, sessionLocalDateTime)-daysTillSession*24
-    val minutesTillSession= ChronoUnit.MINUTES.between(currentTime, sessionLocalDateTime)-hoursTillSession*60
 
-    var timeStatus=""
-    if (daysTillSession>0L){
-        timeStatus="En $daysTillSession ${if (daysTillSession==1L) "día" else "días"}"
-    }else if (hoursTillSession>0L && daysTillSession==0L){
-        timeStatus="En $hoursTillSession horas y $minutesTillSession minutos"
-    }else if (hoursTillSession==0L && daysTillSession==0L){
-        if (minutesTillSession>0L){
-            timeStatus="En $minutesTillSession minutos"
-        }else{
-            timeStatus="En progreso"
-        }
-    }else{
-        timeStatus="Terminada"
-    }
     Card(
         modifier = modifier.requiredHeightIn(min = 150.dp, max = 200.dp).clickable(onClick = { onClick(session.id!!) }),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -108,8 +88,7 @@ fun SessionBanner(modifier: Modifier = Modifier,
                         )
                     }
                 }
-
-                val color = if (timeStatus=="En progreso"){MaterialTheme.colorScheme.primary}else if (timeStatus=="Terminada"){MaterialTheme.colorScheme.error} else {MaterialTheme.colorScheme.tertiary}
+                val color = if (session.status==Status.CONCLUDED.status){MaterialTheme.colorScheme.tertiary}else if (session.status==Status.PENDING.status){MaterialTheme.colorScheme.primary} else {MaterialTheme.colorScheme.error}
                 Surface(
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                     color = color,
@@ -118,7 +97,7 @@ fun SessionBanner(modifier: Modifier = Modifier,
                     Text(
                         modifier=Modifier.padding(5.dp),
                         textAlign = TextAlign.Center,
-                        text = timeStatus,
+                        text = session.status,
                         style = MaterialTheme.typography.titleLarge
                     )
                 }

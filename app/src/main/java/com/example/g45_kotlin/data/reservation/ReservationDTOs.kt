@@ -6,7 +6,7 @@ data class SessionDto(
     val tutor: ParticipantSummaryDto= ParticipantSummaryDto(null,"",""),
     val skill: SkillSummaryDto= SkillSummaryDto(null, ""),
     val scheduledAt: String="",
-    val status: String="Pendiente",
+    var status: String="Pendiente",
     val verifCode: String?="",
     val price: Int?=0
 )

@@ -2,11 +2,11 @@ package com.example.g45_kotlin.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -30,6 +30,7 @@ fun NoContentOrConnectionWidget(modifier: Modifier =Modifier, size: Int, text_st
             modifier = Modifier.requiredSize(size.dp),
             tint=MaterialTheme.colorScheme.onSurface
         )
+        Spacer(modifier=Modifier.height(10.dp))
         Text(
             text = message,
             modifier = Modifier.fillMaxWidth(),
@@ -44,7 +45,7 @@ fun NoContentOrConnectionWidget(modifier: Modifier =Modifier, size: Int, text_st
 @Composable
 fun NoContentOrConnectionWidgetPreview(){
     Surface(){
-        NoContentOrConnectionWidget(modifier = Modifier.fillMaxSize(), size = 200, missingConnection = false)
+        NoContentOrConnectionWidget(modifier = Modifier.fillMaxSize(), size = 200, missingConnection = true)
     }
 
 }

@@ -3,9 +3,7 @@ package com.example.g45_kotlin.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -43,10 +41,9 @@ fun LoadingDialog(
         ) {
             Card(
                 modifier = modifier
-                    .fillMaxWidth(0.8f)
-                    .aspectRatio(1f)
+                    .fillMaxSize()
                     .clip(RoundedCornerShape(16.dp)),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(
                     modifier = Modifier
@@ -65,9 +62,9 @@ fun LoadingDialog(
 
                     Text(
                         text = "Cargando...",
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.headlineLarge,
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onTertiary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.g45_kotlin.data.catalog.ReviewResponse
 import com.example.g45_kotlin.data.catalog.TutorRepository
 import com.example.g45_kotlin.data.catalog.TutorResponse
-import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.example.g45_kotlin.data.recommendation.TutorSummaryDto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
