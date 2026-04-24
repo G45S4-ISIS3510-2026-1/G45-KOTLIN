@@ -5,6 +5,7 @@ object Routes {
     val catalog="Catalogo"
     val agenda="Agenda"
     val novelties="Novedades"
+    //
     val profile="Perfil"
     val tutorDetail="tutor_detail"
     val reservationSummary="reservation_summary"
