@@ -7,3 +7,4 @@ data class LoginState(
     val user: UserDto? = null,
     val error: String? = null
 )
+

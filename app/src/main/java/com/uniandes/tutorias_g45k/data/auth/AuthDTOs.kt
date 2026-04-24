@@ -10,8 +10,18 @@ import com.uniandes.tutorias_g45k.data.reservation.AvailabilityDto
 data class UserDto(
     @PrimaryKey val uid: String,
     @ColumnInfo(name = "email") val email: String?,
-    @ColumnInfo(name="displayName")val displayName: String?,
-    @ColumnInfo(name="photoUrl") val photoUrl: String?
+    @ColumnInfo(name = "displayName") val displayName: String?,
+    @ColumnInfo(name = "photoUrl") val photoUrl: String?,
+    
+    //Campos extendidos
+    @ColumnInfo(name = "major") val major: String = "Música",
+    @ColumnInfo(name = "uniandesId") val uniandesId: String? = "23123231",
+    @ColumnInfo(name = "isTutoring") val isTutoring: Boolean = false,
+    @ColumnInfo(name = "tutoringSkills") val tutoringSkills: List<String> = emptyList(),
+    @ColumnInfo(name = "availability") val availability: AvailabilityDto = AvailabilityDto(),
+    @ColumnInfo(name = "sessionPrice") val sessionPrice: Int = 0,
+    @ColumnInfo(name = "tutorRating") val tutorRating: Double = 0.0,
+    @ColumnInfo(name = "receivedRatings") val receivedRatings: Int = 0
 )
 
 data class UserBackDto(
@@ -32,3 +42,19 @@ data class UserBackDto(
     val tutorRating: Double = 0.0,
     val receivedRatings: Int = 0,
 )
+
+fun UserBackDto.toEntity() = UserDto(
+    uid = id ?: "",
+    email = email,
+    displayName = name,
+    photoUrl = profileImageUrl,
+    major = major,
+    uniandesId = uniandesId,
+    isTutoring = isTutoring,
+    tutoringSkills = tutoringSkills,
+    availability = availability,
+    sessionPrice = sessionPrice,
+    tutorRating = tutorRating,
+    receivedRatings = receivedRatings
+)
+

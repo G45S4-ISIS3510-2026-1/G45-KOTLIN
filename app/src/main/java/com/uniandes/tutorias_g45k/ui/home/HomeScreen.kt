@@ -43,11 +43,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import com.uniandes.tutorias_g45k.R
 import com.uniandes.tutorias_g45k.data.auth.AuthHolder
 import com.uniandes.tutorias_g45k.data.recommendation.TutorSummaryDto
 import com.uniandes.tutorias_g45k.ui.NoContentOrConnectionWidget
@@ -233,9 +238,16 @@ fun TutorItem(tutor: TutorSummaryDto, onSelection: () -> Unit = {}) {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(modifier = Modifier.size(50.dp), shape = RoundedCornerShape(25.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-                Box(contentAlignment = Alignment.Center) { Text(tutor.name.take(1)) }
-            }
+            AsyncImage(
+                model = tutor.profileImageUrl,
+                contentDescription = "Foto de ${tutor.name}",
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(25.dp)),
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(R.drawable.profile_placeholder),
+                error = painterResource(R.drawable.profile_placeholder)
+            )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(tutor.name, fontWeight = FontWeight.Bold)

@@ -43,3 +43,4 @@ data class AvailabilityDto(
     val friday: List<String> = emptyList(),
     val saturday: List<String> = emptyList()
 )
+

@@ -41,6 +41,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.room.runtime)
+    implementation(libs.firebase.firestore)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.savedstate)
@@ -48,7 +49,7 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.zxing.android.embedded)
     implementation(libs.androidx.datastore.preferences)
-    
+
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.10.0"))
     implementation("com.google.firebase:firebase-analytics")
@@ -57,7 +58,7 @@ dependencies {
 
     implementation(libs.firebase.firestore)
 
-    
+
     implementation(libs.coil.compose)
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.core.ktx)
@@ -65,7 +66,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.security.crypto)
-    
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)

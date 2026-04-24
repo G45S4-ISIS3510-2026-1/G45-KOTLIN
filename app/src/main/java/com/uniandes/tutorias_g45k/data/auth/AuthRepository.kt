@@ -9,13 +9,15 @@ import com.google.android.gms.tasks.Tasks.await
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.messaging.FirebaseMessaging
+import com.uniandes.tutorias_g45k.data.auth.AuthDataBase
+import com.uniandes.tutorias_g45k.data.auth.UserBackDto
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class AuthRepository (context: Context) {
     private val auth = FirebaseAuth.getInstance()
     private val fcm= FirebaseMessaging.getInstance()
-    private val db=AuthDataBase.getInstance(context)
+    private val db= AuthDataBase.getInstance(context)
     private val apiService by lazy {Retrofit.Builder()
         .baseUrl(baseUrl)
         .addConverterFactory(GsonConverterFactory.create())
@@ -49,8 +51,8 @@ class AuthRepository (context: Context) {
 
     suspend fun saveBackendUser(){
         val currentToken=await(fcm.token)
-        val newUser=UserBackDto(
-            id=auth.currentUser?.uid,
+        val newUser= UserBackDto(
+            id = auth.currentUser?.uid,
             email = auth.currentUser?.email ?: "",
             name = auth.currentUser?.displayName ?: "",
             profileImageUrl = auth.currentUser?.photoUrl?.toString(),
@@ -67,13 +69,29 @@ class AuthRepository (context: Context) {
     }
 
     suspend fun saveLocalUser() {
-        val currentUser = auth.currentUser?.toDto() ?: return
-        db.userDao().insert(currentUser.uid, currentUser.email ?: "", currentUser.displayName ?: "", currentUser.photoUrl?.toString() ?: "")
+        val uid = auth.currentUser?.uid ?: return
+        try {
+            val response = apiService.getUserProfile(uid)
+            if (response.isSuccessful) {
+                response.body()?.let { userBackDto ->
+                    db.userDao().insert(userBackDto.toEntity())
+                }
+            } else {
+                // Fallback to minimal info if backend fetch fails
+                val currentUser = auth.currentUser?.toDto() ?: return
+                db.userDao().insert(currentUser)
+            }
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Error saving local user", e)
+            val currentUser = auth.currentUser?.toDto() ?: return
+            db.userDao().insert(currentUser)
+        }
     }
 
     suspend fun getLocalUser(): UserDto? {
         return db.userDao().getSavedUser(auth.currentUser?.email ?: "")
     }
+
 
     suspend fun deleteLocalUser(){
         db.userDao().deleteSavedUser(auth.currentUser?.email ?: "")

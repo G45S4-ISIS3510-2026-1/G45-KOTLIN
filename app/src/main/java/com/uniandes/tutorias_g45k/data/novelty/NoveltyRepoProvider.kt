@@ -8,3 +8,4 @@ object NoveltyRepoProvider {
         return NoveltyRepoFirestoreImp
     }
 }
+

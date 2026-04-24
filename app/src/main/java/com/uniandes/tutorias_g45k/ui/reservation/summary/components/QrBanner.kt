@@ -143,3 +143,4 @@ fun QrBannerPreview(modifier: Modifier = Modifier){
         QrBanner(modifier = modifier, isTutor = true, qrContent = "www.google.com", verifScan = {true}, connected = true)
     }
 }
+
