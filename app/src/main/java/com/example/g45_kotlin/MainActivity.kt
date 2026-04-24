@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Initialize LightSensorManager
+        // Initialize LightSensorManage
         lightSensorManager = LightSensorManager(applicationContext)
         themeManager = ThemePreferenceManager(applicationContext)
         enableEdgeToEdge()
