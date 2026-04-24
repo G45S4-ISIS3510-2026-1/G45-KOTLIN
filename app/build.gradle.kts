@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.g45_kotlin"
+    namespace = "com.uniandes.tutorias_g45k"
     compileSdk = 36
 
     defaultConfig {

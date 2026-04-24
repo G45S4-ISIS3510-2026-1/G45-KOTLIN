@@ -1,8 +1,0 @@
-package com.example.g45_kotlin.data.novelty
-
-import kotlinx.coroutines.flow.Flow
-
-interface NoveltyRepository {
-    fun getUnreadNovelties(userId: String, dayRange:Int?=null): Flow<List<NoveltyDto>>
-    suspend fun markNoveltyAsRead(noveltyId: String):Result<Unit>
-}
