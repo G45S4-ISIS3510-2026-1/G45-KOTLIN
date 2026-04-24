@@ -2,8 +2,8 @@ package com.example.g45_kotlin.data.profile
 
 import com.example.g45_kotlin.data.firestore.FirestorePqrDto
 import com.example.g45_kotlin.data.firestore.FirestoreReviewDto
-import com.example.g45_kotlin.data.firestore.ProfileListsFireStoreManager
 import com.example.g45_kotlin.data.firestore.FirestoreUserSummaryDto
+import com.example.g45_kotlin.data.firestore.ProfileListsFireStoreManager
 import kotlinx.coroutines.flow.Flow
 
 

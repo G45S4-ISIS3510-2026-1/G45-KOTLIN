@@ -6,17 +6,17 @@ import com.example.g45_kotlin.data.reservation.SessionDto
 import com.example.g45_kotlin.data.reservation.SkillSummaryDto
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import kotlinx.coroutines.tasks.await
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import com.google.firebase.firestore.Filter
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Date
 
 class ReservationsFireStoreManager {

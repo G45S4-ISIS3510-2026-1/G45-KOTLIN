@@ -1,11 +1,7 @@
 package com.example.g45_kotlin.data.firestore
 
 import android.util.Log
-import com.example.g45_kotlin.data.catalog.ReviewResponse
-import com.example.g45_kotlin.data.novelty.NoveltyDto
-import com.example.g45_kotlin.data.reservation.SessionDto
 import com.google.firebase.Timestamp
-import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose

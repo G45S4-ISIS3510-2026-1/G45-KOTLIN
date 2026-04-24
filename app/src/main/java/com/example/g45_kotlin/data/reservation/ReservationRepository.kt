@@ -1,14 +1,14 @@
 package com.example.g45_kotlin.data.reservation
 
 import android.util.Log
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import com.example.g45_kotlin.data.baseUrl
 import com.example.g45_kotlin.data.firestore.ReservationsFireStoreManager
 import com.example.g45_kotlin.ui.reservation.summary.Status
 import com.example.g45_kotlin.utilities.NetworkMonitor
 import kotlinx.coroutines.flow.Flow
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.time.Duration
 import java.time.LocalDateTime
 
@@ -98,6 +98,10 @@ object ReservationRepository {
 
     fun getUserSessions(studentId:String, tutor:Boolean=false, dayRange:Int?=null): Flow<List<SessionDto>> {
         return reservationsFireStoreManager.listenToUserSessions(studentId, tutor, dayRange)
+    }
+
+    suspend fun getSessionsBetween(studentId: String, tutorId: String): Response<List<SessionDto>> {
+        return apiService.getSessionsBetween(studentId, tutorId)
     }
 
     suspend fun getTutorSkills(ids: List<String>): Response<List<SkillSummaryDto>> {

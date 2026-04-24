@@ -1,5 +1,5 @@
 [versions]
-agp = "9.1.0"
+agp = "9.0.0"
 coilCompose = "2.7.0"
 converterGson = "3.0.0"
 coreKtx = "1.17.0"
@@ -13,7 +13,6 @@ lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.4"
 kotlin = "2.2.10"
 composeBom = "2024.09.00"
-material3Version = "1.2.0"
 materialIconsCore = "latest_version"
 retrofit = "3.0.0"
 securityCrypto = "1.1.0"
@@ -25,11 +24,9 @@ zxingAndroidEmbedded = "4.3.0"
 navigationCompose = "2.9.7"
 okhttp = "4.12.0"
 room = "2.6.1"
-firebaseFirestore = "26.2.0"
 
 [libraries]
 androidx-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIconsCore" }
-androidx-compose-material3-v120 = { module = "androidx.compose.material3:material3", version.ref = "material3Version" }
 androidx-compose-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
@@ -70,7 +67,6 @@ firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging
 room-compiler = { module = "androidx.room:room-compiler" }
 zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroidEmbedded" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
-firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.collections.emptyList
 
 class ReviewListViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(ReviewListUiState())

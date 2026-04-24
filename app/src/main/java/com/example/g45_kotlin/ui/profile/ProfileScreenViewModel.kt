@@ -3,7 +3,6 @@ package com.example.g45_kotlin.ui.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.g45_kotlin.data.auth.AuthHolder
-import com.example.g45_kotlin.data.local.ThemePreferenceManager
 import com.example.g45_kotlin.data.profile.ProfileRepoProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

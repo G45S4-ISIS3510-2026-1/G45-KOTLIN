@@ -30,4 +30,9 @@ interface SessionApi {
     @GET ("skills/by-ids")
     suspend fun getTutorSkillsByIds(@Query("ids") ids: List<String>): Response<List<SkillSummaryDto>>
 
+    @GET("sessions/between/{studentId}/{tutorId}")
+    suspend fun getSessionsBetween(
+        @Path("studentId") studentId: String,
+        @Path("tutorId") tutorId: String
+    ): Response<List<SessionDto>>
 }

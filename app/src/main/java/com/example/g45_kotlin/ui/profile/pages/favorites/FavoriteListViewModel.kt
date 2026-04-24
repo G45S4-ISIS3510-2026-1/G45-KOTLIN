@@ -5,17 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.g45_kotlin.data.auth.AuthHolder
 import com.example.g45_kotlin.data.profile.ProfileRepoProvider
-import com.example.g45_kotlin.data.reservation.ReservationRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.collections.emptyList
 
 class FavoriteListViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(FavoriteListUiState())

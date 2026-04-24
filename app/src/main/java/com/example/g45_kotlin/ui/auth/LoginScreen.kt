@@ -1,6 +1,5 @@
 package com.example.g45_kotlin.ui.auth
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke

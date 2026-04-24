@@ -57,7 +57,7 @@ import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 import com.example.g45_kotlin.utilities.NetworkMonitor
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSummaryDto) -> Unit = {}, onMoreClick: () -> Unit = {}, onSessionClick: (String) -> Unit = {}) {
+fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSummaryDto) -> Unit = {}, onMoreClick: () -> Unit = {}, onSessionClick: (String) -> Unit = {}, onBecomeTutor: () -> Unit = {}) {
     val state by viewModel.state.collectAsState()
     val currentTime by viewModel.currentTime.collectAsStateWithLifecycle()
     val connected by NetworkMonitor.isOnline.collectAsState()
@@ -164,7 +164,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSumma
                             }
                         }
                         Button(
-                            onClick = {},
+                            onClick = { onBecomeTutor() },
                             modifier = Modifier.weight(1f).height(100.dp),
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)

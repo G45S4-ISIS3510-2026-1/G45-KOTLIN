@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -51,10 +50,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navOptions
 import com.example.g45_kotlin.data.auth.AuthHolder
 import com.example.g45_kotlin.data.local.SearchHistoryManager
-import com.example.g45_kotlin.data.local.ThemePreferenceManager
 import com.example.g45_kotlin.data.novelty.NoveltyDto
 import com.example.g45_kotlin.data.novelty.NoveltyType
 import com.example.g45_kotlin.data.recommendation.TutorSummaryDto
@@ -67,6 +64,11 @@ import com.example.g45_kotlin.ui.profile.pages.reservations.ReservationListScree
 import com.example.g45_kotlin.ui.reservation.gateway.ReservationGateWay
 import com.example.g45_kotlin.ui.reservation.summary.ReservationSummary
 import com.example.g45_kotlin.ui.theme.AppTheme
+import com.example.g45_kotlin.ui.tutor.become.BecomeTutorPriceScreen
+import com.example.g45_kotlin.ui.tutor.become.BecomeTutorScheduleScreen
+import com.example.g45_kotlin.ui.tutor.become.BecomeTutorSkillsScreen
+import com.example.g45_kotlin.ui.tutor.become.BecomeTutorViewModel
+import com.example.g45_kotlin.ui.tutor.become.BecomeTutorViewModelFactory
 import com.example.g45_kotlin.ui.tutor.catalog.CatalogoContent
 import com.example.g45_kotlin.ui.tutor.catalog.TutorDetailScreen
 import com.example.g45_kotlin.ui.tutor.catalog.TutorViewModel
@@ -96,6 +98,7 @@ fun MainScreen(modifier: Modifier = Modifier,
 ){
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry?.destination
+    val context=LocalContext.current
     val authRepository=AuthHolder.authRepo
     //Verify logged in with firebase auth instance
     var isLogged by rememberSaveable { mutableStateOf(authRepository.isUserLoggedIn()) }
@@ -106,7 +109,9 @@ fun MainScreen(modifier: Modifier = Modifier,
     val tutorsState by sharedViewModel.uiState.collectAsState()
     val searchManager= SearchHistoryManager.getInstance()
     val unReadCount by noveltyViewModel.unreadCount.collectAsState()
-
+    val becomeTutorViewModel: BecomeTutorViewModel = viewModel(
+        factory = BecomeTutorViewModelFactory(context)
+    )
 
     fun onNoveltyClick (novelty: NoveltyDto){
         val entityId=novelty.entityId
@@ -171,6 +176,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                             navController.navigate(Routes.tutorDetail)}
                     , onMoreClick = {navController.navigate(Routes.catalog)}
                     , onSessionClick = {id->navController.navigate(Routes.reservationSummary+"/$id")}
+                    ,onBecomeTutor = {navController.navigate(Routes.becomeTutorSkills)}
                     )
                 }else{
                     LoginScreen(onLoginSuccess = {isLogged=true})
@@ -182,11 +188,13 @@ fun MainScreen(modifier: Modifier = Modifier,
                     onSearchTextChange = sharedViewModel::onSearchTextChange,
                     onOrderChange = sharedViewModel::onOrderChange,
                     onFacultadChange = sharedViewModel::onFacultadChange,
+                    onOnlyFavoritesChange = sharedViewModel::onOnlyFavoritesChange,
                     onTutorClick = {tutor->
                         searchManager.saveQuery(tutor.id)
                         sharedViewModel.onTutorSelected(tutor)
                         navController.navigate(Routes.tutorDetail)
                     },
+                    onLoadNextPage = sharedViewModel::loadNextPage,
                     onRetry = {
                         sharedViewModel.cargarTutores()
                     }
@@ -224,9 +232,17 @@ fun MainScreen(modifier: Modifier = Modifier,
                 val reseñas=tutorsState.selectedTutorReviews
                 val skills=tutorsState.selectedTutorSkills
                 if (tutor != null) {
+                    val tutorId = tutor.id ?: ""
+                    val isFavorite = tutorsState.favoriteTutorIds.contains(tutorId)
                     TutorDetailScreen(tutor = tutor, reseñas=reseñas, skills=skills,
+                        isFavorite = isFavorite,
+                        isLoadingReviews = tutorsState.isLoadingReviews,
+                        viewModel = sharedViewModel, // PASAR EL VIEWMODEL COMPARTIDO CORRECTO
                         onBack = { navController.popBackStack()},
-                        onBook = { navController.navigate(Routes.reservationGateway+"/${tutor.id}")})
+                        onBook = { navController.navigate(Routes.reservationGateway+"/${tutorId}")},
+                        onToggleFavorite = { sharedViewModel.toggleFavorite(tutorId) },
+                        onCreateReview = sharedViewModel::createReview
+                    )
                 }
             }
             composable(Routes.reservationSummary+"/{session_id}") {
@@ -252,6 +268,34 @@ fun MainScreen(modifier: Modifier = Modifier,
                     }
                 }
 
+            }
+            composable(Routes.becomeTutorSkills) {
+                BecomeTutorSkillsScreen(
+                    viewModel = becomeTutorViewModel,
+                    onNext = { navController.navigate(Routes.becomeTutorPrice) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Routes.becomeTutorPrice) {
+                BecomeTutorPriceScreen(
+                    viewModel = becomeTutorViewModel,
+                    onNext = { navController.navigate(Routes.becomeTutorSchedule) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Routes.becomeTutorSchedule) {
+                BecomeTutorScheduleScreen(
+                    viewModel = becomeTutorViewModel,
+                    onPublish = {
+                        becomeTutorViewModel.publishProfile()
+                    },
+                    onSuccess = {
+                        navController.navigate(Routes.home) {
+                            popUpTo(Routes.home) { inclusive = true }
+                        }
+                    },
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }
