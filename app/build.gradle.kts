@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.zxing.android.embedded)
+    implementation(libs.androidx.datastore.preferences)
     
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.10.0"))
@@ -62,6 +63,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.security.crypto)
     
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

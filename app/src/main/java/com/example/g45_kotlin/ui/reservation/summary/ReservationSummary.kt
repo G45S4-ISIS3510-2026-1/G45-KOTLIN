@@ -40,12 +40,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.g45_kotlin.ui.CommonErrorDialog
 import com.example.g45_kotlin.ui.LoadingDialog
 import com.example.g45_kotlin.ui.reservation.summary.components.DetailsBanner
 import com.example.g45_kotlin.ui.reservation.summary.components.Participants
 import com.example.g45_kotlin.ui.reservation.summary.components.QrBanner
 import com.example.g45_kotlin.ui.theme.AppTheme
 import com.example.g45_kotlin.utilities.GoogleAnalyticsService
+import com.example.g45_kotlin.utilities.NetworkMonitor
 import java.time.LocalDateTime
 
 @Composable
@@ -57,9 +59,18 @@ fun ReservationSummary(
 
 
     val summaryState by viewModel.summaryState.collectAsState()
+    val connected by NetworkMonitor.isOnline.collectAsState()
 
     LaunchedEffect(Unit){
         GoogleAnalyticsService.logScreenAccess("ReservationSummary")
+    }
+
+    if (summaryState.fetchError!=null){
+        if (summaryState.fetchError!!.contains("cargar")){
+            CommonErrorDialog(message = summaryState.fetchError!!, onDismiss = {onBack()})
+        }else{
+            CommonErrorDialog(message = summaryState.fetchError!!, onDismiss = {})
+        }
     }
 
     Column(modifier=modifier.padding(10.dp)){
@@ -83,6 +94,23 @@ fun ReservationSummary(
                 style=MaterialTheme.typography.displaySmall
             )
         }
+        if (!connected){
+            Spacer(modifier=modifier.height(20.dp))
+            Column(){
+                Text(
+                    text="Sin conexión",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Text(
+                    text="Los detalles presentes en esta tutoría podrían estar desactualizados, por lo que modificacion como la cancelación y/o confirmación estan deshabilitados. Por favor revisa tu conexión y vuelve a ingresar para actualizar la información.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.error
+                )
+
+            }
+
+        }
         Box(modifier=Modifier.fillMaxSize()){
             //Content
             LazyColumn(
@@ -103,7 +131,7 @@ fun ReservationSummary(
                 val isTutor=viewModel.tutorSite()
                 val qrContent=summaryState.qrContent
                 if (status.status=="Pendiente"){
-                    item{QrBanner(modifier=Modifier.fillMaxWidth(), isTutor=isTutor, qrContent=qrContent, verifScan=viewModel::verifyScanCode)}
+                    item{QrBanner(modifier=Modifier.fillMaxWidth(), isTutor=isTutor, qrContent=qrContent, verifScan=viewModel::verifyScanCode, connected=connected)}
                     item{Spacer(modifier=Modifier.height(200.dp))}
                 }
             }
@@ -142,7 +170,7 @@ fun ReservationSummary(
         }
 
     }
-    LoadingDialog(modifier=Modifier.requiredSize(200.dp), show = summaryState.isLoading)
+    LoadingDialog(modifier=Modifier, show = summaryState.isLoading)
     if (summaryState.qrResult!=null || summaryState.qrTitleResult!=null){
         ScanResultAlert(title=summaryState.qrTitleResult!!, result=summaryState.qrResult!!, showDialog = true, onDismiss = viewModel::clearResult)
     }

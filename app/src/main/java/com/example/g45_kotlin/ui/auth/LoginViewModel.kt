@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LoginViewModel () : ViewModel() {
     private val _state = MutableStateFlow(LoginState())
@@ -22,10 +23,12 @@ class LoginViewModel () : ViewModel() {
     fun onLoginSuccess(loginConfirmation:()->Unit) {
         viewModelScope.launch (Dispatchers.IO){
             authRepository.saveLocalUser()
+            withContext(Dispatchers.Main){
+                val user = authRepository.getCurrentUser()
+                loginConfirmation()
+                _state.update { it.copy(isLoading = false, user = user) }
+            }
         }
-        val user = authRepository.getCurrentUser()
-        loginConfirmation()
-        _state.update { it.copy(isLoading = false, user = user) }
     }
 
     fun onNewLogin(){

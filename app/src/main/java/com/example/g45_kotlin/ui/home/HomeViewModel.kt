@@ -3,8 +3,8 @@ package com.example.g45_kotlin.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.g45_kotlin.data.auth.AuthHolder
+import com.example.g45_kotlin.data.recommendation.RecommendedUserRepository
 import com.example.g45_kotlin.data.reservation.ReservationRepository
-import com.example.g45_kotlin.data.user.UserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -21,7 +22,7 @@ class HomeViewModel : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     private val authRepository = AuthHolder.authRepo
 
-    private val userRepository = UserRepository
+    private val recommendationRepository = RecommendedUserRepository
     private val reservationRepository = ReservationRepository
 
     val state = _state.asStateFlow()
@@ -44,31 +45,36 @@ class HomeViewModel : ViewModel() {
 
 
     fun loadHomeData() {
-        _state.update{it.copy(userName = authRepository.getCurrentUser()?.displayName?:"Amigo", error = null, sessionError = null)}
+        _state.update{it.copy(userName = authRepository.getCurrentUser()?.displayName?:"Amigo", error = null, sessionError = null, isLoading = true, areSessionLoading = true)}
         viewModelScope.launch (Dispatchers.IO){
             val userName=authRepository.getLocalUser() ?: authRepository.getCurrentUser()
-            _state.update { it.copy(isLoading = true, areSessionLoading = true) }
             try {
                 val sessionResult=reservationRepository.getUpcomingUserSessions(authRepository.getCurrentUser()?.uid ?: "")
-                if (sessionResult.isSuccess){
-                    _state.update { it.copy(nextSessions = sessionResult.getOrThrow(), areSessionLoading = false) }
-                }else{
-                    _state.update { it.copy(sessionError = "Error cargando sesiones proximas. Por favor revise su conexión") }
+                withContext(Dispatchers.Main){
+                    if (sessionResult.isSuccess){
+                        _state.update { it.copy(nextSessions = sessionResult.getOrThrow(), areSessionLoading = false) }
+                    }else{
+                        _state.update { it.copy(sessionError = "Error cargando sesiones proximas. Por favor revise su conexión") }
+                    }
                 }
-                val response = userRepository.getRecommendations()
-                if (response.isSuccessful) {
-                    _state.update { it.copy(
-                        featuredTutors = response.body()?.take(3) ?: emptyList(),
-                        userName = userName?.displayName ?: "Amigo"
-                    ) }
-                } else {
-                    _state.update { it.copy(error = "Error al cargar tutores destacados") }
+                val response = recommendationRepository.getRecommendations()
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccess) {
+                        _state.update { it.copy(
+                            featuredTutors = response.getOrNull() ?: emptyList(),
+                            userName = userName?.displayName ?: "Amigo"
+                        ) }
+                    } else {
+                        _state.update { it.copy(error = "Error al cargar tutores recomendados. Revise su conexión y arrastre para reintentarlo") }
+                    }
+                    _state.update { it.copy(isLoading = false, areSessionLoading = false) }
                 }
 
             } catch (e: Exception) {
-                _state.update { it.copy(isLoading = false, areSessionLoading = false, error = e.message) }
+                withContext(Dispatchers.Main) {
+                    _state.update { it.copy(isLoading = false, areSessionLoading = false, error = e.message) }
+                }
             }
-            _state.update { it.copy(isLoading = false, areSessionLoading = false) }
         }
     }
 }

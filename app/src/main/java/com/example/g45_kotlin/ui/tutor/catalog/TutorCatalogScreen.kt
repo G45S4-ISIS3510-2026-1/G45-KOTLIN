@@ -55,7 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.example.g45_kotlin.data.recommendation.TutorSummaryDto
 import com.example.g45_kotlin.ui.theme.AppTheme
 import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 
@@ -70,7 +70,7 @@ fun CatalogoContent(
     onTutorClick: (TutorSummaryDto) -> Unit
 ) {
     LaunchedEffect(Unit){
-        GoogleAnalyticsService.logScreenAccess("TutorProfileReview", screenClass="TutorProfile")
+        GoogleAnalyticsService.logScreenAccess("TutorCatalog", screenClass="TutorCatalog")
     }
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -83,16 +83,10 @@ fun CatalogoContent(
         ) {
             item {
                 Row(
-                    modifier = Modifier.padding(top = 48.dp),
+                    modifier = Modifier.padding(top = 50.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
+
                     Text(
                         text = "Catálogo",
                         style = MaterialTheme.typography.displayMedium,

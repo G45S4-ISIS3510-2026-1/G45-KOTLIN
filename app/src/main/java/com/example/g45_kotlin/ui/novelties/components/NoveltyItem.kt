@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
@@ -83,7 +82,8 @@ fun NoveltyItem(modifier: Modifier = Modifier, novelty: NoveltyDto, onClick: (No
                 }
                 Column(modifier = Modifier.fillMaxWidth(fraction = 0.8f).fillMaxHeight(), verticalArrangement = Arrangement.Center){
                     Text(
-                        modifier = Modifier.clickable(onClick={onClick(novelty)}),                        text = novelty.title,
+                        modifier = Modifier.clickable(onClick={onClick(novelty)}),
+                        text = novelty.title,
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

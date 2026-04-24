@@ -1,0 +1,11 @@
+package com.example.g45_kotlin.ui.profile.pages.reservations
+
+import com.example.g45_kotlin.data.reservation.SessionDto
+
+data class ReviewListUiState (
+    val isLoading:Boolean=false,
+    val numSessions:Int=0,
+    val sessions: List<SessionDto> = emptyList(),
+    val error:String="",
+    val connected:Boolean=true
+)

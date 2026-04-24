@@ -1,5 +1,6 @@
 package com.example.g45_kotlin.ui.auth
 
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -31,11 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.g45_kotlin.R
 import com.example.g45_kotlin.utilities.AnalyticsManager
 import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 import com.google.firebase.auth.FirebaseAuth
@@ -67,10 +71,11 @@ fun LoginScreen(
                 Toast.makeText(context, "Bienvenido", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { e ->
-                viewModel.onLoginError(e.message ?: "Error desconocido")
+                val message=e.message
+                viewModel.onLoginError(message ?: "Error desconocido")
                 // También logueamos el error de forma personalizada
-                AnalyticsManager.logError("AUTH_SERVICE", "Login fallido: ${e.message}", e as? Exception)
-                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                AnalyticsManager.logError("AUTH_SERVICE", "Login fallido: ${message}", e as? Exception)
+                Toast.makeText(context, "Error al iniciar sesión. Borre datos de la aplicación e intente denuevo", Toast.LENGTH_LONG).show()
             }
             .addOnCompleteListener {task->
                 if(task.isSuccessful){
@@ -122,14 +127,18 @@ fun LoginScreen(
                         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
                     ) {
                         Box(contentAlignment = Alignment.Center) {
-                            Text(text = "🎓", fontSize = 42.sp)
+                            Icon(
+                                painter = painterResource(id = R.drawable.app_icon),
+                                contentDescription = null,
+                                modifier = Modifier.size(70.dp)
+                            )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(32.dp))
 
                     Text(
-                        text = "Tutorias Uniandes",
+                        text = "Tutorías Uniandes",
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.ExtraBold,
@@ -147,7 +156,7 @@ fun LoginScreen(
                         ),
                         shape = RoundedCornerShape(27.dp)
                     ) {
-                        Text(text = "Continuar con Microsoft", fontWeight = FontWeight.Bold)
+                        Text(text = "Iniciar Sesion con Microsoft", fontWeight = FontWeight.Bold)
                     }
                     
                     // Botón de prueba para simular error (Borrar luego de testear)

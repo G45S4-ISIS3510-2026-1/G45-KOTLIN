@@ -44,21 +44,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.g45_kotlin.data.auth.AuthHolder
-import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.example.g45_kotlin.data.recommendation.TutorSummaryDto
+import com.example.g45_kotlin.ui.NoContentOrConnectionWidget
 import com.example.g45_kotlin.ui.home.components.SessionBanner
 import com.example.g45_kotlin.utilities.AnalyticsManager
 import com.example.g45_kotlin.utilities.GoogleAnalyticsService
+import com.example.g45_kotlin.utilities.NetworkMonitor
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSummaryDto) -> Unit = {}, onMoreClick: () -> Unit = {}, onSessionClick: (String) -> Unit = {}) {
     val state by viewModel.state.collectAsState()
     val currentTime by viewModel.currentTime.collectAsStateWithLifecycle()
+    val connected by NetworkMonitor.isOnline.collectAsState()
     val currentUserId = AuthHolder.authRepo.getCurrentUser()?.uid
 
     val sessionState = rememberLazyListState()
@@ -96,7 +98,23 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSumma
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }
+                if (!connected){
+                    item {
+                        Column(){
+                            Text(
+                                text = "Sin conexion",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Text(
+                                text = "La informacion actual puede estar desactualizada. Por favor revisa tu conexión y arrastra hacia abajo para refrescar",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
 
+                        }
+                    }
+                }
                 // Próxima Sesión
                 item {
                     Text("Próximas Sesiones", fontSize = 20.sp, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.headlineLarge)
@@ -183,12 +201,13 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSumma
                             }
                         }else{
                             item{
-                                Column(){
-                                    Text(
-                                        modifier=Modifier.fillMaxWidth(),
-                                        text= "Error cargando tutores destacados, arrastra para reintentar",
-                                        color=MaterialTheme.colorScheme.error,
-                                        textAlign = TextAlign.Center
+                                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
+                                    NoContentOrConnectionWidget(
+                                        modifier = Modifier,
+                                        size = 100,
+                                        message = "Error al cargar tutores recomendados, intentalo de nuevo mas tarde",
+                                        text_style = MaterialTheme.typography.titleLarge,
+                                        missingConnection = !connected
                                     )
                                 }
                             }

@@ -5,14 +5,13 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 object NetworkMonitor {
 
-    private val _isOnline = MutableStateFlow(false)
+    private val _isOnline = MutableStateFlow(true)
     val isOnline: StateFlow<Boolean> = _isOnline.asStateFlow()
 
     private var connectivityManager: ConnectivityManager? = null
@@ -25,7 +24,6 @@ object NetworkMonitor {
             override fun onAvailable(network: Network) {
                 _isOnline.value = true
             }
-
             override fun onLost(network: Network) {
                 _isOnline.value = false
             }

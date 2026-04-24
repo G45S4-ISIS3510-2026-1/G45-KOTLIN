@@ -2,7 +2,6 @@ package com.example.g45_kotlin.ui.home.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,9 +32,7 @@ import com.example.g45_kotlin.data.reservation.ParticipantSummaryDto
 import com.example.g45_kotlin.data.reservation.SessionDto
 import com.example.g45_kotlin.data.reservation.SkillSummaryDto
 import com.example.g45_kotlin.ui.theme.AppTheme
-import java.time.Duration
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit

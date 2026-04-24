@@ -1,11 +1,12 @@
 package com.example.g45_kotlin.ui.reservation.gateway
 
 import com.example.g45_kotlin.data.reservation.SkillSummaryDto
+import com.example.g45_kotlin.utilities.getDaysOfCurrentWeek
 import java.time.LocalDate
 
 
 data class ReservationGatewayState (
-    val isLoading : Boolean = false,
+    val isLoading : Boolean = true,
     val selectedDate : LocalDate = LocalDate.now(),
     val selectedHour : String = "",
     val selectedPaymentType : PaymentType = PaymentType.RECEIPT,
@@ -13,7 +14,9 @@ data class ReservationGatewayState (
     val selectedSkill : SkillSummaryDto = SkillSummaryDto(null, label=""),
     val sessionTutor: TutorUser = TutorUser(),
     val tutorSkills: List<SkillSummaryDto> = emptyList(),
-    val error:String = ""
+    val error:String = "",
+    val hours:List<String> = emptyList(),
+    val dates:List<LocalDate> = getDaysOfCurrentWeek()
 )
 
 data class PaymentMethod (

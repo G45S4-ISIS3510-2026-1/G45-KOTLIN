@@ -5,7 +5,7 @@ import androidx.core.content.edit
 
 class SearchHistoryManager(context: Context) {
     private val prefs = context.getSharedPreferences("search_prefs", Context.MODE_PRIVATE)
-    private val maxSize = 2
+    private val maxSize = 3
 
     fun saveQuery(query: String) {
         val history = getHistory().toMutableList()

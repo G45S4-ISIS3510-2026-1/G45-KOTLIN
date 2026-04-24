@@ -1,10 +1,10 @@
 package com.example.g45_kotlin.data.novelty
 
-import com.example.g45_kotlin.data.firestore.NoveltyFirestoreManage
+import com.example.g45_kotlin.data.firestore.NoveltyFirestoreManager
 import kotlinx.coroutines.flow.Flow
 
 object NoveltyRepoFirestoreImp: NoveltyRepository {
-    private val firestoreManager = NoveltyFirestoreManage()
+    private val firestoreManager = NoveltyFirestoreManager()
 
     override fun getUnreadNovelties(userId: String, dayRange:Int?): Flow<List<NoveltyDto>> {
         return firestoreManager.listenToUnreadNovelties(userId, dayRange)
