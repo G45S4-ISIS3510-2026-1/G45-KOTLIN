@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.g45_kotlin.data.auth.AuthHolder
 import com.example.g45_kotlin.data.user.UserRepository
+import com.example.g45_kotlin.utilities.AnalyticsManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,6 +37,7 @@ class HomeViewModel : ViewModel() {
                     _state.update { it.copy(isLoading = false, error = "Error al cargar tutores destacados") }
                 }
             } catch (e: Exception) {
+                AnalyticsManager.logError("HOME_SERVICE", "Failed to load tutors", e)
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
         }

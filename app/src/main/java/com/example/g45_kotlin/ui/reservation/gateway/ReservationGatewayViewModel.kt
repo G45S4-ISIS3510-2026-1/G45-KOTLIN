@@ -8,6 +8,8 @@ import com.example.g45_kotlin.data.reservation.ParticipantSummaryDto
 import com.example.g45_kotlin.data.reservation.ReservationRepository
 import com.example.g45_kotlin.data.reservation.SessionDto
 import com.example.g45_kotlin.data.reservation.SkillSummaryDto
+import com.example.g45_kotlin.utilities.AnalyticsManager
+import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 import com.example.g45_kotlin.utilities.getDaysOfCurrentWeek
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -154,6 +156,10 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
                     try{
                         val response=reservationRep.createSession(session)
                         if (response.isSuccessful){
+                            GoogleAnalyticsService.logEvent(
+                                "session_booked",
+                                mapOf("tutor_id" to tutorId, "student_id" to studentId)
+                            )
                             withContext(Dispatchers.Main){
                                 onSuccess(response.body()?.id ?: "")
                             }
@@ -165,6 +171,7 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
 
                         _sessionSelection.value = _sessionSelection.value.copy(isLoading = false)
                     }catch (e:Exception){
+                        AnalyticsManager.logError("RESERVATION_SERVICE", "Error creating session", e)
                         Log.d("ReservationGatewayViewModel222", "Error creating session: ${e.message}")
                         _sessionSelection.value = _sessionSelection.value.copy(isLoading = false)
                     }

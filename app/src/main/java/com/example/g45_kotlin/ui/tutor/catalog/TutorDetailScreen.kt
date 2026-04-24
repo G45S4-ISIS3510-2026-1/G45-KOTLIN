@@ -35,7 +35,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,8 +60,20 @@ import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skills: List<String> = emptyList(), onBack: () -> Unit, onBook: () -> Unit ={}) {
     val colorScheme = MaterialTheme.colorScheme
 
-    LaunchedEffect(Unit){
+    var reviewStartTime by remember { mutableLongStateOf(0L) }
+    DisposableEffect(Unit) {
+        reviewStartTime = System.currentTimeMillis()
+        onDispose {
+            val seconds = (System.currentTimeMillis() - reviewStartTime) / 1000
+            GoogleAnalyticsService.logEvent(
+                "time_spent_on_reviews",
+                mapOf("tutor_id" to tutor.id, "seconds" to seconds)
+            )
+        }
+    }
+    LaunchedEffect(Unit) {
         GoogleAnalyticsService.logScreenAccess("TutorDetail")
+        GoogleAnalyticsService.logEvent("view_review", mapOf("tutor_id" to tutor.id))
     }
     Surface(
         modifier = Modifier.fillMaxSize(),

@@ -16,5 +16,9 @@ object AnalyticsManager {
         } else {
             FirebaseCrashlytics.getInstance().log("Manual Error in $service: $message")
         }
+        GoogleAnalyticsService.logEvent(
+            "crash_reported",
+            mapOf("service" to service, "message" to message)
+        )
     }
 }

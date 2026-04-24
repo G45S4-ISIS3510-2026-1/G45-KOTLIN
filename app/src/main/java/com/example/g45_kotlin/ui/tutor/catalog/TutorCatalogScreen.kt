@@ -216,7 +216,9 @@ fun FilterSection(
                 SuggestionChip(
                     onClick = {
                         GoogleAnalyticsService.logButtonClick(option, "TutorCatalog")
-                        onOptionSelected(option) },
+                        GoogleAnalyticsService.logEvent("filter_applied", mapOf("filter_name" to option))
+                        onOptionSelected(option)
+                    },
                     label = {
                         Text(
                             text = option,
