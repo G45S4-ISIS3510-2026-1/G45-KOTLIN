@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.utilities
+package com.uniandes.tutorias_g45k.utilities
 
 import android.content.Context
 import android.net.ConnectivityManager

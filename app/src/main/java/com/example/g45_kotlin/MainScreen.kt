@@ -1,8 +1,11 @@
-package com.example.g45_kotlin
+package com.uniandes.tutorias_g45k
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,9 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
@@ -32,6 +38,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import com.uniandes.tutorias_g45k.utilities.AnalyticsManager
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,33 +49,37 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.g45_kotlin.data.auth.AuthHolder
-import com.example.g45_kotlin.data.local.SearchHistoryManager
-import com.example.g45_kotlin.data.novelty.NoveltyDto
-import com.example.g45_kotlin.data.novelty.NoveltyType
-import com.example.g45_kotlin.data.user.TutorSummaryDto
-import com.example.g45_kotlin.ui.MainNoveltyViewModel
-import com.example.g45_kotlin.ui.auth.LoginScreen
-import com.example.g45_kotlin.ui.home.HomeScreen
-import com.example.g45_kotlin.ui.novelties.NoveltyScreen
-import com.example.g45_kotlin.ui.provisional_profile.ProvisionalScreen
-import com.example.g45_kotlin.ui.reservation.gateway.ReservationGateWay
-import com.example.g45_kotlin.ui.reservation.summary.ReservationSummary
-import com.example.g45_kotlin.ui.theme.AppTheme
-import com.example.g45_kotlin.ui.tutor.catalog.CatalogoContent
-import com.example.g45_kotlin.ui.tutor.catalog.TutorDetailScreen
-import com.example.g45_kotlin.ui.tutor.catalog.TutorViewModel
+import com.uniandes.tutorias_g45k.data.auth.AuthHolder
+import com.uniandes.tutorias_g45k.data.local.SearchHistoryManager
+import com.uniandes.tutorias_g45k.data.novelty.NoveltyDto
+import com.uniandes.tutorias_g45k.data.novelty.NoveltyType
+import com.uniandes.tutorias_g45k.data.user.TutorSummaryDto
+import com.uniandes.tutorias_g45k.ui.MainNoveltyViewModel
+import com.uniandes.tutorias_g45k.ui.auth.LoginScreen
+import com.uniandes.tutorias_g45k.ui.home.HomeScreen
+import com.uniandes.tutorias_g45k.ui.novelties.NoveltyScreen
+import com.uniandes.tutorias_g45k.ui.provisional_profile.ProvisionalScreen
+import com.uniandes.tutorias_g45k.ui.reservation.gateway.ReservationGateWay
+import com.uniandes.tutorias_g45k.ui.reservation.summary.ReservationSummary
+import com.uniandes.tutorias_g45k.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.ui.tutor.catalog.CatalogoContent
+import com.uniandes.tutorias_g45k.ui.tutor.catalog.TutorDetailScreen
+import com.uniandes.tutorias_g45k.ui.tutor.catalog.TutorViewModel
+import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -102,6 +114,14 @@ fun MainScreen(modifier: Modifier = Modifier,
     val tutorsState by sharedViewModel.uiState.collectAsState()
     val searchManager= SearchHistoryManager.getInstance()
     val unReadCount by noveltyViewModel.unreadCount.collectAsState()
+    val isOnline by NetworkMonitor.isOnline.collectAsState()
+
+    // Rastreo automático de pantallas para Analytics y Crashlytics
+    LaunchedEffect(currentDestination) {
+        currentDestination?.route?.let { route ->
+            AnalyticsManager.logScreenView(route)
+        }
+    }
 
     fun onNoveltyClick (novelty: NoveltyDto){
         val entityId=novelty.entityId
@@ -122,6 +142,35 @@ fun MainScreen(modifier: Modifier = Modifier,
     }
 
     Scaffold(modifier=modifier.fillMaxSize(),
+        topBar = {
+            AnimatedVisibility(visible = !isOnline) {
+                Surface(
+                    color = Color.Black.copy(alpha = 0.7f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(vertical = 4.dp, horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CloudOff,
+                            contentDescription = "Offline",
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Modo Offline - Datos limitados",
+                            color = Color.White,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        },
         bottomBar = {
             AnimatedVisibility(visible = mostrarBottomBar && isLogged ){
                 NavigationBar(
@@ -300,4 +349,5 @@ fun MainScreenPreview(){
         MainScreen()
     }
 }
+
 

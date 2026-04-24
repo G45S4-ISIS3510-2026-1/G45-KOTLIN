@@ -1,14 +1,14 @@
-package com.example.g45_kotlin.ui.reservation.gateway
+package com.uniandes.tutorias_g45k.ui.reservation.gateway
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.g45_kotlin.data.auth.AuthHolder
-import com.example.g45_kotlin.data.reservation.ParticipantSummaryDto
-import com.example.g45_kotlin.data.reservation.ReservationRepository
-import com.example.g45_kotlin.data.reservation.SessionDto
-import com.example.g45_kotlin.data.reservation.SkillSummaryDto
-import com.example.g45_kotlin.utilities.getDaysOfCurrentWeek
+import com.uniandes.tutorias_g45k.data.auth.AuthHolder
+import com.uniandes.tutorias_g45k.data.reservation.ParticipantSummaryDto
+import com.uniandes.tutorias_g45k.data.reservation.ReservationRepository
+import com.uniandes.tutorias_g45k.data.reservation.SessionDto
+import com.uniandes.tutorias_g45k.data.reservation.SkillSummaryDto
+import com.uniandes.tutorias_g45k.utilities.getDaysOfCurrentWeek
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +31,7 @@ enum class PaymentType {
 
 
 class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel() {
-    private val reservationRep = ReservationRepository
+    private val reservationRep = ReservationRepository(AuthHolder.authRepo.getSessionDao())
     /*TODO*/
     //Fetch from API//
     val mockPayments:List<PaymentMethod> = listOf(

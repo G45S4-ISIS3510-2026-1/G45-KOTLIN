@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.theme
+package com.uniandes.tutorias_g45k.ui.theme
 import android.os.Build
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -336,6 +336,7 @@ fun AppTheme(
     )
 
 }
+
 
 
 

@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.auth
+package com.uniandes.tutorias_g45k.ui.auth
 
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -36,8 +36,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.g45_kotlin.utilities.AnalyticsManager
-import com.example.g45_kotlin.utilities.GoogleAnalyticsService
+import com.uniandes.tutorias_g45k.utilities.AnalyticsManager
+import com.uniandes.tutorias_g45k.utilities.GoogleAnalyticsService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
 
@@ -138,8 +138,18 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(48.dp))
 
+                    if (state.error != null) {
+                        Text(
+                            text = state.error!!,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+
                     Button(
                         onClick = { signInWithMicrosoft() },
+                        enabled = !state.isLoading,
                         modifier = Modifier.fillMaxWidth().height(54.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
@@ -159,3 +169,4 @@ fun LoginScreen(
         }
     }
 }
+

@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.data.user
+package com.uniandes.tutorias_g45k.data.user
 
 import com.google.gson.annotations.SerializedName
 
@@ -10,3 +10,4 @@ data class TutorSummaryDto(
     @SerializedName("profile_image_url") val profileImageUrl: String? = null,
     @SerializedName("session_price") val sessionPrice: Int
 )
+

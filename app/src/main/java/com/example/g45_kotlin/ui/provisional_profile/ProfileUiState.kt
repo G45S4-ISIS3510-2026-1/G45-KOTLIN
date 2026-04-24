@@ -1,6 +1,6 @@
-package com.example.g45_kotlin.ui.provisional_profile
+package com.uniandes.tutorias_g45k.ui.provisional_profile
 
-import com.example.g45_kotlin.data.reservation.SessionDto
+import com.uniandes.tutorias_g45k.data.reservation.SessionDto
 
 data class ProfileUiState (
     val isLoading:Boolean=false,

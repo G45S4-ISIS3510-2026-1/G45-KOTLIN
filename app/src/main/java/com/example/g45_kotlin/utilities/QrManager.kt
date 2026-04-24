@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.utilities
+package com.uniandes.tutorias_g45k.utilities
 import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.core.graphics.createBitmap

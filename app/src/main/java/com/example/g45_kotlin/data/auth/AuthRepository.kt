@@ -1,8 +1,8 @@
-package com.example.g45_kotlin.data.auth
+package com.uniandes.tutorias_g45k.data.auth
 
 import android.content.Context
 import android.util.Log
-import com.example.g45_kotlin.data.baseUrl
+import com.uniandes.tutorias_g45k.data.baseUrl
 import com.google.android.gms.tasks.Tasks.await
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -56,13 +56,31 @@ class AuthRepository (context: Context) {
     }
 
     suspend fun saveLocalUser() {
-        val currentUser = auth.currentUser?.toDto() ?: return
-        db.userDao().insert(currentUser.uid, currentUser.email ?: "", currentUser.displayName ?: "", currentUser.photoUrl?.toString() ?: "")
+        val uid = auth.currentUser?.uid ?: return
+        try {
+            val response = apiService.getUserProfile(uid)
+            if (response.isSuccessful) {
+                response.body()?.let { userBackDto ->
+                    db.userDao().insert(userBackDto.toEntity())
+                }
+            } else {
+                // Fallback to minimal info if backend fetch fails
+                val currentUser = auth.currentUser?.toDto() ?: return
+                db.userDao().insert(currentUser)
+            }
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Error saving local user", e)
+            val currentUser = auth.currentUser?.toDto() ?: return
+            db.userDao().insert(currentUser)
+        }
     }
 
     suspend fun getLocalUser(): UserDto? {
         return db.userDao().getSavedUser(auth.currentUser?.email ?: "")
     }
+
+    fun getTutorDao() = db.tutorDao()
+    fun getSessionDao() = db.sessionDao()
 
     suspend fun deleteLocalUser(){
         db.userDao().deleteSavedUser(auth.currentUser?.email ?: "")
@@ -89,3 +107,4 @@ class AuthRepository (context: Context) {
         }
     }
 }
+

@@ -1,8 +1,8 @@
-package com.example.g45_kotlin.data.user
+package com.uniandes.tutorias_g45k.data.user
 
 import android.util.Log
-import com.example.g45_kotlin.data.baseUrl
-import com.example.g45_kotlin.data.local.SearchHistoryManager
+import com.uniandes.tutorias_g45k.data.baseUrl
+import com.uniandes.tutorias_g45k.data.local.SearchHistoryManager
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -30,3 +30,4 @@ object UserRepository {
 
     }
 }
+

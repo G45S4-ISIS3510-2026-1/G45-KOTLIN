@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.reservation.gateway
+package com.uniandes.tutorias_g45k.ui.reservation.gateway
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -36,12 +36,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.g45_kotlin.ui.LoadingDialog
-import com.example.g45_kotlin.ui.reservation.gateway.components.PaymentSelection
-import com.example.g45_kotlin.ui.reservation.gateway.components.SessionSelection
-import com.example.g45_kotlin.ui.reservation.gateway.components.SkillSelector
-import com.example.g45_kotlin.ui.reservation.gateway.components.TutorBanner
-import com.example.g45_kotlin.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.ui.LoadingDialog
+import com.uniandes.tutorias_g45k.ui.reservation.gateway.components.PaymentSelection
+import com.uniandes.tutorias_g45k.ui.reservation.gateway.components.SessionSelection
+import com.uniandes.tutorias_g45k.ui.reservation.gateway.components.SkillSelector
+import com.uniandes.tutorias_g45k.ui.reservation.gateway.components.TutorBanner
+import com.uniandes.tutorias_g45k.ui.theme.AppTheme
 import kotlinx.coroutines.launch
 
 @Composable
@@ -236,3 +236,4 @@ fun ReservationGateWayPreview(){
         }
     }
 }
+

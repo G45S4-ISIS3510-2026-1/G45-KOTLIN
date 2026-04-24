@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.data.reservation
+package com.uniandes.tutorias_g45k.data.reservation
 
 import retrofit2.Response
 import retrofit2.http.Body
@@ -56,3 +56,4 @@ interface SessionApi {
     suspend fun getTutorSkillsByIds(@Query("ids") ids: List<String>): Response<List<SkillSummaryDto>>
 
 }
+

@@ -1,10 +1,10 @@
-package com.example.g45_kotlin.ui
+package com.uniandes.tutorias_g45k.ui
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.g45_kotlin.data.auth.AuthHolder
-import com.example.g45_kotlin.data.novelty.NoveltyRepoProvider
+import com.uniandes.tutorias_g45k.data.auth.AuthHolder
+import com.uniandes.tutorias_g45k.data.novelty.NoveltyRepoProvider
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch

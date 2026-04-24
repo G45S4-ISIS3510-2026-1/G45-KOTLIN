@@ -1,9 +1,9 @@
-package com.example.g45_kotlin.data.firestore
+package com.uniandes.tutorias_g45k.data.firestore
 
 import android.util.Log
-import com.example.g45_kotlin.data.reservation.ParticipantSummaryDto
-import com.example.g45_kotlin.data.reservation.SessionDto
-import com.example.g45_kotlin.data.reservation.SkillSummaryDto
+import com.uniandes.tutorias_g45k.data.reservation.ParticipantSummaryDto
+import com.uniandes.tutorias_g45k.data.reservation.SessionDto
+import com.uniandes.tutorias_g45k.data.reservation.SkillSummaryDto
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -85,5 +85,6 @@ class ReservationsFireStoreManager {
         }
     }
 }
+
 
 

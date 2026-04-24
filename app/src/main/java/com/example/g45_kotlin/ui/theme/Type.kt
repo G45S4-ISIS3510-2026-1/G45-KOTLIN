@@ -1,11 +1,11 @@
-package com.example.g45_kotlin.ui.theme
+package com.uniandes.tutorias_g45k.ui.theme
 
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import com.example.g45_kotlin.R
+import com.uniandes.tutorias_g45k.R
 
 
 val bodyFontFamily = FontFamily(
@@ -38,4 +38,5 @@ val AppTypography = Typography(
     labelMedium = baseline.labelMedium.copy(fontFamily = bodyFontFamily),
     labelSmall = baseline.labelSmall.copy(fontFamily = bodyFontFamily),
 )
+
 

@@ -1,7 +1,7 @@
-package com.example.g45_kotlin.data.firestore
+package com.uniandes.tutorias_g45k.data.firestore
 
 import android.util.Log
-import com.example.g45_kotlin.data.novelty.NoveltyDto
+import com.uniandes.tutorias_g45k.data.novelty.NoveltyDto
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query

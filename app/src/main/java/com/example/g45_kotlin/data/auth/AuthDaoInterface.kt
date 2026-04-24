@@ -1,6 +1,8 @@
-package com.example.g45_kotlin.data.auth
+package com.uniandes.tutorias_g45k.data.auth
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 @Dao
@@ -11,10 +13,9 @@ interface AuthDaoInterface {
     @Query("SELECT * FROM users WHERE email = :email")
     fun getSavedUser(email: String): UserDto?
 
-    @Query("INSERT INTO users (uid, email, displayName, photoUrl) VALUES (:uid, :email, :displayName, :photoUrl)")
-    fun insert(uid: String, email: String, displayName: String, photoUrl: String)
-
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(user: UserDto): Long
 
     @Query("DELETE FROM users WHERE email = :email")
-    fun deleteSavedUser(email: String)
+    suspend fun deleteSavedUser(email: String): Int
 }

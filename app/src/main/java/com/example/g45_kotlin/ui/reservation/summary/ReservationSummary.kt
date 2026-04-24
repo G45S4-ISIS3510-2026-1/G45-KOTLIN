@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.reservation.summary
+package com.uniandes.tutorias_g45k.ui.reservation.summary
 
 
 import android.annotation.SuppressLint
@@ -40,12 +40,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.g45_kotlin.ui.LoadingDialog
-import com.example.g45_kotlin.ui.reservation.summary.components.DetailsBanner
-import com.example.g45_kotlin.ui.reservation.summary.components.Participants
-import com.example.g45_kotlin.ui.reservation.summary.components.QrBanner
-import com.example.g45_kotlin.ui.theme.AppTheme
-import com.example.g45_kotlin.utilities.GoogleAnalyticsService
+import com.uniandes.tutorias_g45k.ui.LoadingDialog
+import com.uniandes.tutorias_g45k.ui.reservation.summary.components.DetailsBanner
+import com.uniandes.tutorias_g45k.ui.reservation.summary.components.Participants
+import com.uniandes.tutorias_g45k.ui.reservation.summary.components.QrBanner
+import com.uniandes.tutorias_g45k.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.utilities.GoogleAnalyticsService
 import java.time.LocalDateTime
 
 @Composable

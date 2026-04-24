@@ -1,13 +1,22 @@
-package com.example.g45_kotlin.data.auth
+package com.uniandes.tutorias_g45k.data.auth
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
-@Database(entities = [UserDto::class], version = 1)
+import com.uniandes.tutorias_g45k.data.catalog.CachedTutorEntity
+import com.uniandes.tutorias_g45k.data.catalog.TutorDao
+import com.uniandes.tutorias_g45k.data.reservation.CachedSessionEntity
+import com.uniandes.tutorias_g45k.data.reservation.SessionDao
+
+@Database(entities = [UserDto::class, CachedTutorEntity::class, CachedSessionEntity::class], version = 4, exportSchema = false)
+@TypeConverters(DataConverters::class)
 abstract class AuthDataBase : RoomDatabase() {
     abstract fun userDao(): AuthDaoInterface
+    abstract fun tutorDao(): TutorDao
+    abstract fun sessionDao(): SessionDao
 
     companion object {
         @Volatile
@@ -19,7 +28,9 @@ abstract class AuthDataBase : RoomDatabase() {
                     context.applicationContext,
                     AuthDataBase::class.java,
                     "app_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration() // Esto evita el crash al cambiar la versión de la DB
+                    .build()
                 INSTANCE = instance
                 instance
             }

@@ -1,10 +1,10 @@
-package com.example.g45_kotlin.ui.home
+package com.uniandes.tutorias_g45k.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.g45_kotlin.data.auth.AuthHolder
-import com.example.g45_kotlin.data.reservation.ReservationRepository
-import com.example.g45_kotlin.data.user.UserRepository
+import com.uniandes.tutorias_g45k.data.auth.AuthHolder
+import com.uniandes.tutorias_g45k.data.reservation.ReservationRepository
+import com.uniandes.tutorias_g45k.data.user.UserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +22,7 @@ class HomeViewModel : ViewModel() {
     private val authRepository = AuthHolder.authRepo
 
     private val userRepository = UserRepository
-    private val reservationRepository = ReservationRepository
+    private val reservationRepository = ReservationRepository(authRepository.getSessionDao())
 
     val state = _state.asStateFlow()
 
@@ -72,3 +72,4 @@ class HomeViewModel : ViewModel() {
         }
     }
 }
+

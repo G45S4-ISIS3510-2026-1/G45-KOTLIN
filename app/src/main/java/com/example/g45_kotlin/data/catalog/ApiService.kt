@@ -1,7 +1,7 @@
-package com.example.g45_kotlin.data.catalog
+package com.uniandes.tutorias_g45k.data.catalog
 
-import com.example.g45_kotlin.data.reservation.SkillSummaryDto
-import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.uniandes.tutorias_g45k.data.reservation.SkillSummaryDto
+import com.uniandes.tutorias_g45k.data.user.TutorSummaryDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -26,3 +26,4 @@ interface ApiService {
     @GET ("skills/by-ids")
     suspend fun getTutorSkillsByIds(@Query("ids") ids: List<String>): List<SkillSummaryDto>
 }
+

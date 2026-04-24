@@ -1,6 +1,6 @@
-package com.example.g45_kotlin.data.catalog
+package com.uniandes.tutorias_g45k.data.catalog
 
-import com.example.g45_kotlin.data.baseUrl
+import com.uniandes.tutorias_g45k.data.baseUrl
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -15,3 +15,4 @@ object RetrofitClient {
             .create(ApiService::class.java)
     }
 }
+

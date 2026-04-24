@@ -1,5 +1,5 @@
 [versions]
-agp = "9.1.0"
+agp = "9.1.1"
 coilCompose = "2.7.0"
 converterGson = "3.0.0"
 coreKtx = "1.17.0"
@@ -10,10 +10,11 @@ junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.4"
-kotlin = "2.2.10"
+kotlin = "2.1.0"
+ksp = "2.1.0-1.0.29"
 composeBom = "2024.09.00"
 material3Version = "1.2.0"
-materialIconsCore = "latest_version"
+materialIconsCore = "1.7.0"
 retrofit = "3.0.0"
 uiTextGoogleFonts = "1.10.4"
 material3 = "1.4.0"
@@ -22,7 +23,7 @@ firebaseMessaging = "25.0.1"
 zxingAndroidEmbedded = "4.3.0"
 navigationCompose = "2.9.7"
 okhttp = "4.12.0"
-room = "2.6.1"
+room = "2.7.0-alpha13"
 firebaseFirestore = "26.2.0"
 
 [libraries]
@@ -70,4 +71,6 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinCompose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

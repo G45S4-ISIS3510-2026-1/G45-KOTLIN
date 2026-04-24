@@ -1,4 +1,4 @@
-package com.example.g45_kotlin
+package com.uniandes.tutorias_g45k
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -12,12 +12,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
-import com.example.g45_kotlin.data.auth.AuthHolder
-import com.example.g45_kotlin.data.auth.AuthRepository
-import com.example.g45_kotlin.data.local.SearchHistoryManager
-import com.example.g45_kotlin.ui.theme.AppTheme
-import com.example.g45_kotlin.utilities.LightSensorManager
-import com.example.g45_kotlin.utilities.NetworkMonitor
+import com.uniandes.tutorias_g45k.data.auth.AuthHolder
+import com.uniandes.tutorias_g45k.data.auth.AuthRepository
+import com.uniandes.tutorias_g45k.data.local.SearchHistoryManager
+import com.uniandes.tutorias_g45k.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.utilities.LightSensorManager
+import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
@@ -75,6 +75,7 @@ class MainActivity : ComponentActivity() {
     }
 
 }
+
 
 
 

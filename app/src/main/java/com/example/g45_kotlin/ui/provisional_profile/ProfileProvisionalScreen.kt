@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.provisional_profile
+package com.uniandes.tutorias_g45k.ui.provisional_profile
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,9 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.g45_kotlin.ui.LoadingDialog
-import com.example.g45_kotlin.ui.theme.AppTheme
-import com.example.g45_kotlin.utilities.GoogleAnalyticsService
+import com.uniandes.tutorias_g45k.ui.LoadingDialog
+import com.uniandes.tutorias_g45k.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.utilities.GoogleAnalyticsService
 
 @Composable
 fun ProvisionalScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = viewModel(), onReservationClick:(String)->Unit){

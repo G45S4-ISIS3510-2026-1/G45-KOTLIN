@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.tutor.catalog
+package com.uniandes.tutorias_g45k.ui.tutor.catalog
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -55,9 +55,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.g45_kotlin.data.user.TutorSummaryDto
-import com.example.g45_kotlin.ui.theme.AppTheme
-import com.example.g45_kotlin.utilities.GoogleAnalyticsService
+import coil.compose.AsyncImage
+import com.uniandes.tutorias_g45k.data.user.TutorSummaryDto
+import com.uniandes.tutorias_g45k.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.utilities.GoogleAnalyticsService
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -261,11 +262,13 @@ fun TutorCard(tutor: TutorSummaryDto, onClick: () -> Unit) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.Top) {
                 Box(contentAlignment = Alignment.BottomCenter) {
-                    Box(
+                    AsyncImage(
+                        model = tutor.profileImageUrl,
+                        contentDescription = "Foto de ${tutor.name}",
                         modifier = Modifier
                             .size(80.dp)
                             .clip(RoundedCornerShape(16.dp))
-                            .background(color=MaterialTheme.colorScheme.primary)
+                            .background(color = MaterialTheme.colorScheme.primary)
                     )
                     Surface(
                         color = MaterialTheme.colorScheme.primary,

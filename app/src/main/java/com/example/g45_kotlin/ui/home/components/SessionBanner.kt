@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.home.components
+package com.uniandes.tutorias_g45k.ui.home.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,11 +28,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.g45_kotlin.R
-import com.example.g45_kotlin.data.reservation.ParticipantSummaryDto
-import com.example.g45_kotlin.data.reservation.SessionDto
-import com.example.g45_kotlin.data.reservation.SkillSummaryDto
-import com.example.g45_kotlin.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.R
+import com.uniandes.tutorias_g45k.data.reservation.ParticipantSummaryDto
+import com.uniandes.tutorias_g45k.data.reservation.SessionDto
+import com.uniandes.tutorias_g45k.data.reservation.SkillSummaryDto
+import com.uniandes.tutorias_g45k.ui.theme.AppTheme
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -154,3 +154,4 @@ fun SessionBannerPreview(){
         )
     }
 }
+

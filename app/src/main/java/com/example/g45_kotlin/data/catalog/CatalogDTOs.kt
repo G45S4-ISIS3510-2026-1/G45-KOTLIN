@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.data.catalog
+package com.uniandes.tutorias_g45k.data.catalog
 
 import com.google.gson.annotations.SerializedName
 
@@ -27,4 +27,5 @@ data class ReviewResponse(
     @SerializedName("authorName") val authorName: String,
     @SerializedName("authorImageUrl") val authorImageUrl: String?
 )
+
 

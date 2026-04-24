@@ -1,12 +1,12 @@
-package com.example.g45_kotlin.ui.provisional_profile
+package com.uniandes.tutorias_g45k.ui.provisional_profile
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.g45_kotlin.data.auth.AuthHolder
-import com.example.g45_kotlin.data.reservation.ReservationRepository
-import com.example.g45_kotlin.data.reservation.SessionDto
-import com.example.g45_kotlin.utilities.NetworkMonitor
+import com.uniandes.tutorias_g45k.data.auth.AuthHolder
+import com.uniandes.tutorias_g45k.data.reservation.ReservationRepository
+import com.uniandes.tutorias_g45k.data.reservation.SessionDto
+import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,8 +16,8 @@ import kotlinx.coroutines.launch
 
 class ProfileViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
-    private val sessionRepository = ReservationRepository
     private val authRepository = AuthHolder.authRepo
+    private val sessionRepository = ReservationRepository(authRepository.getSessionDao())
 
     val uiState = _uiState.asStateFlow()
 

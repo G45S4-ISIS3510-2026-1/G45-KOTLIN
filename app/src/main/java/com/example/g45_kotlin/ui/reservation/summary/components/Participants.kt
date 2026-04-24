@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.reservation.summary.components
+package com.uniandes.tutorias_g45k.ui.reservation.summary.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,8 +21,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.g45_kotlin.R
-import com.example.g45_kotlin.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.R
+import com.uniandes.tutorias_g45k.ui.theme.AppTheme
 
 const val urlPlacer = "https://media.licdn.com/dms/image/v2/D4E03AQErWMZGSWwcqg/profile-displayphoto-scale_200_200/B4EZxJq0pSLAAY-/0/1770762491069?e=1773878400&v=beta&t=UABxv2St6FPX2OI3Tu_9EdEg5GkC_1PryOLmQLovLRA"
 

@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.data.reservation
+package com.uniandes.tutorias_g45k.data.reservation
 
 data class SessionDto(
     val id: String?=null,
@@ -43,3 +43,4 @@ data class AvailabilityDto(
     val friday: List<String> = emptyList(),
     val saturday: List<String> = emptyList()
 )
+

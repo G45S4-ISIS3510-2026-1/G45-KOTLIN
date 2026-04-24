@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.novelties
+package com.uniandes.tutorias_g45k.ui.novelties
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,9 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.g45_kotlin.data.novelty.NoveltyDto
-import com.example.g45_kotlin.ui.NoContentOrConnectionWidget
-import com.example.g45_kotlin.ui.novelties.components.NoveltyItem
+import com.uniandes.tutorias_g45k.data.novelty.NoveltyDto
+import com.uniandes.tutorias_g45k.ui.NoContentOrConnectionWidget
+import com.uniandes.tutorias_g45k.ui.novelties.components.NoveltyItem
 
 @Composable
 fun NoveltyScreen(modifier: Modifier = Modifier, viewModel: NoveltyViewModel = viewModel(), onNoveltyClick: (NoveltyDto) -> Unit = {}){

@@ -1,10 +1,23 @@
-package com.example.g45_kotlin.data.catalog
+package com.uniandes.tutorias_g45k.data.catalog
 
-import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.uniandes.tutorias_g45k.data.user.TutorSummaryDto
+import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 
-class TutorRepository(private val apiService: ApiService = RetrofitClient.apiService) {
+class TutorRepository(
+    private val apiService: ApiService = RetrofitClient.apiService,
+    private val tutorDao: TutorDao
+) {
     
     suspend fun searchTutors(name: String? = null, major: String? = null): Result<List<TutorSummaryDto>> {
+        if (!NetworkMonitor.isOnline.value) {
+            val cached = tutorDao.getAllTutors().map { it.toDto() }
+            return if (cached.isNotEmpty()) {
+                Result.success(cached)
+            } else {
+                Result.failure(Exception("Offline y no hay datos en caché"))
+            }
+        }
+
         return try {
             val response = apiService.searchTutors(name, major)
             val tutores = response.map { res ->
@@ -17,9 +30,20 @@ class TutorRepository(private val apiService: ApiService = RetrofitClient.apiSer
                     sessionPrice = res.sessionPrice
                 )
             }
+            // Guardar en caché si es una búsqueda general (sin filtros para simplificar por ahora)
+            if (name == null && major == null) {
+                tutorDao.clearTutors()
+                tutorDao.insertTutors(tutores.map { it.toEntity() })
+            }
             Result.success(tutores)
         } catch (e: Exception) {
-            Result.failure(e)
+            // Intentar cargar de caché si falla la red
+            val cached = tutorDao.getAllTutors().map { it.toDto() }
+            if (cached.isNotEmpty()) {
+                Result.success(cached)
+            } else {
+                Result.failure(e)
+            }
         }
     }
 
@@ -54,3 +78,4 @@ class TutorRepository(private val apiService: ApiService = RetrofitClient.apiSer
     }
 
 }
+

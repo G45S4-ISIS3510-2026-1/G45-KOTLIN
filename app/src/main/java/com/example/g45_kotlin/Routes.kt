@@ -1,4 +1,4 @@
-package com.example.g45_kotlin
+package com.uniandes.tutorias_g45k
 
 object Routes {
     val home="Inicio"

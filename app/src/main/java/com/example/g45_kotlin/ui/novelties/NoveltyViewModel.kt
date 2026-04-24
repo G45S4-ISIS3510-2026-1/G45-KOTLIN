@@ -1,11 +1,11 @@
-package com.example.g45_kotlin.ui.novelties
+package com.uniandes.tutorias_g45k.ui.novelties
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.g45_kotlin.data.auth.AuthHolder
-import com.example.g45_kotlin.data.novelty.NoveltyRepoProvider
-import com.example.g45_kotlin.data.novelty.NoveltyRepository
+import com.uniandes.tutorias_g45k.data.auth.AuthHolder
+import com.uniandes.tutorias_g45k.data.novelty.NoveltyRepoProvider
+import com.uniandes.tutorias_g45k.data.novelty.NoveltyRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,6 +1,6 @@
-package com.example.g45_kotlin.ui.reservation.gateway
+package com.uniandes.tutorias_g45k.ui.reservation.gateway
 
-import com.example.g45_kotlin.data.reservation.SkillSummaryDto
+import com.uniandes.tutorias_g45k.data.reservation.SkillSummaryDto
 import java.time.LocalDate
 
 
@@ -31,4 +31,5 @@ data class TutorUser (
     val currentRating:Double = 0.0,
     val picture: String=""
 )
+
 

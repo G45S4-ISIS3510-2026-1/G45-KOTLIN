@@ -1,11 +1,12 @@
-package com.example.g45_kotlin.ui.tutor.catalog
+package com.uniandes.tutorias_g45k.ui.tutor.catalog
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.g45_kotlin.data.catalog.ReviewResponse
-import com.example.g45_kotlin.data.catalog.TutorRepository
-import com.example.g45_kotlin.data.catalog.TutorResponse
-import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.uniandes.tutorias_g45k.data.auth.AuthHolder
+import com.uniandes.tutorias_g45k.data.catalog.ReviewResponse
+import com.uniandes.tutorias_g45k.data.catalog.TutorRepository
+import com.uniandes.tutorias_g45k.data.catalog.TutorResponse
+import com.uniandes.tutorias_g45k.data.user.TutorSummaryDto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class TutorViewModel(
-    private val repository: TutorRepository = TutorRepository(),
+    private val repository: TutorRepository = TutorRepository(tutorDao = AuthHolder.authRepo.getTutorDao()),
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CatalogoUiState())
     val uiState: StateFlow<CatalogoUiState> = _uiState.asStateFlow()
@@ -136,3 +137,4 @@ class TutorViewModel(
         return isoDate.split("T").firstOrNull() ?: "Reciente"
     }
 }
+

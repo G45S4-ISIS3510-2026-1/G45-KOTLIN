@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.tutor.catalog
+package com.uniandes.tutorias_g45k.ui.tutor.catalog
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -41,15 +41,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.g45_kotlin.data.catalog.ReviewResponse
-import com.example.g45_kotlin.data.catalog.TutorResponse
-import com.example.g45_kotlin.ui.theme.AppTheme
-import com.example.g45_kotlin.utilities.GoogleAnalyticsService
+import coil.compose.AsyncImage
+import com.uniandes.tutorias_g45k.R
+import com.uniandes.tutorias_g45k.data.catalog.ReviewResponse
+import com.uniandes.tutorias_g45k.data.catalog.TutorResponse
+import com.uniandes.tutorias_g45k.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.utilities.GoogleAnalyticsService
 
 @Composable
 fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skills: List<String> = emptyList(), onBack: () -> Unit, onBook: () -> Unit ={}) {
@@ -74,6 +78,16 @@ fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skil
                         .fillMaxWidth()
                         .height(350.dp)
                 ) {
+                    // Background/Photo
+                    AsyncImage(
+                        model = tutor.profileImageUrl,
+                        contentDescription = "Foto de ${tutor.name}",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        placeholder = painterResource(R.drawable.profile_placeholder),
+                        error = painterResource(R.drawable.profile_placeholder)
+                    )
+
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -83,7 +97,6 @@ fun TutorDetailScreen(tutor: TutorResponse, reseñas: List<ReviewResponse>, skil
                                     startY = 500f
                                 )
                             )
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
                     )
 
                     Row(
@@ -359,3 +372,4 @@ fun DetailPreview() {
         )
     }
 }
+

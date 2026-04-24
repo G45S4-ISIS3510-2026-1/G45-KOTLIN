@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.theme
+package com.uniandes.tutorias_g45k.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
@@ -265,3 +265,4 @@ val surfaceContainerLowDarkHighContrast = surfaceContainerLowDark
 val surfaceContainerDarkHighContrast = surfaceContainerDark
 val surfaceContainerHighDarkHighContrast = surfaceContainerHighDark
 val surfaceContainerHighestDarkHighContrast = surfaceContainerHighestDark
+

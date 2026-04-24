@@ -1,20 +1,94 @@
-package com.example.g45_kotlin.utilities
+package com.uniandes.tutorias_g45k.utilities
 
+import android.os.Bundle
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.analytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
+/**
+ * Objeto Centralizador de Telemetría
+ * Este objeto asegura que los parámetros enviados coincidan exactamente con
+ * las Dimensiones Personalizadas configuradas en Firebase y Supabase.
+ */
 object AnalyticsManager {
-    fun setCurrentService(serviceName: String) {
-        // Esta línea es la que responde la pregunta de negocio.
-        // Si la app falla, Crashlytics nos dirá en qué "service" estaba.
-        FirebaseCrashlytics.getInstance().setCustomKey("current_service", serviceName)
+    private val analytics: FirebaseAnalytics = Firebase.analytics
+    private val crashlytics: FirebaseCrashlytics = FirebaseCrashlytics.getInstance()
+
+    // Parámetros estandarizados según requerimiento de Auditoría
+    private const val PARAM_SERVICE_NAME = "service_name"
+    private const val PARAM_REFERENCE_ID = "reference_id"
+    private const val PARAM_SCREEN_NAME = "screen_name"
+    private const val PARAM_ITEM_NAME = "item_name" // Nuevo: Para "Nombre de Botón"
+
+    /**
+     * Registra una interacción con un servicio (Materia, Tutor, etc.)
+     */
+    fun logServiceInteraction(
+        eventName: String, 
+        serviceName: String, 
+        referenceId: String, 
+        screenName: String = "unknown",
+        itemName: String? = null // Para el nombre del botón
+    ) {
+        val bundle = Bundle().apply {
+            putString(PARAM_SERVICE_NAME, serviceName)
+            putString(PARAM_REFERENCE_ID, referenceId)
+            putString(PARAM_SCREEN_NAME, screenName)
+            itemName?.let { putString(PARAM_ITEM_NAME, it) }
+        }
+        
+        analytics.logEvent(eventName, bundle)
+        
+        // Contexto para Crashlytics
+        crashlytics.setCustomKey("last_service", serviceName)
+        crashlytics.setCustomKey("last_ref_id", referenceId)
     }
 
+    /**
+     * Registra un cambio de pantalla
+     * Responde a: "¿En qué sección ocurren más errores?"
+     */
+    fun logScreenView(screenName: String, screenClass: String = "JetpackCompose") {
+        val bundle = Bundle().apply {
+            putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName)
+            putString(PARAM_SCREEN_NAME, screenName) // Duplicamos para la dimensión personalizada
+            putString(FirebaseAnalytics.Param.SCREEN_CLASS, screenClass)
+        }
+        
+        analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle)
+        
+        // Sincronizamos con Crashlytics
+        crashlytics.setCustomKey("last_visible_screen", screenName)
+    }
+
+    /**
+     * Establece el servicio actual para contexto en reportes de error
+     */
+    fun setCurrentService(serviceName: String) {
+        crashlytics.setCustomKey("last_service", serviceName)
+    }
+
+    /**
+     * Establece el ID de usuario para trazabilidad entre dispositivos
+     */
+    fun setUserId(userId: String) {
+        analytics.setUserId(userId)
+        crashlytics.setUserId(userId)
+    }
+
+    /**
+     * Log de errores con contexto enriquecido
+     */
     fun logError(service: String, message: String, exception: Exception? = null) {
-        FirebaseCrashlytics.getInstance().setCustomKey("error_source", service)
+        crashlytics.setCustomKey("error_source", service)
+        crashlytics.setCustomKey("error_details", message)
+        
         if (exception != null) {
-            FirebaseCrashlytics.getInstance().recordException(exception)
+            crashlytics.recordException(exception)
         } else {
-            FirebaseCrashlytics.getInstance().log("Manual Error in $service: $message")
+            crashlytics.log("E/$service: $message")
         }
     }
 }
+

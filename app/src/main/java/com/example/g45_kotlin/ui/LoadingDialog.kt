@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui
+package com.uniandes.tutorias_g45k.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.g45_kotlin.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.ui.theme.AppTheme
 
 @Composable
 fun LoadingDialog(
@@ -82,4 +82,5 @@ fun LoadingDialogPreview() {
         LoadingDialog(show = true)
     }
 }
+
 

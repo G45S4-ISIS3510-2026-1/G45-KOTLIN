@@ -1,6 +1,6 @@
-package com.example.g45_kotlin.ui.novelties
+package com.uniandes.tutorias_g45k.ui.novelties
 
-import com.example.g45_kotlin.data.novelty.NoveltyDto
+import com.uniandes.tutorias_g45k.data.novelty.NoveltyDto
 
 data class NoveltyScreenState (
     val novelties: List<NoveltyDto> = emptyList(),

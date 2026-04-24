@@ -1,6 +1,6 @@
-package com.example.g45_kotlin.data.novelty
+package com.uniandes.tutorias_g45k.data.novelty
 
-import com.example.g45_kotlin.data.firestore.NoveltyFirestoreManage
+import com.uniandes.tutorias_g45k.data.firestore.NoveltyFirestoreManage
 import kotlinx.coroutines.flow.Flow
 
 object NoveltyRepoFirestoreImp: NoveltyRepository {

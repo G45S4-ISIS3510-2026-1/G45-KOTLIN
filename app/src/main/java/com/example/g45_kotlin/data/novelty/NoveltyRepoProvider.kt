@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.data.novelty
+package com.uniandes.tutorias_g45k.data.novelty
 
 object NoveltyRepoProvider {
     fun getNoveltyRepo(): NoveltyRepository {
@@ -8,3 +8,4 @@ object NoveltyRepoProvider {
         return NoveltyRepoFirestoreImp
     }
 }
+

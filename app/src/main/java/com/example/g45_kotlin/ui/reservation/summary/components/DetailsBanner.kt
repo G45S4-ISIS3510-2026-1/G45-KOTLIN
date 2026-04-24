@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.reservation.summary.components
+package com.uniandes.tutorias_g45k.ui.reservation.summary.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,8 +23,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.g45_kotlin.R
-import com.example.g45_kotlin.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.R
+import com.uniandes.tutorias_g45k.ui.theme.AppTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle

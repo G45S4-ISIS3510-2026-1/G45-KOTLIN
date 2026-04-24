@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.reservation.summary
+package com.uniandes.tutorias_g45k.ui.reservation.summary
 
 import java.time.LocalDateTime
 

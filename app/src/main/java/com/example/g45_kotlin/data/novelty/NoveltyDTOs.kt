@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.data.novelty
+package com.uniandes.tutorias_g45k.data.novelty
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId

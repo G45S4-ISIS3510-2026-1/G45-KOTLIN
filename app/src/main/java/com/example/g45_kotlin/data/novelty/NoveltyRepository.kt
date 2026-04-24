@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.data.novelty
+package com.uniandes.tutorias_g45k.data.novelty
 
 import kotlinx.coroutines.flow.Flow
 

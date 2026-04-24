@@ -1,7 +1,7 @@
-package com.example.g45_kotlin.ui.home
+package com.uniandes.tutorias_g45k.ui.home
 
-import com.example.g45_kotlin.data.reservation.SessionDto
-import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.uniandes.tutorias_g45k.data.reservation.SessionDto
+import com.uniandes.tutorias_g45k.data.user.TutorSummaryDto
 
 data class HomeState(
     val userName: String = "Amigo",
@@ -12,3 +12,4 @@ data class HomeState(
     val areSessionLoading: Boolean = false,
     val error: String? = null
 )
+

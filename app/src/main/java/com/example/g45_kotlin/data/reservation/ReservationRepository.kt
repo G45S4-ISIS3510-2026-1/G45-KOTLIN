@@ -1,13 +1,16 @@
-package com.example.g45_kotlin.data.reservation
+package com.uniandes.tutorias_g45k.data.reservation
 
 import android.util.Log
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.example.g45_kotlin.data.baseUrl
-import com.example.g45_kotlin.data.firestore.ReservationsFireStoreManager
+import com.uniandes.tutorias_g45k.data.baseUrl
+import com.uniandes.tutorias_g45k.data.firestore.ReservationsFireStoreManager
+import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 
-object ReservationRepository {
+class ReservationRepository(
+    private val sessionDao: SessionDao? = null
+) {
     private val apiService by lazy {Retrofit.Builder()
         .baseUrl(baseUrl)
         .addConverterFactory(GsonConverterFactory.create())
@@ -47,15 +50,37 @@ object ReservationRepository {
     }
 
     suspend fun getUpcomingUserSessions(userId: String): Result<List<SessionDto>> {
+        if (!NetworkMonitor.isOnline.value && sessionDao != null) {
+            val cached = sessionDao.getUpcomingSessions().map { it.toDto() }
+            if (cached.isNotEmpty()) {
+                return Result.success(cached)
+            }
+        }
+
         return try{
             val sessions=reservationsFireStoreManager.getUpcomingUserSessions(userId)
             Log.d("ReservationRepository", "Sessions: $sessions")
+            
+            // Update cache
+            sessionDao?.let {
+                it.clearSessions()
+                it.insertSessions(sessions.map { s -> s.toEntity() })
+            }
+            
             Result.success(sessions)
         }catch (e:Exception){
             Log.d("ReservationRepository", "Error getting sessions: ${e.message}")
+            
+            // Try cache as fallback
+            sessionDao?.let {
+                val cached = it.getUpcomingSessions().map { s -> s.toDto() }
+                if (cached.isNotEmpty()) return Result.success(cached)
+            }
+
             Result.failure(e)
         }
     }
 }
+
 
 

@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.reservation.gateway.components
+package com.uniandes.tutorias_g45k.ui.reservation.gateway.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.g45_kotlin.data.reservation.SkillSummaryDto
+import com.uniandes.tutorias_g45k.data.reservation.SkillSummaryDto
 
 @Composable
 fun SkillSelector(modifier: Modifier =Modifier, skillsData:List<SkillSummaryDto>, onSkillSelection:(String)->Unit={}, selectedSkill:String=""){
@@ -54,4 +54,5 @@ fun SkillOption(modifier: Modifier =Modifier, skill:SkillSummaryDto, onSelection
         }
     }
 }
+
 

@@ -1,13 +1,13 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlinCompose)
+    alias(libs.plugins.ksp)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
-    id("com.google.devtools.ksp") version "2.3.4"
 }
 
 android {
-    namespace = "com.example.g45_kotlin"
+    namespace = "com.uniandes.tutorias_g45k"
     compileSdk = 36
 
     defaultConfig {
@@ -41,6 +41,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
     implementation(libs.firebase.firestore)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -89,5 +90,6 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation("androidx.fragment:fragment-ktx:1.5.7")
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

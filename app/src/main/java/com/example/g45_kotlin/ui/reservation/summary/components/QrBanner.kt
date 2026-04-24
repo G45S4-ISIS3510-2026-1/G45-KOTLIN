@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.reservation.summary.components
+package com.uniandes.tutorias_g45k.ui.reservation.summary.components
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.Image
@@ -27,8 +27,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.g45_kotlin.ui.theme.AppTheme
-import com.example.g45_kotlin.utilities.generateQrCodeBitmap
+import com.uniandes.tutorias_g45k.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.utilities.generateQrCodeBitmap
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 
@@ -146,3 +146,4 @@ fun QrBannerPreview(modifier: Modifier = Modifier){
         QrBanner(modifier = modifier, isTutor = true, qrContent = "www.google.com", verifScan = {true})
     }
 }
+

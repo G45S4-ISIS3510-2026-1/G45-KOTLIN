@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.reservation.gateway.components
+package com.uniandes.tutorias_g45k.ui.reservation.gateway.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -31,10 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.example.g45_kotlin.R
-import com.example.g45_kotlin.ui.reservation.gateway.PaymentMethod
-import com.example.g45_kotlin.ui.reservation.gateway.PaymentType
-import com.example.g45_kotlin.ui.reservation.gateway.ReservationGatewayState
+import com.uniandes.tutorias_g45k.R
+import com.uniandes.tutorias_g45k.ui.reservation.gateway.PaymentMethod
+import com.uniandes.tutorias_g45k.ui.reservation.gateway.PaymentType
+import com.uniandes.tutorias_g45k.ui.reservation.gateway.ReservationGatewayState
 
 @Composable
 fun PaymentSelection(modifier: Modifier = Modifier,

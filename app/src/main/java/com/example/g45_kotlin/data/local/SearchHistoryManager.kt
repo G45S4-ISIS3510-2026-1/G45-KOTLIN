@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.data.local
+package com.uniandes.tutorias_g45k.data.local
 
 import android.content.Context
 import androidx.core.content.edit

@@ -1,11 +1,11 @@
-package com.example.g45_kotlin.ui.reservation.summary
+package com.uniandes.tutorias_g45k.ui.reservation.summary
 
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.g45_kotlin.data.auth.AuthHolder
-import com.example.g45_kotlin.data.reservation.ReservationRepository
+import com.uniandes.tutorias_g45k.data.auth.AuthHolder
+import com.uniandes.tutorias_g45k.data.reservation.ReservationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +18,8 @@ import java.time.OffsetDateTime
 class ReservationSummaryViewModel  (
     private val savedStateHandle: SavedStateHandle
 ):ViewModel(){
-    private val reservationRepository = ReservationRepository
     private val authRepository=AuthHolder.authRepo
+    private val reservationRepository = ReservationRepository(authRepository.getSessionDao())
 
     private val currentUserId=authRepository.getCurrentUser()?.uid
 

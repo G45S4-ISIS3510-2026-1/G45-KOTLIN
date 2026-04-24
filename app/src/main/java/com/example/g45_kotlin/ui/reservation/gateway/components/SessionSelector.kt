@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.reservation.gateway.components
+package com.uniandes.tutorias_g45k.ui.reservation.gateway.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -23,7 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.g45_kotlin.ui.reservation.gateway.ReservationGatewayState
+import com.uniandes.tutorias_g45k.ui.reservation.gateway.ReservationGatewayState
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime

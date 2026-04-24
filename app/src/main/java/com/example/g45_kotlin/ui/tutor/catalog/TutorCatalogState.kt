@@ -1,8 +1,8 @@
-package com.example.g45_kotlin.ui.tutor.catalog
+package com.uniandes.tutorias_g45k.ui.tutor.catalog
 
-import com.example.g45_kotlin.data.catalog.ReviewResponse
-import com.example.g45_kotlin.data.catalog.TutorResponse
-import com.example.g45_kotlin.data.user.TutorSummaryDto
+import com.uniandes.tutorias_g45k.data.catalog.ReviewResponse
+import com.uniandes.tutorias_g45k.data.catalog.TutorResponse
+import com.uniandes.tutorias_g45k.data.user.TutorSummaryDto
 
 data class CatalogoUiState(
     val searchText: String = "",
@@ -16,3 +16,4 @@ data class CatalogoUiState(
     val isLoading: Boolean = false,
     val error: String? = null
 )
+

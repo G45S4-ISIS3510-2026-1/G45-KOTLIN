@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.reservation.gateway.components
+package com.uniandes.tutorias_g45k.ui.reservation.gateway.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,8 +19,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.g45_kotlin.R
-import com.example.g45_kotlin.ui.reservation.gateway.TutorUser
+import com.uniandes.tutorias_g45k.R
+import com.uniandes.tutorias_g45k.ui.reservation.gateway.TutorUser
 
 @Composable
 fun TutorBanner(modifier: Modifier = Modifier, tutorInfo: TutorUser){

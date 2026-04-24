@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.data.user
+package com.uniandes.tutorias_g45k.data.user
 
 import retrofit2.Response
 import retrofit2.http.Body
@@ -12,3 +12,4 @@ interface UserApi {
     @POST("recommendations")
     suspend fun getRecommendations(@Body searchedTutors:List<String>): Response<List<TutorSummaryDto>>
 }
+

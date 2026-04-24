@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.novelties.components
+package com.uniandes.tutorias_g45k.ui.novelties.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
@@ -24,9 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.g45_kotlin.R
-import com.example.g45_kotlin.data.novelty.NoveltyDto
-import com.example.g45_kotlin.data.novelty.NoveltyType
+import com.uniandes.tutorias_g45k.R
+import com.uniandes.tutorias_g45k.data.novelty.NoveltyDto
+import com.uniandes.tutorias_g45k.data.novelty.NoveltyType
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue

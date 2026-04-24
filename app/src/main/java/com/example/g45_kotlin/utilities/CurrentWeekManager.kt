@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.utilities
+package com.uniandes.tutorias_g45k.utilities
 
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -12,5 +12,6 @@ fun getDaysOfCurrentWeek(): List<LocalDate> {
     // Entresemana mas Sabado
     return (0..5).map { monday.plusDays(it.toLong()) }
 }
+
 
 

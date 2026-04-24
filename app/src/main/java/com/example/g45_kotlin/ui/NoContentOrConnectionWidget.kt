@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui
+package com.uniandes.tutorias_g45k.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.g45_kotlin.R
+import com.uniandes.tutorias_g45k.R
 
 @Composable
 fun NoContentOrConnectionWidget(modifier: Modifier =Modifier, size: Int, text_style: TextStyle =MaterialTheme.typography.headlineMedium, message:String="No hay contenido disponible", missingConnection:Boolean=false){
@@ -48,4 +48,5 @@ fun NoContentOrConnectionWidgetPreview(){
     }
 
 }
+
 
