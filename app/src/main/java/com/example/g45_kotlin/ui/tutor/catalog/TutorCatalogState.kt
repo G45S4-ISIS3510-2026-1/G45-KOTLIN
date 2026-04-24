@@ -19,5 +19,7 @@ data class CatalogoUiState(
     val favoriteTutorIds: List<String> = emptyList(),
     val isLoading: Boolean = false,
     val isLoadingReviews: Boolean = false,
-    val error: String? = null
+    val isOnline: Boolean = true,
+    val error: String? = null,
+    val reviewSuccess: Boolean = false
 )

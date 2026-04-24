@@ -40,6 +40,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -61,6 +63,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.g45_kotlin.data.catalog.ReviewResponse
 import com.example.g45_kotlin.data.catalog.TutorResponse
@@ -74,16 +78,30 @@ fun TutorDetailScreen(
     skills: List<String> = emptyList(),
     isFavorite: Boolean = false,
     isLoadingReviews: Boolean = false,
+    viewModel: TutorViewModel = viewModel(),
     onBack: () -> Unit,
     onBook: () -> Unit = {},
     onToggleFavorite: () -> Unit = {},
     onCreateReview: (rating: Float, details: String) -> Unit = { _, _ -> }
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val colorScheme = MaterialTheme.colorScheme
     var showReviewDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit){
         GoogleAnalyticsService.logScreenAccess("TutorDetail")
+    }
+
+    // Efecto para mostrar mensaje de éxito o error
+    LaunchedEffect(uiState.reviewSuccess, uiState.error) {
+        if (uiState.reviewSuccess) {
+            snackbarHostState.showSnackbar("¡Reseña publicada con éxito!")
+            viewModel.clearReviewSuccess()
+        } else if (uiState.error != null) {
+            snackbarHostState.showSnackbar(uiState.error!!)
+            viewModel.clearError()
+        }
     }
 
     if (showReviewDialog) {
@@ -385,10 +403,9 @@ fun TutorDetailScreen(
                     .padding(24.dp)
             ) {
                 Button(
-                    onClick = {onBook()},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp),
+                    onClick = { onBook() },
+                    enabled = uiState.isOnline, // Bloqueo automático si no hay internet
+                    modifier = Modifier.fillMaxWidth().height(64.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
                     shape = RoundedCornerShape(24.dp)
                 ) {
@@ -401,6 +418,12 @@ fun TutorDetailScreen(
                     )
                 }
             }
+
+            // Snackbar Host para los mensajes
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 100.dp)
+            )
         }
     }
 }

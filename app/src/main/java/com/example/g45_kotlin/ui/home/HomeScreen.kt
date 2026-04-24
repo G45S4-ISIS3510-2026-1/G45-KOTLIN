@@ -1,5 +1,7 @@
 package com.example.g45_kotlin.ui.home
 
+import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -33,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,17 +44,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.g45_kotlin.data.auth.AuthHolder
 import com.example.g45_kotlin.data.user.TutorSummaryDto
 import com.example.g45_kotlin.utilities.AnalyticsManager
 import com.example.g45_kotlin.utilities.GoogleAnalyticsService
+import java.time.LocalDateTime
 
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel = viewModel(),
-    onBecomeTutor: () -> Unit = {}
-) {
+fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSummaryDto) -> Unit = {}, onMoreClick: () -> Unit = {}, onSessionClick: (String) -> Unit = {}, onBecomeTutor: () -> Unit = {}) {
     val state by viewModel.state.collectAsState()
+    val currentTime by viewModel.currentTime.collectAsStateWithLifecycle()
+    val currentUserId = AuthHolder.authRepo.getCurrentUser()?.uid
+
+    val sessionState = rememberLazyListState()
+
+    val snappingLayout = remember(sessionState) { SnapLayoutInfoProvider(sessionState) }
+
+    val flingBehavior = rememberSnapFlingBehavior(snappingLayout)
+
     LaunchedEffect(Unit) {
         AnalyticsManager.setCurrentService("HOME_SERVICE")
         GoogleAnalyticsService.logScreenAccess("HomeScreen")
@@ -83,7 +96,7 @@ fun HomeScreen(
             item {
                 Text("Próxima Sesión", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(12.dp))
-                if (state.nextSession == null) {
+                if (state.nextSessions.isEmpty()) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -97,33 +110,33 @@ fun HomeScreen(
                 }
             }
 
-            // Botones de Acción
-            item {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Button(
-                        onClick = {},
-                        modifier = Modifier.weight(1f).height(100.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Default.Add, null)
-                            Text("Agendar Tutoría", textAlign = androidx.compose.ui.text.style.TextAlign.Center, fontSize = 12.sp)
+                // Botones de Acción
+                item {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Button(
+                            onClick = {onMoreClick()},
+                            modifier = Modifier.weight(1f).height(100.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Default.Add, null)
+                                Text("Agendar Tutoría", textAlign = androidx.compose.ui.text.style.TextAlign.Center, style = MaterialTheme.typography.labelMedium)
+                            }
                         }
-                    }
-                    Button(
-                        onClick = onBecomeTutor,
-                        modifier = Modifier.weight(1f).height(100.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Default.Star, null)
-                            Text("Ser Tutor", textAlign = androidx.compose.ui.text.style.TextAlign.Center, fontSize = 12.sp)
+                        Button(
+                            onClick = { onBecomeTutor() },
+                            modifier = Modifier.weight(1f).height(100.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Default.Star, null)
+                                Text("Ser Tutor", textAlign = androidx.compose.ui.text.style.TextAlign.Center, style = MaterialTheme.typography.labelMedium)
+                            }
                         }
                     }
                 }
-            }
 
             // Tutores Destacados
             item {
@@ -142,9 +155,9 @@ fun HomeScreen(
             } else {
                 if (!state.featuredTutors.isEmpty()) {
                     item {
-                        LazyColumn(modifier=Modifier.heightIn(min=100.dp, max=200.dp),
+                        Column(modifier=Modifier.heightIn(min=100.dp, max=400.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)){
-                            items(state.featuredTutors) { tutor ->
+                            state.featuredTutors.forEach { tutor ->
                                 TutorItem(tutor)
                             }
                         }
@@ -162,12 +175,14 @@ fun HomeScreen(
                                 Text("Reintentar")
                             }
                         }
+
                     }
+                }
                 }
             }
         }
+
     }
-}
 
 @Composable
 fun TutorItem(tutor: TutorSummaryDto) {

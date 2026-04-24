@@ -10,11 +10,16 @@ import com.google.firebase.analytics.logEvent
 object GoogleAnalyticsService {
     private val analytics= Firebase.analytics
 
-    fun logScreenAccess(screenName: String) {
+    fun setUserId(userId: String) {
+        analytics.setUserId(userId)
+    }
+
+
+    fun logScreenAccess(screenName: String, screenClass: String = screenName) {
         Log.d("Analytics", "Logging screen access: $screenName")
         analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
             param(FirebaseAnalytics.Param.SCREEN_NAME, screenName)
-            param(FirebaseAnalytics.Param.SCREEN_CLASS, screenName) // En Compose, solemos usar el nombre de la ruta aquí también
+            param(FirebaseAnalytics.Param.SCREEN_CLASS, screenClass) // En Compose, solemos usar el nombre de la ruta aquí también
         }
     }
 

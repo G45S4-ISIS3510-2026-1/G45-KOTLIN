@@ -3,19 +3,47 @@ package com.example.g45_kotlin.ui.tutor.catalog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -25,7 +53,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -54,154 +81,148 @@ fun CatalogoContent(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        LazyColumn(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+        PullToRefreshBox(
+            isRefreshing = uiState.isLoading,
+            onRefresh = { onRetry() },
+            modifier = Modifier.fillMaxSize()
         ) {
-            item {
-                Row(
-                    modifier = Modifier.padding(top = 48.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Catálogo",
-                        style = MaterialTheme.typography.displayMedium,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f)
-                    )
-                    
-                    IconButton(
-                        onClick = { onOnlyFavoritesChange(!uiState.onlyFavorites) },
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(if (uiState.onlyFavorites) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        Icon(
-                            imageVector = if (uiState.onlyFavorites) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Ver Favoritos",
-                            tint = if (uiState.onlyFavorites) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-
-            item {
-                OutlinedTextField(
-                    value = uiState.searchText,
-                    onValueChange = onSearchTextChange,
-                    placeholder = {
-                        Text(
-                            text = "Buscar por materia o tutor...",
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent
-                    ),
-                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done)
-                )
-            }
-
-            item {
-                FilterSection(
-                    title = "ORDENAR POR",
-                    options = listOf("Mejor Rating", "Precio"),
-                    selectedOption = uiState.selectedOrder,
-                    onOptionSelected = onOrderChange
-                )
-            }
-            item {
-                FilterSection(
-                    title = "FACULTADES",
-                    options = listOf("Todas", "Ingeniería", "Ciencias", "Economía", "Artes"),
-                    selectedOption = uiState.selectedFacultad,
-                    onOptionSelected = onFacultadChange
-                )
-            }
-
-            if (uiState.isLoading && uiState.visibleTutores.isEmpty()) {
+            LazyColumn(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
                 item {
-                    Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    }
-                }
-            } else if (uiState.error != null) {
-                item {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Row(
+                        modifier = Modifier.padding(top = 48.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
                         Text(
-                            text = uiState.error,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyMedium
+                            text = "Catálogo",
+                            style = MaterialTheme.typography.displayMedium,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1f)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = onRetry,
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+
+                        IconButton(
+                            onClick = { onOnlyFavoritesChange(!uiState.onlyFavorites) },
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (uiState.onlyFavorites) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant)
                         ) {
-                            Text("Reintentar", color = MaterialTheme.colorScheme.onPrimary)
+                            Icon(
+                                imageVector = if (uiState.onlyFavorites) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Ver Favoritos",
+                                tint = if (uiState.onlyFavorites) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }
-            } else if (uiState.visibleTutores.isEmpty()) {
+
                 item {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(40.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = if (uiState.onlyFavorites) "No tienes tutores favoritos aún" else "No se encontraron tutores",
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        if (uiState.tutores.isEmpty() && !uiState.onlyFavorites) {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(onClick = { onRetry() }) {
-                                Text("Cargar de nuevo")
+                    OutlinedTextField(
+                        value = uiState.searchText,
+                        onValueChange = onSearchTextChange,
+                        placeholder = {
+                            Text(
+                                text = "Buscar por materia o tutor...",
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedContainerColor = Color.Transparent
+                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done)
+                    )
+                }
+
+                item {
+                    FilterSection(
+                        title = "ORDENAR POR",
+                        options = listOf("Mejor Rating", "Precio"),
+                        selectedOption = uiState.selectedOrder,
+                        onOptionSelected = onOrderChange
+                    )
+                }
+                item {
+                    FilterSection(
+                        title = "FACULTADES",
+                        options = listOf("Todas", "Ingeniería", "Ciencias", "Economía", "Artes"),
+                        selectedOption = uiState.selectedFacultad,
+                        onOptionSelected = onFacultadChange
+                    )
+                }
+
+                if (uiState.error != null && uiState.visibleTutores.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = uiState.error,
+                                color = MaterialTheme.colorScheme.error,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                } else if (uiState.visibleTutores.isEmpty() && !uiState.isLoading) {
+                    item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(40.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = if (uiState.onlyFavorites) "No tienes tutores favoritos aún" else "No se encontraron tutores",
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else {
+                    itemsIndexed(uiState.visibleTutores) { index, tutor ->
+                        if (index >= uiState.visibleTutores.size - 1) {
+                            LaunchedEffect(index) {
+                                onLoadNextPage()
+                            }
+                        }
+                        TutorCard(tutor, onClick = { onTutorClick(tutor) })
+                    }
+
+                    if (uiState.isLoading && uiState.visibleTutores.isNotEmpty()) {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(modifier = Modifier.size(24.dp))
                             }
                         }
                     }
                 }
-            } else {
-                itemsIndexed(uiState.visibleTutores) { index, tutor ->
-                    if (index >= uiState.visibleTutores.size - 1) {
-                        LaunchedEffect(index) {
-                            onLoadNextPage()
-                        }
-                    }
-                    TutorCard(tutor, onClick = { onTutorClick(tutor) })
-                }
-                
-                if (uiState.visibleTutores.size < uiState.filtrados.size) {
-                    item {
-                        Box(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                        }
-                    }
-                }
-            }
 
-            item { Spacer(modifier = Modifier.height(20.dp)) }
+                item { Spacer(modifier = Modifier.height(20.dp)) }
+            }
         }
     }
 }
@@ -284,7 +305,7 @@ fun TutorCard(tutor: TutorSummaryDto, onClick: () -> Unit) {
                             contentScale = ContentScale.Crop
                         )
                     }
-                    
+
                     Surface(
                         color = MaterialTheme.colorScheme.primary,
                         shape = RoundedCornerShape(8.dp),
@@ -292,7 +313,7 @@ fun TutorCard(tutor: TutorSummaryDto, onClick: () -> Unit) {
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Star,
@@ -300,9 +321,8 @@ fun TutorCard(tutor: TutorSummaryDto, onClick: () -> Unit) {
                                 tint = Color.Yellow,
                                 modifier = Modifier.size(12.dp)
                             )
-                            Spacer(Modifier.width(2.dp))
                             Text(
-                                text = String.format("%.1f", tutor.rating),
+                                text = tutor.rating.toString(),
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold
@@ -316,6 +336,7 @@ fun TutorCard(tutor: TutorSummaryDto, onClick: () -> Unit) {
                 Column(modifier = Modifier.weight(1f)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
@@ -332,18 +353,17 @@ fun TutorCard(tutor: TutorSummaryDto, onClick: () -> Unit) {
                             text = "$ ${tutor.sessionPrice?.div(1000)}k/h",
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.wrapContentWidth()
+                            modifier = Modifier.alignByBaseline()
                         )
                     }
                     Text(
                         text = "${tutor.major} (${mapearFacultad(tutor.major)})",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 14.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        fontSize = 14.sp
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
+
                 }
             }
 
@@ -385,7 +405,6 @@ fun CatalogoPreview() {
             onSearchTextChange = {},
             onOrderChange = {},
             onFacultadChange = {},
-            onRetry = {},
             onTutorClick = {}
         )
     }

@@ -1,9 +1,9 @@
 package com.example.g45_kotlin.ui.tutor.become
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -12,22 +12,31 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BecomeTutorScheduleScreen(
     viewModel: BecomeTutorViewModel,
     onPublish: () -> Unit,
+    onSuccess: () -> Unit,
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val days = listOf("LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM")
 
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            onSuccess()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Configurar Horario") },
+                title = { Text("Configurar Horario", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
@@ -40,10 +49,16 @@ fun BecomeTutorScheduleScreen(
                 onClick = onPublish,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                enabled = uiState.availability.values.any { it.isNotEmpty() }
+                    .height(72.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(28.dp),
+                enabled = uiState.availability.values.any { it.isNotEmpty() } && !uiState.isLoading
             ) {
-                Text("Publicar Perfil")
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+                } else {
+                    Text("Publicar Perfil", fontWeight = FontWeight.Bold)
+                }
             }
         }
     ) { padding ->
@@ -54,30 +69,51 @@ fun BecomeTutorScheduleScreen(
         ) {
             ScrollableTabRow(
                 selectedTabIndex = days.indexOf(uiState.selectedDay),
-                edgePadding = 16.dp
+                edgePadding = 16.dp,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.primary
             ) {
                 days.forEach { day ->
                     Tab(
                         selected = uiState.selectedDay == day,
                         onClick = { viewModel.selectDay(day) },
-                        text = { Text(day) }
+                        text = { Text(day, fontWeight = FontWeight.Medium) }
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (uiState.error != null) {
+                Text(
+                    text = uiState.error ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    fontSize = 12.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            Text(
+                text = "Agrega horas de inicio para tus sesiones de 1 hora.",
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 14.sp
+            )
 
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 val currentSlots = uiState.availability[uiState.selectedDay] ?: emptyList()
                 
                 items(currentSlots) { slot ->
-                    TimeSlotItem(
+                    StartTimeSlotItem(
                         slot = slot,
-                        onUpdate = { from, to -> 
-                            viewModel.updateTimeSlot(uiState.selectedDay, slot.id, from, to)
+                        onUpdate = { startTime -> 
+                            viewModel.updateStartTime(uiState.selectedDay, slot.id, startTime)
                         },
                         onRemove = { 
                             viewModel.removeTimeSlot(uiState.selectedDay, slot.id)
@@ -88,11 +124,14 @@ fun BecomeTutorScheduleScreen(
                 item {
                     OutlinedButton(
                         onClick = { viewModel.addTimeSlot(uiState.selectedDay) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
-                        Text("Agregar Franja")
+                        Text("Agregar Hora de Inicio")
                     }
                 }
             }
@@ -101,45 +140,52 @@ fun BecomeTutorScheduleScreen(
 }
 
 @Composable
-fun TimeSlotItem(
+fun StartTimeSlotItem(
     slot: TimeSlot,
-    onUpdate: (String, String) -> Unit,
+    onUpdate: (String) -> Unit,
     onRemove: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
         Row(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            var fromText by remember { mutableStateOf(slot.from) }
-            var toText by remember { mutableStateOf(slot.to) }
+            var startTime by remember { mutableStateOf(slot.from) }
 
             OutlinedTextField(
-                value = fromText,
+                value = startTime,
                 onValueChange = { 
-                    fromText = it
-                    onUpdate(it, toText)
+                    startTime = it
+                    onUpdate(it)
                 },
-                label = { Text("Desde") },
-                modifier = Modifier.weight(1f)
+                label = { Text("Hora de inicio") },
+                placeholder = { Text("08:00") },
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
             )
             
-            OutlinedTextField(
-                value = toText,
-                onValueChange = { 
-                    toText = it
-                    onUpdate(fromText, it)
-                },
-                label = { Text("Hasta") },
-                modifier = Modifier.weight(1f)
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text = "Finaliza:", style = MaterialTheme.typography.labelSmall)
+                Text(
+                    text = slot.to,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
 
             IconButton(onClick = onRemove) {
-                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                Icon(
+                    Icons.Default.Delete, 
+                    contentDescription = "Eliminar", 
+                    tint = MaterialTheme.colorScheme.error
+                )
             }
         }
     }

@@ -22,10 +22,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.g45_kotlin.data.reservation.SkillSummaryDto
+import com.example.g45_kotlin.utilities.NetworkMonitor
 
 @Composable
 fun BecomeTutorSkillsScreen(
@@ -34,111 +37,150 @@ fun BecomeTutorSkillsScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val darkBlue = Color(0xFF0D1117)
-    val accentYellow = Color(0xFFFFD600)
+    val isOnline by NetworkMonitor.isOnline.collectAsState()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = darkBlue
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp)
         ) {
-            Spacer(modifier = Modifier.height(56.dp))
-            
-            Text(
-                text = "¿Qué áreas vas a enseñar?",
-                color = Color.White,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                lineHeight = 38.sp
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = "Selecciona las facultades y materias en las que eres experto. Esto ayudará a los estudiantes de Uniandes a encontrarte más rápido.",
-                color = Color.Gray,
-                fontSize = 16.sp,
-                lineHeight = 22.sp
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            if (uiState.isLoading && uiState.majors.isEmpty()) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = accentYellow)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+            AnimatedVisibility(
+                visible = !isOnline,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    items(uiState.majors) { major ->
-                        val icon = when {
-                            major.contains("Ingeniería", ignoreCase = true) -> Icons.Default.Engineering
-                            major.contains("Ciencias", ignoreCase = true) -> Icons.Default.Science
-                            major.contains("Economía", ignoreCase = true) -> Icons.Default.AccountBalance
-                            else -> Icons.Default.Palette
-                        }
-                        
-                        MajorExpandableItem(
-                            major = major,
-                            icon = icon,
-                            isExpanded = uiState.expandedMajors.contains(major),
-                            skills = uiState.skillsByMajor[major] ?: emptyList(),
-                            selectedSkills = uiState.selectedSkills,
-                            onToggleExpand = { viewModel.toggleMajor(major) },
-                            onToggleSkill = { viewModel.toggleSkill(it) }
+                    Row(
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.WifiOff,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = "Sin conexión a Internet. Se usará el borrador local.",
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
-                    item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
             }
 
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp)
             ) {
-                Button(
-                    onClick = onNext,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = accentYellow,
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(28.dp),
-                    enabled = uiState.selectedSkills.isNotEmpty()
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            "Guardar y Continuar",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(Icons.AutoMirrored.Filled.ArrowForward, null)
-                    }
-                }
+                Spacer(modifier = Modifier.height(if (isOnline) 56.dp else 24.dp))
+                
+                Text(
+                    text = "¿Qué áreas vas a enseñar?",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    lineHeight = 38.sp
+                )
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                TextButton(onClick = onBack) {
-                    Text(
-                        "OMITIR",
-                        color = Color(0xFF339AF0),
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp
-                    )
+                Text(
+                    text = "Selecciona las facultades y materias en las que eres experto. Esto ayudará a los estudiantes de Uniandes a encontrarte más rápido.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 16.sp,
+                    lineHeight = 22.sp
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                if (uiState.isLoading && uiState.majors.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    }
+                } else if (!isOnline && uiState.majors.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.CloudOff, null, Modifier.size(48.dp), tint = MaterialTheme.colorScheme.outline)
+                            Spacer(Modifier.height(16.dp))
+                            Text("No se pudieron cargar las facultades", color = MaterialTheme.colorScheme.outline)
+                            Button(onClick = { /* El ViewModel ya tiene un observer */ }, modifier = Modifier.padding(top = 16.dp)) {
+                                Text("Reintentar")
+                            }
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(uiState.majors) { major ->
+                            val icon = when {
+                                major.contains("Ingeniería", ignoreCase = true) -> Icons.Default.Engineering
+                                major.contains("Ciencias", ignoreCase = true) -> Icons.Default.Science
+                                major.contains("Economía", ignoreCase = true) -> Icons.Default.AccountBalance
+                                else -> Icons.Default.Palette
+                            }
+                            
+                            MajorExpandableItem(
+                                major = major,
+                                icon = icon,
+                                isExpanded = uiState.expandedMajors.contains(major),
+                                isSelected = uiState.selectedMajors.contains(major),
+                                skills = uiState.skillsByMajor[major] ?: emptyList(),
+                                selectedSkills = uiState.selectedSkills,
+                                onToggleExpand = { viewModel.toggleMajor(major) },
+                                onToggleSelection = { viewModel.toggleMajorSelection(major) },
+                                onToggleSkill = { viewModel.toggleSkill(it) }
+                            )
+                        }
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
+                    }
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        onClick = onNext,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        shape = RoundedCornerShape(28.dp),
+                        enabled = uiState.selectedSkills.isNotEmpty() || uiState.selectedMajors.isNotEmpty()
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                "Guardar y Continuar",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(Icons.AutoMirrored.Filled.ArrowForward, null)
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
@@ -150,13 +192,15 @@ fun MajorExpandableItem(
     major: String,
     icon: ImageVector,
     isExpanded: Boolean,
+    isSelected: Boolean,
     skills: List<SkillSummaryDto>,
     selectedSkills: Set<String>,
     onToggleExpand: () -> Unit,
+    onToggleSelection: () -> Unit,
     onToggleSkill: (String) -> Unit
 ) {
-    val cardBackground = if (isExpanded) Color(0xFF161B22) else Color(0xFF161B22).copy(alpha = 0.5f)
-    val borderColor = if (isExpanded) Color(0xFF30363D) else Color.Transparent
+    val cardBackground = if (isExpanded) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else if (isExpanded) MaterialTheme.colorScheme.outline else Color.Transparent
 
     Column(
         modifier = Modifier
@@ -171,17 +215,30 @@ fun MajorExpandableItem(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
+            IconButton(
+                onClick = onToggleSelection,
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = if (isSelected) Icons.Default.CheckBox else Icons.Default.CheckBoxOutlineBlank,
+                    contentDescription = "Select Major",
+                    tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
             Box(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF1F6FEB).copy(alpha = 0.2f)),
+                    .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color(0xFF58A6FF),
+                    tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -190,7 +247,7 @@ fun MajorExpandableItem(
             
             Text(
                 text = major,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f)
@@ -199,7 +256,7 @@ fun MajorExpandableItem(
             Icon(
                 imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                 contentDescription = null,
-                tint = Color.Gray
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }
 
@@ -212,17 +269,26 @@ fun MajorExpandableItem(
                 modifier = Modifier.padding(top = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                if (skills.isEmpty()) {
+                    Text(
+                        text = "No hay materias específicas listadas para esta área, pero puedes seleccionarla para tu perfil.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+
                 skills.forEach { skill ->
-                    val isSelected = selectedSkills.contains(skill.id)
+                    val isSkillSelected = selectedSkills.contains(skill.id)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF0D1117))
+                            .background(MaterialTheme.colorScheme.surface)
                             .border(
                                 1.dp,
-                                if (isSelected) Color(0xFF58A6FF) else Color(0xFF30363D),
+                                if (isSkillSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
                                 RoundedCornerShape(12.dp)
                             )
                             .clickable { onToggleSkill(skill.id ?: "") }
@@ -231,22 +297,22 @@ fun MajorExpandableItem(
                     ) {
                         Text(
                             text = skill.label,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f)
                         )
                         
-                        if (isSelected) {
+                        if (isSkillSelected) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
-                                tint = Color(0xFF58A6FF),
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(20.dp)
                             )
                         } else {
                             Box(
                                 modifier = Modifier
                                     .size(20.dp)
-                                    .border(2.dp, Color.Gray, CircleShape)
+                                    .border(2.dp, MaterialTheme.colorScheme.outline, CircleShape)
                             )
                         }
                     }

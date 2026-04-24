@@ -11,6 +11,7 @@ import com.example.g45_kotlin.data.reservation.ReservationRepository
 import com.example.g45_kotlin.data.reservation.SessionDto
 import com.example.g45_kotlin.data.user.TutorSummaryDto
 import com.example.g45_kotlin.data.user.UserRepository
+import com.example.g45_kotlin.utilities.NetworkMonitor
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +20,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class TutorViewModel(
-    private val repository: TutorRepository = TutorRepository(),
+    private val repository: TutorRepository = TutorRepository,
     private val reservationRepository: ReservationRepository = ReservationRepository,
     private val userRepository: UserRepository = UserRepository
 ) : ViewModel() {
@@ -28,11 +29,27 @@ class TutorViewModel(
     private val PAGE_SIZE = 10
 
     init {
+        observeNetwork()
         cargarTutores()
-        cargarFavoritos()
+    }
+
+    private fun observeNetwork() {
+        viewModelScope.launch {
+            NetworkMonitor.isOnline.collect { isOnline ->
+                _uiState.update { it.copy(isOnline = isOnline) }
+                if (isOnline && _uiState.value.error != null) {
+                    cargarTutores() // Reintentar automáticamente cuando vuelve la conexión
+                }
+            }
+        }
     }
 
     fun cargarTutores() {
+        if (!NetworkMonitor.isOnline.value) {
+            _uiState.update { it.copy(isLoading = false, error = "Sin conexión a Internet") }
+            return
+        }
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             val result = repository.searchTutors()
@@ -47,8 +64,9 @@ class TutorViewModel(
                         currentPage = 1
                     )
                 }
-            }.onFailure { error ->
-                _uiState.update { it.copy(isLoading = false, error = "Error al cargar tutores: ${error.message}") }
+                cargarFavoritos()
+            }.onFailure {
+                _uiState.update { it.copy(isLoading = false, error = "Error al cargar tutores, revise su conexión y arrastre para reintentar") }
             }
         }
     }
@@ -70,12 +88,18 @@ class TutorViewModel(
 
     private fun cargarFavoritos() {
         val userId = AuthHolder.authRepo.getCurrentUserId() ?: return
+        if (!NetworkMonitor.isOnline.value) return
+
         viewModelScope.launch {
             try {
                 val response = userRepository.getUser(userId)
                 if (response.isSuccessful) {
                     val user = response.body()
-                    val favIds = user?.favTutors ?: user?.favTutorsSnake ?: emptyList()
+                    val favIds = (user?.favTutors ?: emptyList())
+                        .filter { it.isNotBlank() }
+                        .map { it.trim() }
+                        .distinct()
+
                     _uiState.update { state ->
                         val filtrados = aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, favIds)
                         state.copy(
@@ -94,6 +118,12 @@ class TutorViewModel(
 
     fun toggleFavorite(tutorId: String) {
         val userId = AuthHolder.authRepo.getCurrentUserId() ?: return
+        
+        if (!NetworkMonitor.isOnline.value) {
+            _uiState.update { it.copy(error = "No hay conexión para sincronizar favoritos") }
+            return
+        }
+
         val oldFavs = _uiState.value.favoriteTutorIds
         val currentFavs = oldFavs.toMutableList()
         
@@ -103,7 +133,6 @@ class TutorViewModel(
             currentFavs.add(tutorId)
         }
 
-        // Actualización optimista
         _uiState.update { state ->
             val filtrados = aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, currentFavs)
             state.copy(
@@ -118,7 +147,6 @@ class TutorViewModel(
             try {
                 val response = userRepository.updateFavoriteTutors(userId, currentFavs)
                 if (!response.isSuccessful) {
-                    // Revertir si falla
                     _uiState.update { state ->
                         val filtrados = aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, oldFavs)
                         state.copy(
@@ -131,7 +159,6 @@ class TutorViewModel(
                     }
                 }
             } catch (e: Exception) {
-                // Revertir si falla
                 _uiState.update { state ->
                     val filtrados = aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, oldFavs)
                     state.copy(
@@ -196,27 +223,33 @@ class TutorViewModel(
 
     fun onTutorSelected(tutor: TutorSummaryDto?) {
         if (tutor != null) {
-            _uiState.update { it.copy(selectedTutor = TutorResponse(
-                id = tutor.id,
-                email = "",
-                name = tutor.name,
-                profileImageUrl = tutor.profileImageUrl
-            ), error = null) }
+            _uiState.update { it.copy(
+                selectedTutor = TutorResponse(
+                    id = tutor.id,
+                    email = "",
+                    name = tutor.name,
+                    profileImageUrl = tutor.profileImageUrl,
+                    major = tutor.major,
+                    tutorRating = tutor.rating,
+                    sessionPrice = tutor.sessionPrice
+                ), 
+                selectedTutorSkills = emptyList(),
+                selectedTutorReviews = emptyList(),
+                error = null
+            ) }
             
             viewModelScope.launch {
-                val result = repository.getTutorDetail(tutor.id ?: "")
+                val result = repository.getTutorDetail(tutor.id)
                 result.onSuccess { detailedTutor ->
                     _uiState.update { it.copy(selectedTutor = detailedTutor) }
-                }.onFailure { error ->
-                    println("Error cargando detalle extra: ${error.message}")
+                    val skillsResult = repository.getTutorSkillsByIds(detailedTutor.tutoringSkills)
+                    skillsResult.onSuccess { skills ->
+                        _uiState.update { state ->
+                            state.copy(selectedTutorSkills = skills.map { it.label })
+                        }
+                    }
                 }
-                actualizarReseñas(tutor.id ?: "")
-                val skillsResult = repository.getTutorSkillsByIds(uiState.value.selectedTutor?.tutoringSkills ?: emptyList())
-                skillsResult.onSuccess { skills ->
-                    _uiState.update { it.copy(selectedTutorSkills = skills) }
-                }.onFailure { error ->
-                    println("Error cargando habilidades: ${error.message}")
-                }
+                actualizarReseñas(tutor.id)
             }
         } else {
             _uiState.update { it.copy(selectedTutor = null) }
@@ -229,35 +262,34 @@ class TutorViewModel(
         reviewsResult.onSuccess { reviews ->
             val fixedReviews: List<ReviewResponse> = reviews.map { it.copy(createdAt = formatearFecha(it.createdAt)) }
             _uiState.update { it.copy(selectedTutorReviews = fixedReviews, isLoadingReviews = false) }
-        }.onFailure { error ->
-            println("Error cargando reseñas: ${error.message}")
+        }.onFailure {
             _uiState.update { it.copy(isLoadingReviews = false) }
         }
     }
 
     fun createReview(rating: Float, comment: String) {
+        if (!NetworkMonitor.isOnline.value) {
+            _uiState.update { it.copy(error = "No hay conexión para enviar la reseña") }
+            return
+        }
+
         val tutorId = _uiState.value.selectedTutor?.id ?: return
         val authorId = AuthHolder.authRepo.getCurrentUserId() ?: return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-
+            _uiState.update { it.copy(isLoading = true, error = null, reviewSuccess = false) }
             try {
-                // 1. Verificar si el usuario ya hizo una reseña a este tutor
                 val authorReviewsDeferred = async { repository.getReviewsByAuthor(authorId) }
-                
-                // 2. Verificar si el usuario ha tenido sesiones con el tutor
                 val sessionsBetweenDeferred = async { reservationRepository.getSessionsBetween(authorId, tutorId) }
 
                 val authorReviewsResult = authorReviewsDeferred.await()
                 val sessionsBetweenResponse = sessionsBetweenDeferred.await()
 
                 val authorReviews = authorReviewsResult.getOrNull() ?: emptyList()
-                // Verificamos por tutorId o tutorIdSnake por si acaso
                 val alreadyReviewed = authorReviews.any { it.tutorId == tutorId || it.tutorIdSnake == tutorId }
                 
                 val sessions: List<SessionDto> = sessionsBetweenResponse.body() ?: emptyList()
-                val hasHadSession = sessions.any { it.status.uppercase() == "COMPLETED" || it.status.uppercase() == "CONFIRMED" }
+                val hasHadSession = sessions.isNotEmpty()
 
                 if (alreadyReviewed) {
                     _uiState.update { it.copy(isLoading = false, error = "Ya has calificado a este tutor.") }
@@ -269,17 +301,11 @@ class TutorViewModel(
                     return@launch
                 }
 
-                val request = CreateReviewRequest(
-                    tutorId = tutorId,
-                    authorId = authorId,
-                    rating = rating,
-                    label = "Reseña",
-                    details = comment
-                )
+                val request = CreateReviewRequest(tutorId = tutorId, authorId = authorId, rating = rating, label = "Reseña", details = comment)
                 val result = repository.createReview(request)
                 result.onSuccess {
                     actualizarReseñas(tutorId)
-                    _uiState.update { it.copy(isLoading = false) }
+                    _uiState.update { it.copy(isLoading = false, reviewSuccess = true) }
                 }.onFailure { error ->
                     _uiState.update { it.copy(isLoading = false, error = "Error al crear reseña: ${error.message}") }
                 }
@@ -292,11 +318,15 @@ class TutorViewModel(
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }
+    
+    fun clearReviewSuccess() {
+        _uiState.update { it.copy(reviewSuccess = false) }
+    }
 
     private fun aplicarFiltros(tutores: List<TutorSummaryDto>, text: String, order: String, facultad: String, onlyFavs: Boolean, favIds: List<String>): List<TutorSummaryDto> {
         var lista = tutores
         if (onlyFavs) {
-            lista = lista.filter { favIds.contains(it.id) }
+            lista = lista.filter { tutor -> favIds.any { favId -> favId == tutor.id } }
         }
         if (facultad != "Todas") {
             lista = lista.filter { mapearFacultad(it.major) == facultad }
