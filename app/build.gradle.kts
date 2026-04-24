@@ -41,7 +41,6 @@ android {
 
 dependencies {
     implementation(libs.androidx.room.runtime)
-    implementation(libs.firebase.firestore)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.savedstate)
@@ -55,6 +54,8 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-crashlytics")
+
+    implementation(libs.firebase.firestore)
 
     
     implementation(libs.coil.compose)

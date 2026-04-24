@@ -1,5 +1,6 @@
 package com.example.g45_kotlin.ui.tutor.catalog
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.g45_kotlin.data.auth.AuthHolder
@@ -111,7 +112,7 @@ class TutorViewModel(
                     }
                 }
             } catch (e: Exception) {
-                println("Error cargando favoritos: ${e.message}")
+                Log.e("TutorViewModel", "Error al cargar favoritos", e)
             }
         }
     }

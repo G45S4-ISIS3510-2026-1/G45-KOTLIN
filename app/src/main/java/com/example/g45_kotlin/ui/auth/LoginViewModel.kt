@@ -23,8 +23,8 @@ class LoginViewModel () : ViewModel() {
     fun onLoginSuccess(loginConfirmation:()->Unit) {
         viewModelScope.launch (Dispatchers.IO){
             authRepository.saveLocalUser()
+            val user = authRepository.getCurrentUser()
             withContext(Dispatchers.Main){
-                val user = authRepository.getCurrentUser()
                 loginConfirmation()
                 _state.update { it.copy(isLoading = false, user = user) }
             }

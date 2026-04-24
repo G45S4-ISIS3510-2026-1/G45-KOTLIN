@@ -179,7 +179,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                     ,onBecomeTutor = {navController.navigate(Routes.becomeTutorSkills)}
                     )
                 }else{
-                    LoginScreen(onLoginSuccess = {isLogged=true})
+                    LoginScreen(onLoginSuccess = {isLogged=true;sharedViewModel.cargarTutores()})
                 }
             }
             composable(Routes.catalog) {

@@ -91,7 +91,7 @@ class BecomeTutorViewModel(
             repository.getMajors().onSuccess { majors ->
                 _uiState.update { it.copy(majors = majors, isLoading = false) }
             }.onFailure { e ->
-                _uiState.update { it.copy(error = e.message, isLoading = false) }
+                _uiState.update { it.copy(error = "Error cargando habilidades/carreras. Revise su conexion, y vuelva a intentarlo mas tarde", isLoading = false, majors = emptyList()) }
             }
         }
     }
@@ -127,6 +127,10 @@ class BecomeTutorViewModel(
             repository.getSkillsByMajor(major).onSuccess { skills ->
                 _uiState.update { state ->
                     state.copy(skillsByMajor = state.skillsByMajor + (major to skills))
+                }
+            }.onFailure {
+                _uiState.update { state ->
+                    state.copy(skillsByMajor = state.skillsByMajor + (major to emptyList()))
                 }
             }
         }
