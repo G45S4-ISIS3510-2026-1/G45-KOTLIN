@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.profile.pages.reservations
+package com.example.g45_kotlin.ui.profile.pages.reviews
 
 import com.example.g45_kotlin.data.reservation.SessionDto
 

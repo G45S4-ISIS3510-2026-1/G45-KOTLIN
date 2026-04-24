@@ -1,4 +1,4 @@
-package com.example.g45_kotlin.ui.profile.pages.reservations
+package com.example.g45_kotlin.ui.profile.pages.favorites
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -40,23 +39,16 @@ import com.example.g45_kotlin.utilities.GoogleAnalyticsService
 import com.example.g45_kotlin.utilities.NetworkMonitor
 
 @Composable
-fun ReservationListScreen(modifier: Modifier = Modifier, viewModel: ReservationListViewModel = viewModel(), onReservationClick:(String)->Unit, onBack:()->Unit={}){
+fun ReservationListScreen(modifier: Modifier = Modifier, viewModel: FavoriteListViewModel = viewModel(), onReservationClick:(String)->Unit, onBack:()->Unit={}){
     val uiState by viewModel.uiState.collectAsState()
-    val dayFilter by viewModel.dayFilter.collectAsState()
-    val isTutor by viewModel.isTutor.collectAsState()
     val connected by NetworkMonitor.isOnline.collectAsState()
-    val ranges=setOf(1,7,15,30)
 
-    val listState = rememberLazyListState()
 
 
     LaunchedEffect(Unit) {
-        GoogleAnalyticsService.logScreenAccess("ReservationList")
+        GoogleAnalyticsService.logScreenAccess("FavoritesList")
     }
 
-    LaunchedEffect(isTutor){
-        listState.animateScrollToItem(0)
-    }
 
     Column(modifier=modifier.fillMaxHeight().padding(20.dp)){
         Spacer(modifier=Modifier.height(30.dp))
@@ -74,7 +66,7 @@ fun ReservationListScreen(modifier: Modifier = Modifier, viewModel: ReservationL
                 )
             }
             Spacer(modifier=Modifier.width(10.dp))
-            Text(text="Reservas",
+            Text(text="Favoritos",
                 modifier=Modifier.fillMaxWidth(fraction = 0.75f),
                 style=MaterialTheme.typography.displayMedium
             )
@@ -87,40 +79,13 @@ fun ReservationListScreen(modifier: Modifier = Modifier, viewModel: ReservationL
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.error
                 )
-                Text(
-                    text="Actualmente no tiene conexión, por lo que algunes reservas agendadas por usted u otros usuarios pueden no estar disponibles. Por favor revice y reestablezca la conexión para tener actualizadas sus sesiones.",
-                    textAlign = TextAlign.Justify,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
-                )
             }
             Spacer(modifier=Modifier.height(20.dp))
         }
-        Text(
-            text="Temporalidad",
-            style = MaterialTheme.typography.titleMedium
-        )
-        LazyRow(modifier=Modifier, horizontalArrangement = Arrangement.spacedBy(10.dp)){
-            item{FilterButton(label = "Proximas", onClick = {viewModel.onSelectRange(0)}, selected = dayFilter==0)}
-            items(ranges.size){
-                FilterButton(label = "Hace ${ranges.elementAt(it)} dia(s)", onClick = {viewModel.onSelectRange(ranges.elementAt(it))}, selected = dayFilter==ranges.elementAt(it))
-            }
-            item{FilterButton(label = "Todas", onClick = {viewModel.onSelectRange(null)}, selected = dayFilter==null)}
-        }
-        Spacer(modifier=Modifier.height(20.dp))
-        Text(
-            text="Rol",
-            style = MaterialTheme.typography.titleMedium
-        )
-        Row(modifier=Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start){
-            FilterButton(label = "Estudiante", onClick = {viewModel.onSelectTutor(false)}, selected = !isTutor)
-            Spacer(modifier=Modifier.width(10.dp))
-            FilterButton(label = "Tutor", onClick = {viewModel.onSelectTutor(true)}, selected = isTutor)
-        }
 
-        PullToRefreshBox(isRefreshing = uiState.isLoading, onRefresh = {viewModel.reLoadSessions()}, modifier=Modifier.weight(1f).fillMaxWidth()) {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), state = listState){
-                if (uiState.error!="" && uiState.sessions.isEmpty() && !uiState.isLoading){
+        PullToRefreshBox(isRefreshing = uiState.isLoading, onRefresh = {}, modifier=Modifier.weight(1f).fillMaxWidth()) {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)){
+                if (uiState.error!="" && uiState.favorites.isEmpty() && !uiState.isLoading){
                     item {
                         Spacer(modifier = Modifier.height(20.dp))
                         NoContentOrConnectionWidget(
@@ -132,15 +97,15 @@ fun ReservationListScreen(modifier: Modifier = Modifier, viewModel: ReservationL
                         )
                     }
                 }else{
-                    if (uiState.sessions.isEmpty() && !uiState.isLoading){
+                    if (uiState.favorites.isEmpty() && !uiState.isLoading){
                         item{
                             Spacer(modifier=Modifier.height(20.dp))
                             NoContentOrConnectionWidget(modifier = Modifier.sizeIn(150.dp, 200.dp), size = 100, message = "No se encontraron reservas/sesiones", text_style = MaterialTheme.typography.headlineSmall, missingConnection = !connected)
                         }
                     }else{
-                        items(uiState.sessions.size){index->
-                            SessionBanner(modifier = Modifier.fillMaxWidth(), session = uiState.sessions[index], onClick = onReservationClick, currentUserId = AuthHolder.authRepo.getCurrentUser()?.uid)
-                        }
+                       // items(uiState.favorites.size){index->
+                       //     FavoriteBanner(modifier = Modifier.fillMaxWidth(), session = uiState.sessions[index], onClick = onReservationClick, currentUserId = AuthHolder.authRepo.getCurrentUser()?.uid)
+                       // }
                     }
                 }
 

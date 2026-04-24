@@ -12,7 +12,7 @@ import kotlinx.coroutines.tasks.await
 import java.time.Duration
 import java.time.Instant
 
-class NoveltyFirestoreManage {
+class NoveltyFirestoreManager {
     private val db = FirebaseFirestore.getInstance()
 
     //Devuelve el flujo en vivo de las notificaciones pendientes del usuario en la fecha indicada

@@ -10,4 +10,6 @@ object Routes {
     val reservationSummary="reservation_summary"
     val reservationGateway="reservation_gateway"
 
+    val reservationList="reservation_list"
+
 }

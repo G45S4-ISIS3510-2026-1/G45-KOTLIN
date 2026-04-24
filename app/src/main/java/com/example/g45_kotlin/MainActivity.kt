@@ -13,44 +13,52 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.example.g45_kotlin.data.auth.AuthHolder
 import com.example.g45_kotlin.data.auth.AuthRepository
 import com.example.g45_kotlin.data.local.SearchHistoryManager
+import com.example.g45_kotlin.data.local.ThemePreferenceManager
 import com.example.g45_kotlin.data.recommendation.RecommendationDatabase
 import com.example.g45_kotlin.ui.theme.AppTheme
 import com.example.g45_kotlin.utilities.LightSensorManager
 import com.example.g45_kotlin.utilities.NetworkMonitor
 import com.google.firebase.FirebaseApp
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private lateinit var lightSensorManager: LightSensorManager
+    private lateinit var themeManager: ThemePreferenceManager
 
-    private var liveTheme by mutableStateOf(true)
-
-    fun changeLiveTheme(value: Boolean){
-        liveTheme = value
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize LightSensorManager
-        lightSensorManager = LightSensorManager(this)
+        lightSensorManager = LightSensorManager(applicationContext)
+        themeManager = ThemePreferenceManager(applicationContext)
         enableEdgeToEdge()
         // Initialize Search History Preference
-        SearchHistoryManager.getInstance(this)
+        SearchHistoryManager.getInstance(applicationContext)
+        //Initialize ThemePreference Datastore
+
         // Initialize Network Monitor
-        NetworkMonitor.startMonitoring(this)
+        NetworkMonitor.startMonitoring(applicationContext)
         //Initialize Rooms
-        RecommendationDatabase.getInstance(this)
-        AuthHolder.authRepo= AuthRepository.getInstance(this)
+        RecommendationDatabase.getInstance(applicationContext)
+        AuthHolder.authRepo= AuthRepository.getInstance(applicationContext)
         // Initialize Firebase
-        FirebaseApp.initializeApp(this)
+        FirebaseApp.initializeApp(applicationContext)
+        fun changeDynamicTheme(active:Boolean){
+            lifecycleScope.launch{
+                themeManager.changeDynamicThemePreference(active)
+            }
+        }
         setContent {
             val lux by lightSensorManager.luxValue.collectAsState()
-            AppTheme (luxValue = lux, useSensor = lightSensorManager.deviceHasLightSensor() && liveTheme) {
+            val isDynamic by themeManager.isDynamicThemeActive.collectAsState(initial = false)
+            AppTheme (luxValue = lux, useSensor = lightSensorManager.deviceHasLightSensor() && isDynamic) {
                 val navController = rememberNavController()
-                MainScreen(navController = navController)
+                MainScreen(navController = navController,  onChangePreference={changeDynamicTheme(!isDynamic)}, isDynamic = isDynamic)
             }
         }
         askNotificationPermission()

@@ -16,8 +16,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.collections.emptyList
 
-class ReservationListViewModel: ViewModel() {
-    private val _uiState = MutableStateFlow(ReservationListUiState())
+class ReviewListViewModel: ViewModel() {
+    private val _uiState = MutableStateFlow(ReviewListUiState())
     private val sessionRepository = ReservationRepository
     private val authRepository = AuthHolder.authRepo
 

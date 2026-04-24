@@ -51,8 +51,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navOptions
 import com.example.g45_kotlin.data.auth.AuthHolder
 import com.example.g45_kotlin.data.local.SearchHistoryManager
+import com.example.g45_kotlin.data.local.ThemePreferenceManager
 import com.example.g45_kotlin.data.novelty.NoveltyDto
 import com.example.g45_kotlin.data.novelty.NoveltyType
 import com.example.g45_kotlin.data.recommendation.TutorSummaryDto
@@ -60,6 +62,7 @@ import com.example.g45_kotlin.ui.MainNoveltyViewModel
 import com.example.g45_kotlin.ui.auth.LoginScreen
 import com.example.g45_kotlin.ui.home.HomeScreen
 import com.example.g45_kotlin.ui.novelties.NoveltyScreen
+import com.example.g45_kotlin.ui.profile.ProfileScreen
 import com.example.g45_kotlin.ui.profile.pages.reservations.ReservationListScreen
 import com.example.g45_kotlin.ui.reservation.gateway.ReservationGateWay
 import com.example.g45_kotlin.ui.reservation.summary.ReservationSummary
@@ -85,22 +88,25 @@ enum class AppDestinations(
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier,
+               isDynamic:Boolean=false,
                sharedViewModel: TutorViewModel = viewModel(),
                noveltyViewModel: MainNoveltyViewModel = viewModel(),
-               navController: NavHostController= rememberNavController()){
+               navController: NavHostController= rememberNavController(),
+               onChangePreference:()->Unit={}
+){
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry?.destination
-    val context=LocalContext.current
     val authRepository=AuthHolder.authRepo
     //Verify logged in with firebase auth instance
     var isLogged by rememberSaveable { mutableStateOf(authRepository.isUserLoggedIn()) }
     //Check if logged in, then show navigation bar
-    val mostrarBottomBar = currentDestination?.route in setOf(AppDestinations.HOME.label, AppDestinations.CATALOG.label, AppDestinations.AGENDA.label, AppDestinations.NOVELTIES.label, AppDestinations.PROFILE.label)
+    val showBottomBar = currentDestination?.route in setOf(AppDestinations.HOME.label, AppDestinations.CATALOG.label, AppDestinations.AGENDA.label, AppDestinations.NOVELTIES.label, AppDestinations.PROFILE.label)
     //Define shared viewmodel for tutor catalog and detail
     val scope = rememberCoroutineScope()
     val tutorsState by sharedViewModel.uiState.collectAsState()
     val searchManager= SearchHistoryManager.getInstance()
     val unReadCount by noveltyViewModel.unreadCount.collectAsState()
+
 
     fun onNoveltyClick (novelty: NoveltyDto){
         val entityId=novelty.entityId
@@ -122,7 +128,7 @@ fun MainScreen(modifier: Modifier = Modifier,
 
     Scaffold(modifier=modifier.fillMaxSize(),
         bottomBar = {
-            AnimatedVisibility(visible = mostrarBottomBar && isLogged ){
+            AnimatedVisibility(visible = showBottomBar && isLogged ){
                 NavigationBar(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 ){
@@ -189,26 +195,27 @@ fun MainScreen(modifier: Modifier = Modifier,
             composable(Routes.agenda) { PendingPage(modifier=Modifier.fillMaxSize())}
             composable(Routes.novelties) { NoveltyScreen(modifier=Modifier.fillMaxSize(), onNoveltyClick = {novelty->onNoveltyClick(novelty)})}
             composable(Routes.profile) {
+                ProfileScreen(modifier=Modifier.fillMaxSize(), dynamicTheme = isDynamic, onChangePreference = onChangePreference,
+                    onCheckReservations = {navController.navigate(Routes.reservationList)},
+                    onSignOut = {
+                    scope.launch(Dispatchers.IO) {
+                        authRepository.signOut();
+                    }
+                    navController.navigate(route= Routes.home){
+                        popUpTo(Routes.home) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                    isLogged=false
+                })
+
+            }
+            composable(Routes.reservationList){
                 Surface(modifier=Modifier.fillMaxSize()){
                     Column(verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.CenterHorizontally){
-                        ReservationListScreen (onReservationClick = {id->navController.navigate(Routes.reservationSummary+"/${id}")})
-                        Surface(){
-                            Button(onClick = {
-                                scope.launch(Dispatchers.IO) {
-                                    authRepository.signOut();
-                                }
-                                navController.navigate(route= Routes.home){
-                                    popUpTo(Routes.home) {
-                                        inclusive = false
-                                    }
-                                    launchSingleTop = true
-                                }
-                                isLogged=false
-                            }) {
-                                Text(text = "Sign Out")
-                            }
-                        }
+                        ReservationListScreen (onReservationClick = {id->navController.navigate(Routes.reservationSummary+"/${id}")}, onBack = {navController.popBackStack()})
                     }
                 }
             }

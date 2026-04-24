@@ -82,7 +82,8 @@ fun NoveltyItem(modifier: Modifier = Modifier, novelty: NoveltyDto, onClick: (No
                 }
                 Column(modifier = Modifier.fillMaxWidth(fraction = 0.8f).fillMaxHeight(), verticalArrangement = Arrangement.Center){
                     Text(
-                        modifier = Modifier.clickable(onClick={onClick(novelty)}),                        text = novelty.title,
+                        modifier = Modifier.clickable(onClick={onClick(novelty)}),
+                        text = novelty.title,
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
