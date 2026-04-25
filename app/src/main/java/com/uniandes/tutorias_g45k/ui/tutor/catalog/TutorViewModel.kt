@@ -14,12 +14,14 @@ import com.uniandes.tutorias_g45k.data.reservation.SessionDto
 import com.uniandes.tutorias_g45k.data.user.UserRepository
 import com.uniandes.tutorias_g45k.utilities.AnalyticsManager
 import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class TutorViewModel(
     private val repository: TutorRepository = TutorRepository,
@@ -54,11 +56,14 @@ class TutorViewModel(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            val result = repository.searchTutors()
+            val result = withContext(Dispatchers.IO) { repository.searchTutors() }
             result.onSuccess { tutores ->
-                _uiState.update { state ->
-                    val filtrados = aplicarFiltros(tutores, state.searchText, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, state.favoriteTutorIds)
-                    state.copy(
+                val state = _uiState.value
+                val filtrados = withContext(Dispatchers.Default) {
+                    aplicarFiltros(tutores, state.searchText, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, state.favoriteTutorIds)
+                }
+                _uiState.update { currentState ->
+                    currentState.copy(
                         isLoading = false,
                         tutores = tutores,
                         filtrados = filtrados,
@@ -94,7 +99,7 @@ class TutorViewModel(
 
         viewModelScope.launch {
             try {
-                val response = userRepository.getUser(userId)
+                val response = withContext(Dispatchers.IO) { userRepository.getUser(userId) }
                 if (response.isSuccessful) {
                     val user = response.body()
                     val favIds = (user?.favTutors ?: emptyList())
@@ -102,9 +107,13 @@ class TutorViewModel(
                         .map { it.trim() }
                         .distinct()
 
-                    _uiState.update { state ->
-                        val filtrados = aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, favIds)
-                        state.copy(
+                    val state = _uiState.value
+                    val filtrados = withContext(Dispatchers.Default) {
+                        aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, favIds)
+                    }
+
+                    _uiState.update { currentState ->
+                        currentState.copy(
                             favoriteTutorIds = favIds,
                             filtrados = filtrados,
                             visibleTutores = filtrados.take(PAGE_SIZE),
@@ -135,38 +144,48 @@ class TutorViewModel(
             currentFavs.add(tutorId)
         }
 
-        _uiState.update { state ->
-            val filtrados = aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, currentFavs)
-            state.copy(
-                favoriteTutorIds = currentFavs,
-                filtrados = filtrados,
-                visibleTutores = filtrados.take(PAGE_SIZE),
-                currentPage = 1
-            )
-        }
-
         viewModelScope.launch {
+            val state = _uiState.value
+            val filtrados = withContext(Dispatchers.Default) {
+                aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, currentFavs)
+            }
+
+            _uiState.update { currentState ->
+                currentState.copy(
+                    favoriteTutorIds = currentFavs,
+                    filtrados = filtrados,
+                    visibleTutores = filtrados.take(PAGE_SIZE),
+                    currentPage = 1
+                )
+            }
+
             try {
-                val response = userRepository.updateFavoriteTutors(userId, currentFavs)
+                val response = withContext(Dispatchers.IO) { userRepository.updateFavoriteTutors(userId, currentFavs) }
                 if (!response.isSuccessful) {
-                    _uiState.update { state ->
-                        val filtrados = aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, oldFavs)
-                        state.copy(
+                    val rollbackState = _uiState.value
+                    val rollbackFiltrados = withContext(Dispatchers.Default) {
+                        aplicarFiltros(rollbackState.tutores, rollbackState.searchText, rollbackState.selectedOrder, rollbackState.selectedFacultad, rollbackState.onlyFavorites, oldFavs)
+                    }
+                    _uiState.update { currentState ->
+                        currentState.copy(
                             favoriteTutorIds = oldFavs,
-                            filtrados = filtrados,
-                            visibleTutores = filtrados.take(PAGE_SIZE),
+                            filtrados = rollbackFiltrados,
+                            visibleTutores = rollbackFiltrados.take(PAGE_SIZE),
                             currentPage = 1,
                             error = "Error al sincronizar favoritos"
                         )
                     }
                 }
             } catch (e: Exception) {
-                _uiState.update { state ->
-                    val filtrados = aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, oldFavs)
-                    state.copy(
+                val rollbackState = _uiState.value
+                val rollbackFiltrados = withContext(Dispatchers.Default) {
+                    aplicarFiltros(rollbackState.tutores, rollbackState.searchText, rollbackState.selectedOrder, rollbackState.selectedFacultad, rollbackState.onlyFavorites, oldFavs)
+                }
+                _uiState.update { currentState ->
+                    currentState.copy(
                         favoriteTutorIds = oldFavs,
-                        filtrados = filtrados,
-                        visibleTutores = filtrados.take(PAGE_SIZE),
+                        filtrados = rollbackFiltrados,
+                        visibleTutores = rollbackFiltrados.take(PAGE_SIZE),
                         currentPage = 1,
                         error = "Error al sincronizar favoritos: ${e.message}"
                     )
@@ -176,50 +195,70 @@ class TutorViewModel(
     }
 
     fun onOnlyFavoritesChange(onlyFavs: Boolean) {
-        _uiState.update { state ->
-            val filtrados = aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, state.selectedFacultad, onlyFavs, state.favoriteTutorIds)
-            state.copy(
-                onlyFavorites = onlyFavs,
-                filtrados = filtrados,
-                visibleTutores = filtrados.take(PAGE_SIZE),
-                currentPage = 1
-            )
+        viewModelScope.launch {
+            val state = _uiState.value
+            val filtrados = withContext(Dispatchers.Default) {
+                aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, state.selectedFacultad, onlyFavs, state.favoriteTutorIds)
+            }
+            _uiState.update { currentState ->
+                currentState.copy(
+                    onlyFavorites = onlyFavs,
+                    filtrados = filtrados,
+                    visibleTutores = filtrados.take(PAGE_SIZE),
+                    currentPage = 1
+                )
+            }
         }
     }
 
     fun onSearchTextChange(text: String) {
-        _uiState.update { state ->
-            val filtrados = aplicarFiltros(state.tutores, text, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, state.favoriteTutorIds)
-            state.copy(
-                searchText = text,
-                filtrados = filtrados,
-                visibleTutores = filtrados.take(PAGE_SIZE),
-                currentPage = 1
-            )
+        viewModelScope.launch {
+            val state = _uiState.value
+            val filtrados = withContext(Dispatchers.Default) {
+                aplicarFiltros(state.tutores, text, state.selectedOrder, state.selectedFacultad, state.onlyFavorites, state.favoriteTutorIds)
+            }
+            _uiState.update { currentState ->
+                currentState.copy(
+                    searchText = text,
+                    filtrados = filtrados,
+                    visibleTutores = filtrados.take(PAGE_SIZE),
+                    currentPage = 1
+                )
+            }
         }
     }
 
     fun onOrderChange(order: String) {
-        _uiState.update { state ->
-            val filtrados = aplicarFiltros(state.tutores, state.searchText, order, state.selectedFacultad, state.onlyFavorites, state.favoriteTutorIds)
-            state.copy(
-                selectedOrder = order,
-                filtrados = filtrados,
-                visibleTutores = filtrados.take(PAGE_SIZE),
-                currentPage = 1
-            )
+        viewModelScope.launch {
+            val state = _uiState.value
+            val filtrados = withContext(Dispatchers.Default) {
+                aplicarFiltros(state.tutores, state.searchText, order, state.selectedFacultad, state.onlyFavorites, state.favoriteTutorIds)
+            }
+            _uiState.update { currentState ->
+                currentState.copy(
+                    selectedOrder = order,
+                    filtrados = filtrados,
+                    visibleTutores = filtrados.take(PAGE_SIZE),
+                    currentPage = 1
+                )
+            }
         }
     }
 
     fun onFacultadChange(facultad: String) {
-        _uiState.update { state ->
-            val filtrados = aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, facultad, state.onlyFavorites, state.favoriteTutorIds)
-            state.copy(
-                selectedFacultad = facultad,
-                filtrados = filtrados,
-                visibleTutores = filtrados.take(PAGE_SIZE),
-                currentPage = 1
-            )
+        viewModelScope.launch {
+            val state = _uiState.value
+            val filtrados = withContext(Dispatchers.Default) {
+                aplicarFiltros(state.tutores, state.searchText, state.selectedOrder, facultad, state.onlyFavorites, state.favoriteTutorIds)
+            }
+            _uiState.update { currentState ->
+                currentState.copy(
+                    selectedFacultad = facultad,
+                    filtrados = filtrados,
+                    visibleTutores = filtrados.take(PAGE_SIZE),
+                    currentPage = 1
+                )
+            }
         }
     }
 
@@ -241,10 +280,10 @@ class TutorViewModel(
             ) }
 
             viewModelScope.launch {
-                val result = repository.getTutorDetail(tutor.id)
+                val result = withContext(Dispatchers.IO) { repository.getTutorDetail(tutor.id) }
                 result.onSuccess { detailedTutor ->
                     _uiState.update { it.copy(selectedTutor = detailedTutor) }
-                    val skillsResult = repository.getTutorSkillsByIds(detailedTutor.tutoringSkills)
+                    val skillsResult = withContext(Dispatchers.IO) { repository.getTutorSkillsByIds(detailedTutor.tutoringSkills) }
                     skillsResult.onSuccess { skills ->
                         _uiState.update { state ->
                             state.copy(selectedTutorSkills = skills.map { it.label })
@@ -260,7 +299,7 @@ class TutorViewModel(
 
     private suspend fun actualizarReseñas(tutorId: String) {
         _uiState.update { it.copy(isLoadingReviews = true) }
-        val reviewsResult = repository.getTutorReviews(tutorId)
+        val reviewsResult = withContext(Dispatchers.IO) { repository.getTutorReviews(tutorId) }
         reviewsResult.onSuccess { reviews ->
             val fixedReviews: List<ReviewResponse> = reviews.map { it.copy(createdAt = formatearFecha(it.createdAt)) }
             _uiState.update { it.copy(selectedTutorReviews = fixedReviews, isLoadingReviews = false) }
@@ -281,8 +320,8 @@ class TutorViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null, reviewSuccess = false) }
             try {
-                val authorReviewsDeferred = async { repository.getReviewsByAuthor(authorId) }
-                val sessionsBetweenDeferred = async { reservationRepository.getSessionsBetween(authorId, tutorId) }
+                val authorReviewsDeferred = async(Dispatchers.IO) { repository.getReviewsByAuthor(authorId) }
+                val sessionsBetweenDeferred = async(Dispatchers.IO) { reservationRepository.getSessionsBetween(authorId, tutorId) }
 
                 val authorReviewsResult = authorReviewsDeferred.await()
                 val sessionsBetweenResponse = sessionsBetweenDeferred.await()
@@ -304,7 +343,7 @@ class TutorViewModel(
                 }
 
                 val request = CreateReviewRequest(tutorId = tutorId, authorId = authorId, rating = rating, label = "Reseña", details = comment)
-                val result = repository.createReview(request)
+                val result = withContext(Dispatchers.IO) { repository.createReview(request) }
                 result.onSuccess {
                     actualizarReseñas(tutorId)
                     AnalyticsManager.logReviewSubmit(comment.length)

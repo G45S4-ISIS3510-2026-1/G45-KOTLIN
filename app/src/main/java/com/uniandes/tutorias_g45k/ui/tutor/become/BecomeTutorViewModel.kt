@@ -9,11 +9,13 @@ import com.uniandes.tutorias_g45k.data.reservation.AvailabilityDto
 import com.uniandes.tutorias_g45k.data.reservation.SkillSummaryDto
 import com.uniandes.tutorias_g45k.data.user.UserRepository
 import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 data class BecomeTutorUiState(
@@ -27,6 +29,7 @@ data class BecomeTutorUiState(
     val selectedDay: String = "LUN",
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
+    val isOnline: Boolean = true,
     val error: String? = null
 )
 
@@ -53,6 +56,7 @@ class BecomeTutorViewModel(
     private fun observeNetwork() {
         viewModelScope.launch {
             NetworkMonitor.isOnline.collect { isOnline ->
+                _uiState.update { it.copy(isOnline = isOnline) }
                 if (isOnline && _uiState.value.majors.isEmpty() && _uiState.value.error != null) {
                     loadMajors()
                 }
@@ -61,37 +65,61 @@ class BecomeTutorViewModel(
     }
 
     private fun loadDraft() {
-        draftManager?.getDraft()?.let { draft ->
-            _uiState.update { it.copy(
-                selectedSkills = draft.selectedSkills,
-                selectedMajors = draft.selectedMajors,
-                sessionPrice = draft.sessionPrice,
-                availability = draft.availability
-            ) }
+        viewModelScope.launch(Dispatchers.IO) {
+            draftManager?.getDraft()?.let { draft ->
+                _uiState.update { it.copy(
+                    selectedSkills = draft.selectedSkills,
+                    selectedMajors = draft.selectedMajors,
+                    sessionPrice = draft.sessionPrice,
+                    availability = draft.availability
+                ) }
+            }
         }
     }
 
     private fun saveDraft() {
         val state = _uiState.value
-        draftManager?.saveDraft(
-            selectedSkills = state.selectedSkills,
-            selectedMajors = state.selectedMajors,
-            sessionPrice = state.sessionPrice,
-            availability = state.availability
-        )
+        viewModelScope.launch(Dispatchers.IO) {
+            draftManager?.saveDraft(
+                selectedSkills = state.selectedSkills,
+                selectedMajors = state.selectedMajors,
+                sessionPrice = state.sessionPrice,
+                availability = state.availability
+            )
+        }
     }
 
     private fun loadMajors() {
         if (!NetworkMonitor.isOnline.value) {
-            _uiState.update { it.copy(error = "Sin conexión para cargar facultades") }
+            viewModelScope.launch(Dispatchers.IO) {
+                val cachedMajors = draftManager?.getMajors()
+                _uiState.update { it.copy(
+                    majors = cachedMajors ?: emptyList(),
+                    error = if (cachedMajors == null) "Sin conexión para cargar facultades" else null
+                ) }
+            }
             return
         }
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            repository.getMajors().onSuccess { majors ->
+            val result = withContext(Dispatchers.IO) {
+                repository.getMajors()
+            }
+            result.onSuccess { majors ->
+                withContext(Dispatchers.IO) {
+                    draftManager?.saveMajors(majors)
+                }
                 _uiState.update { it.copy(majors = majors, isLoading = false) }
             }.onFailure { e ->
-                _uiState.update { it.copy(error = "Error cargando habilidades/carreras. Revise su conexion, y vuelva a intentarlo mas tarde", isLoading = false, majors = emptyList()) }
+                val cached = withContext(Dispatchers.IO) {
+                    draftManager?.getMajors()
+                }
+                _uiState.update { it.copy(
+                    majors = cached ?: emptyList(),
+                    isLoading = false,
+                    error = if (cached == null) "Error cargando habilidades/carreras. Revise su conexion." else null
+                ) }
             }
         }
     }
@@ -122,15 +150,35 @@ class BecomeTutorViewModel(
     }
 
     private fun loadSkillsForMajor(major: String) {
-        if (!NetworkMonitor.isOnline.value) return
+        if (!NetworkMonitor.isOnline.value) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val cachedSkills = draftManager?.getSkillsForMajor(major)
+                if (cachedSkills != null) {
+                    _uiState.update { state ->
+                        state.copy(skillsByMajor = state.skillsByMajor + (major to cachedSkills))
+                    }
+                }
+            }
+            return
+        }
+
         viewModelScope.launch {
-            repository.getSkillsByMajor(major).onSuccess { skills ->
+            val result = withContext(Dispatchers.IO) {
+                repository.getSkillsByMajor(major)
+            }
+            result.onSuccess { skills ->
+                withContext(Dispatchers.IO) {
+                    draftManager?.saveSkillsForMajor(major, skills)
+                }
                 _uiState.update { state ->
                     state.copy(skillsByMajor = state.skillsByMajor + (major to skills))
                 }
             }.onFailure {
+                val cached = withContext(Dispatchers.IO) {
+                    draftManager?.getSkillsForMajor(major)
+                }
                 _uiState.update { state ->
-                    state.copy(skillsByMajor = state.skillsByMajor + (major to emptyList()))
+                    state.copy(skillsByMajor = state.skillsByMajor + (major to (cached ?: emptyList())))
                 }
             }
         }
@@ -204,7 +252,6 @@ class BecomeTutorViewModel(
             _uiState.update { it.copy(isLoading = true, error = null) }
             
             try {
-                // 1. Mapear disponibilidad
                 val apiAvailability = AvailabilityDto(
                     monday = currentState.availability["LUN"]?.map { formatToIso(it.from) } ?: emptyList(),
                     tuesday = currentState.availability["MAR"]?.map { formatToIso(it.from) } ?: emptyList(),
@@ -214,42 +261,33 @@ class BecomeTutorViewModel(
                     saturday = currentState.availability["SAB"]?.map { formatToIso(it.from) } ?: emptyList()
                 )
 
-                // 2. Realizar las peticiones PATCH de forma secuencial
-                
-                // Actualizar Carrera (Major)
-                val selectedMajor = currentState.selectedMajors.firstOrNull()
-                if (selectedMajor != null) {
-                    val majorResponse = userRepository.updateMajor(userId, selectedMajor)
-                    if (!majorResponse.isSuccessful) {
-                        _uiState.update { it.copy(isLoading = false, error = "Error actualizando carrera: ${majorResponse.errorBody()?.string()}") }
-                        return@launch
+                val resultError = withContext(Dispatchers.IO) {
+                    val selectedMajor = currentState.selectedMajors.firstOrNull()
+                    if (selectedMajor != null) {
+                        val majorResponse = userRepository.updateMajor(userId, selectedMajor)
+                        if (!majorResponse.isSuccessful) return@withContext "Error actualizando carrera"
                     }
+
+                    val skillsResponse = userRepository.updateTutoringSkills(userId, currentState.selectedSkills.toList())
+                    if (!skillsResponse.isSuccessful) return@withContext "Error actualizando habilidades"
+
+                    val availabilityResponse = userRepository.updateAvailability(userId, apiAvailability)
+                    if (!availabilityResponse.isSuccessful) return@withContext "Error actualizando disponibilidad"
+
+                    val priceResponse = userRepository.updateSessionPrice(userId, currentState.sessionPrice)
+                    if (!priceResponse.isSuccessful) return@withContext "Error actualizando precio"
+                    
+                    null
                 }
 
-                // Actualizar Habilidades
-                val skillsResponse = userRepository.updateTutoringSkills(userId, currentState.selectedSkills.toList())
-                if (!skillsResponse.isSuccessful) {
-                    _uiState.update { it.copy(isLoading = false, error = "Error actualizando habilidades: ${skillsResponse.errorBody()?.string()}") }
-                    return@launch
+                if (resultError == null) {
+                    withContext(Dispatchers.IO) {
+                        draftManager?.clearDraft()
+                    }
+                    _uiState.update { it.copy(isLoading = false, isSuccess = true) }
+                } else {
+                    _uiState.update { it.copy(isLoading = false, error = resultError) }
                 }
-
-                // Actualizar Disponibilidad
-                val availabilityResponse = userRepository.updateAvailability(userId, apiAvailability)
-                if (!availabilityResponse.isSuccessful) {
-                    _uiState.update { it.copy(isLoading = false, error = "Error actualizando disponibilidad: ${availabilityResponse.errorBody()?.string()}") }
-                    return@launch
-                }
-
-                // Actualizar Precio
-                val priceResponse = userRepository.updateSessionPrice(userId, currentState.sessionPrice)
-                if (!priceResponse.isSuccessful) {
-                    _uiState.update { it.copy(isLoading = false, error = "Error actualizando precio: ${priceResponse.errorBody()?.string()}") }
-                    return@launch
-                }
-
-                // Si todas fueron exitosas
-                draftManager?.clearDraft()
-                _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                 
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, error = "Error inesperado: ${e.message}") }
