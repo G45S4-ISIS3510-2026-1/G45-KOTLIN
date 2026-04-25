@@ -64,7 +64,9 @@ fun ProfileBanner(modifier: Modifier=Modifier, name:String="Andres Buitrago", ma
                     .requiredSize(125.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
-                placeholder=painterResource(R.drawable.profile_placeholder)
+                placeholder=painterResource(R.drawable.profile_placeholder),
+                error=painterResource(R.drawable.profile_placeholder),
+                fallback=painterResource(R.drawable.profile_placeholder)
             )
             Text(
                 text = name,
@@ -75,6 +77,7 @@ fun ProfileBanner(modifier: Modifier=Modifier, name:String="Andres Buitrago", ma
             )
             Text(
                 text = major,
+                textAlign=TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge
             )
             Spacer(modifier=Modifier.height(10.dp))

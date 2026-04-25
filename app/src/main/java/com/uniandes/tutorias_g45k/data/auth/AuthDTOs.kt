@@ -21,7 +21,8 @@ data class UserDto(
     @ColumnInfo(name = "availability") val availability: AvailabilityDto = AvailabilityDto(),
     @ColumnInfo(name = "sessionPrice") val sessionPrice: Int = 0,
     @ColumnInfo(name = "tutorRating") val tutorRating: Double = 0.0,
-    @ColumnInfo(name = "receivedRatings") val receivedRatings: Int = 0
+    @ColumnInfo(name = "receivedRatings") val receivedRatings: Int = 0,
+    @ColumnInfo(name = "favTutors") val favTutors: List<String> = emptyList()
 )
 
 data class UserBackDto(
@@ -55,6 +56,7 @@ fun UserBackDto.toEntity() = UserDto(
     availability = availability,
     sessionPrice = sessionPrice,
     tutorRating = tutorRating,
-    receivedRatings = receivedRatings
+    receivedRatings = receivedRatings,
+    favTutors = favTutors
 )
 

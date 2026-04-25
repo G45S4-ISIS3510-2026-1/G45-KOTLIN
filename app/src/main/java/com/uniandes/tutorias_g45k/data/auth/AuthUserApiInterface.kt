@@ -14,7 +14,7 @@ interface AuthUserApiInterface {
     suspend fun logDeviceToken(@Path("user_id") userId: String,
                                @Query("fcm_token") fcmToken: String): Response<UserBackDto>
 
-    @GET("users/{user_id}")
+    @GET("users/profile/{user_id}")
     suspend fun getUserProfile(@Path("user_id") userId: String): Response<UserBackDto>
 
 }

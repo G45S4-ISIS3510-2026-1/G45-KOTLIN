@@ -62,6 +62,8 @@ fun TutorIcon(modifier: Modifier = Modifier, url:String="https://media.licdn.com
             .requiredSize(90.dp)
             .clip(RoundedCornerShape(50.dp)),
         contentScale = ContentScale.Crop,
-        placeholder=painterResource(R.drawable.profile_placeholder)
+        placeholder=painterResource(R.drawable.profile_placeholder),
+        error=painterResource(R.drawable.profile_placeholder),
+        fallback=painterResource(R.drawable.profile_placeholder)
     )
 }

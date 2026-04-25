@@ -250,7 +250,8 @@ fun TutorItem(tutor: TutorSummaryDto, onSelection: () -> Unit = {}) {
                     .clip(RoundedCornerShape(25.dp)),
                 contentScale = ContentScale.Crop,
                 placeholder = painterResource(R.drawable.profile_placeholder),
-                error = painterResource(R.drawable.profile_placeholder)
+                error=painterResource(R.drawable.profile_placeholder),
+                fallback=painterResource(R.drawable.profile_placeholder)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {

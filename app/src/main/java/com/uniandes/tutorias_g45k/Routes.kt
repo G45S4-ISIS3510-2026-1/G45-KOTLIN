@@ -15,4 +15,6 @@ object Routes {
     val becomeTutorPrice="become_tutor_price"
     val reservationList="reservation_list"
 
+    val editPrice="edit_price"
+
 }

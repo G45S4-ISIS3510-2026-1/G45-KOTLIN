@@ -2,6 +2,7 @@ package com.uniandes.tutorias_g45k.data.firestore
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.IgnoreExtraProperties
+import com.google.firebase.firestore.PropertyName
 
 data class FirestoreReviewDto (
     val id:String="",
@@ -33,4 +34,7 @@ data class FirestoreUserSummaryDto (
     val profileImageUrl:String="https://media.licdn.com/dms/image/v2/D4E03AQErWMZGSWwcqg/profile-displayphoto-crop_800_800/B4EZxJq0pSLAAI-/0/1770762490962?e=1778716800&v=beta&t=khP8DFqey-djTQzSuecIN4GTT-JnPEjWwDdBxAPyrls",
     val sessionPrice:Int?=null,
     val tutorRating:Double?=null,
+    @get:PropertyName("isTutoring")
+    @PropertyName("isTutoring")
+    val isTutoring:Boolean=false
 )

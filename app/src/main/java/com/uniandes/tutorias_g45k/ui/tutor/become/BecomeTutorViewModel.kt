@@ -3,6 +3,8 @@ package com.uniandes.tutorias_g45k.ui.tutor.become
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uniandes.tutorias_g45k.data.auth.AuthHolder
+import com.uniandes.tutorias_g45k.data.auth.AuthRepository
+import com.uniandes.tutorias_g45k.data.auth.UserDto
 import com.uniandes.tutorias_g45k.data.catalog.TutorRepository
 import com.uniandes.tutorias_g45k.data.local.BecomeTutorDraftManager
 import com.uniandes.tutorias_g45k.data.reservation.AvailabilityDto
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
+import java.util.UUID
 
 data class BecomeTutorUiState(
     val majors: List<String> = emptyList(),
@@ -34,7 +37,7 @@ data class BecomeTutorUiState(
 )
 
 data class TimeSlot(
-    val id: String = java.util.UUID.randomUUID().toString(),
+    val id: String = UUID.randomUUID().toString(),
     val from: String = "08:00",
     val to: String = "09:00"
 )
@@ -42,6 +45,7 @@ data class TimeSlot(
 class BecomeTutorViewModel(
     private val repository: TutorRepository = TutorRepository,
     private val userRepository: UserRepository = UserRepository,
+    private val authRepo: AuthRepository = AuthHolder.authRepo,
     private val draftManager: BecomeTutorDraftManager? = null
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(BecomeTutorUiState())
@@ -260,9 +264,8 @@ class BecomeTutorViewModel(
                     friday = currentState.availability["VIE"]?.map { formatToIso(it.from) } ?: emptyList(),
                     saturday = currentState.availability["SAB"]?.map { formatToIso(it.from) } ?: emptyList()
                 )
-
+                val selectedMajor = currentState.selectedMajors.firstOrNull()
                 val resultError = withContext(Dispatchers.IO) {
-                    val selectedMajor = currentState.selectedMajors.firstOrNull()
                     if (selectedMajor != null) {
                         val majorResponse = userRepository.updateMajor(userId, selectedMajor)
                         if (!majorResponse.isSuccessful) return@withContext "Error actualizando carrera"
@@ -276,12 +279,25 @@ class BecomeTutorViewModel(
 
                     val priceResponse = userRepository.updateSessionPrice(userId, currentState.sessionPrice)
                     if (!priceResponse.isSuccessful) return@withContext "Error actualizando precio"
+
+                    val finalResponse = repository.becomeTutor(userId)
+                    if (!finalResponse.isSuccess) return@withContext "Error publicando perfil"
                     
                     null
                 }
 
                 if (resultError == null) {
                     withContext(Dispatchers.IO) {
+                        val currentUser = authRepo.getLocalUser() ?: authRepo.getCurrentUser() ?: return@withContext
+                        authRepo.updateLocalUser(
+                            currentUser.copy(
+                                isTutoring = true,
+                                sessionPrice = currentState.sessionPrice,
+                                tutoringSkills = currentState.selectedSkills.toList(),
+                                major = selectedMajor ?: currentUser.major,
+                                availability = apiAvailability
+                            )
+                        )
                         draftManager?.clearDraft()
                     }
                     _uiState.update { it.copy(isLoading = false, isSuccess = true) }
