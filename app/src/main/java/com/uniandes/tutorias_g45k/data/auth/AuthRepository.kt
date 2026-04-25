@@ -36,6 +36,17 @@ class AuthRepository (context: Context) {
         return auth.currentUser?.toDto()
     }
 
+    suspend fun deleteAccount(){
+        deleteLocalUser()
+        recommendedUserRepository.clearCache()
+        searchHistoryManager.clearHistory()
+        reservationCache.clearCache()
+        tutorRepository.clearCache()
+
+        fcm.deleteToken()
+        auth.currentUser?.delete()
+    }
+
     fun getCurrentUserId(): String? {
         return auth.currentUser?.uid
     }
@@ -84,23 +95,21 @@ class AuthRepository (context: Context) {
         apiService.logDeviceToken(auth.currentUser?.uid ?: "", currentToken)
     }
 
-    suspend fun saveLocalUser() {
-        val uid = auth.currentUser?.uid ?: return
+    suspend fun saveLocalUser() : Result<Boolean> {
+        val uid = auth.currentUser?.uid ?: return Result.failure(Exception("No user logged in"))
         try {
             val response = apiService.getUserProfile(uid)
             if (response.isSuccessful) {
                 response.body()?.let { userBackDto ->
                     db.userDao().insert(userBackDto.toEntity())
                 }
+                return Result.success(true)
             } else {
-                // Fallback to minimal info if backend fetch fails
-                val currentUser = auth.currentUser?.toDto() ?: return
-                db.userDao().insert(currentUser)
+                // Fallback
+                return Result.failure(Exception(response.errorBody()?.string()))
             }
         } catch (e: Exception) {
-            Log.e("AuthRepository", "Error saving local user", e)
-            val currentUser = auth.currentUser?.toDto() ?: return
-            db.userDao().insert(currentUser)
+            return Result.failure(e)
         }
     }
 
@@ -111,6 +120,20 @@ class AuthRepository (context: Context) {
 
     suspend fun deleteLocalUser(){
         db.userDao().deleteSavedUser(auth.currentUser?.email ?: "")
+    }
+
+    suspend fun updateLocalUser(user: UserDto){
+        // Actualizar el usuario en la base de datos
+        Log.d("AuthRepository", "Updating local user: $user")
+        db.userDao().updateTutorProfile(
+            user.uid,
+            user.major,
+            user.isTutoring,
+            tutoringSkills = user.tutoringSkills,
+            availability = user.availability,
+            sessionPrice = user.sessionPrice,
+        )
+        Log.d("AuthRepository", "Local user updated: $user")
     }
 
     // Helper para convertir el usuario de Firebase al DTO

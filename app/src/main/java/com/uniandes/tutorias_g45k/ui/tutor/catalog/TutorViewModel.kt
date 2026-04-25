@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uniandes.tutorias_g45k.data.auth.AuthHolder
+import com.uniandes.tutorias_g45k.data.auth.AuthRepository
 import com.uniandes.tutorias_g45k.data.catalog.CreateReviewRequest
 import com.uniandes.tutorias_g45k.data.catalog.ReviewResponse
 import com.uniandes.tutorias_g45k.data.catalog.TutorRepository
@@ -27,7 +28,10 @@ class TutorViewModel(
     private val repository: TutorRepository = TutorRepository,
     private val reservationRepository: ReservationRepository = ReservationRepository,
     private val userRepository: UserRepository = UserRepository
+
 ) : ViewModel() {
+
+    private val authRepo: AuthRepository = AuthHolder.authRepo
     private val _uiState = MutableStateFlow(CatalogoUiState())
     val uiState: StateFlow<CatalogoUiState> = _uiState.asStateFlow()
     private val PAGE_SIZE = 10
@@ -162,6 +166,7 @@ class TutorViewModel(
             try {
                 val response = withContext(Dispatchers.IO) { userRepository.updateFavoriteTutors(userId, currentFavs) }
                 if (!response.isSuccessful) {
+                    Log.e("TutorViewModel", "Error al sincronizar favoritos: ${response.errorBody()?.string()}")
                     val rollbackState = _uiState.value
                     val rollbackFiltrados = withContext(Dispatchers.Default) {
                         aplicarFiltros(rollbackState.tutores, rollbackState.searchText, rollbackState.selectedOrder, rollbackState.selectedFacultad, rollbackState.onlyFavorites, oldFavs)
@@ -175,6 +180,8 @@ class TutorViewModel(
                             error = "Error al sincronizar favoritos"
                         )
                     }
+                }else{
+                    withContext(Dispatchers.IO){authRepo.updateLocalUser(authRepo.getLocalUser()?.copy(favTutors = currentFavs) ?: return@withContext)}
                 }
             } catch (e: Exception) {
                 val rollbackState = _uiState.value

@@ -52,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,6 +60,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.uniandes.tutorias_g45k.R
 import com.uniandes.tutorias_g45k.data.recommendation.TutorSummaryDto
 import com.uniandes.tutorias_g45k.ui.NoContentOrConnectionWidget
 import com.uniandes.tutorias_g45k.ui.theme.AppTheme
@@ -186,11 +188,9 @@ fun CatalogoContent(
                             modifier = Modifier.fillMaxWidth().padding(40.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(
-                                text = if (uiState.onlyFavorites) "No tienes tutores favoritos aún" else "No se encontraron tutores",
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            val message=if (uiState.onlyFavorites) "No tienes tutores favoritos aún" else "No se encontraron tutores"
+                            NoContentOrConnectionWidget(modifier=Modifier, size=100, text_style=MaterialTheme.typography.headlineSmall, message= message, missingConnection = !connected)
+
                         }
                     }
                 } else {
@@ -296,7 +296,9 @@ fun TutorCard(tutor: TutorSummaryDto, onClick: () -> Unit) {
                             modifier = Modifier
                                 .size(80.dp)
                                 .clip(RoundedCornerShape(16.dp)),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Crop,
+                            error=painterResource(R.drawable.profile_placeholder),
+                            fallback=painterResource(R.drawable.profile_placeholder)
                         )
                     }
 

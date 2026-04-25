@@ -43,14 +43,17 @@ import com.uniandes.tutorias_g45k.utilities.AnalyticsManager
 import com.uniandes.tutorias_g45k.utilities.GoogleAnalyticsService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
+import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
-    onLoginSuccess: () -> Unit = {}
+    onLoginSuccess: () -> Unit = {},
+    onFail: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
+    val connected by NetworkMonitor.isOnline.collectAsState()
 
     // Reportamos a Analytics que estamos en el servicio de Autenticación
     LaunchedEffect(Unit) {
@@ -76,13 +79,13 @@ fun LoginScreen(
                 if(task.isSuccessful){
                     val isNewUser=task.result?.additionalUserInfo?.isNewUser
                     if (isNewUser==true){
-                        viewModel.onNewLogin()
+                        viewModel.onNewLogin(onFail)
                     }else{
                         viewModel.onPreviousLogin()
                     }
                 }
             }.addOnSuccessListener {
-                viewModel.onLoginSuccess(onLoginSuccess)
+                viewModel.onLoginSuccess(onLoginSuccess, onFail)
                 Toast.makeText(context, "Bienvenido", Toast.LENGTH_SHORT).show()
             }
 
@@ -155,11 +158,11 @@ fun LoginScreen(
 
                     Button(
                         onClick = { signInWithMicrosoft() },
-                        enabled = !state.isLoading,
+                        enabled = !state.isLoading && connected,
                         modifier = Modifier.fillMaxWidth().height(54.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
+                            containerColor = if (connected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                            contentColor = if (connected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
                         ),
                         shape = RoundedCornerShape(27.dp)
                     ) {

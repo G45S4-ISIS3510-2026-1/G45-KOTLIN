@@ -1,6 +1,7 @@
 package com.uniandes.tutorias_g45k.ui.auth
 
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uniandes.tutorias_g45k.data.auth.AuthHolder
@@ -21,7 +22,7 @@ class LoginViewModel () : ViewModel() {
     val isOnline = NetworkMonitor.isOnline
 
     val state = combine(_state, isOnline) { state, online ->
-        state.copy(error = if (!online) "No hay conexión a internet. Los datos mostrados podrían estar desactualizados." else state.error)
+        state.copy(error = if (!online) "No hay conexión a internet. Restablece tu conexión para iniciar sesión." else state.error)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), LoginState())
 
     fun onLoginStarted() {
@@ -32,24 +33,40 @@ class LoginViewModel () : ViewModel() {
         _state.update { it.copy(isLoading = true, error = null) }
     }
 
-    fun onLoginSuccess(loginConfirmation:()->Unit) {
+    fun onLoginSuccess(loginConfirmation:()->Unit, onFail:()->Unit) {
         viewModelScope.launch (Dispatchers.IO){
-            authRepository.saveLocalUser()
+            val result=authRepository.saveLocalUser()
             val user = authRepository.getCurrentUser()
-            withContext(Dispatchers.Main){
-                loginConfirmation()
-                _state.update { it.copy(isLoading = false, user = user) }
+            if(result.isSuccess){
+                withContext(Dispatchers.Main){
+                    loginConfirmation()
+                    _state.update { it.copy(isLoading = false, user = user) }
+                }
+            }else{
+                withContext(Dispatchers.Main){
+                    Log.d("LoginViewModel", "Error al cargar usuario local")
+                    onFail()
+                    withContext(Dispatchers.IO){authRepository.signOut()}
+                    _state.update { it.copy(isLoading = false, error = "Error cargando datos de cuenta. Intente mas tarde") }
+                }
             }
+
         }
     }
 
-    fun onNewLogin(){
+    fun onNewLogin(onFail:()->Unit){
         viewModelScope.launch (Dispatchers.IO){
-            authRepository.saveBackendUser()
-            authRepository.saveLocalUser()
+            val result_one=authRepository.saveBackendUser()
             val user = authRepository.getCurrentUser()
             withContext(Dispatchers.Main){
-                _state.update { it.copy(isLoading = false, user = user) }
+                if(result_one.isSuccess){
+                    _state.update { it.copy(isLoading = false, user = user) }
+                }else{
+                    onFail()
+                    Log.d("LoginViewModel", "Error al registrar usuario en backend")
+                    withContext(Dispatchers.IO){authRepository.deleteAccount()}
+                    _state.update { it.copy(isLoading = false, error = "Error registrando datos de cuenta. Intente mas tarde") }
+                }
             }
         }
     }

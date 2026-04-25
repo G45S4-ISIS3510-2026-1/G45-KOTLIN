@@ -72,6 +72,7 @@ import com.uniandes.tutorias_g45k.ui.auth.LoginScreen
 import com.uniandes.tutorias_g45k.ui.home.HomeScreen
 import com.uniandes.tutorias_g45k.ui.novelties.NoveltyScreen
 import com.uniandes.tutorias_g45k.ui.profile.ProfileScreen
+import com.uniandes.tutorias_g45k.ui.profile.pages.edit.TutorPriceEditScreen
 import com.uniandes.tutorias_g45k.ui.profile.pages.reservations.ReservationListScreen
 import com.uniandes.tutorias_g45k.ui.reservation.gateway.ReservationGateWay
 import com.uniandes.tutorias_g45k.ui.reservation.summary.ReservationSummary
@@ -229,7 +230,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                     ,onBecomeTutor = {navController.navigate(Routes.becomeTutorSkills)}
                     )
                 }else{
-                    LoginScreen(onLoginSuccess = {isLogged=true;sharedViewModel.cargarTutores()})
+                    LoginScreen(onLoginSuccess = {isLogged=true;sharedViewModel.cargarTutores()}, onFail = {isLogged=false})
                 }
             }
             composable(Routes.catalog) {
@@ -250,6 +251,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                     }
                 )
             }
+            composable(Routes.editPrice){TutorPriceEditScreen( onSubmit = {navController.navigate(Routes.profile)}, onBack = {navController.popBackStack()})}
             composable(Routes.agenda) { PendingPage(modifier=Modifier.fillMaxSize())}
             composable(Routes.novelties) { NoveltyScreen(modifier=Modifier.fillMaxSize(), onNoveltyClick = {novelty->onNoveltyClick(novelty)})}
             composable(Routes.profile) {
@@ -266,7 +268,12 @@ fun MainScreen(modifier: Modifier = Modifier,
                         launchSingleTop = true
                     }
                     isLogged=false
-                })
+                    },
+                    onEditProfile = {
+                        navController.navigate(Routes.editPrice)
+                    }
+                )
+
 
             }
             composable(Routes.reservationList){

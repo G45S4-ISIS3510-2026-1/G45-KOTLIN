@@ -9,7 +9,7 @@ import androidx.room.TypeConverters
 import com.uniandes.tutorias_g45k.data.catalog.CachedTutorEntity
 import com.uniandes.tutorias_g45k.data.reservation.CachedSessionEntity
 
-@Database(entities = [UserDto::class, CachedTutorEntity::class, CachedSessionEntity::class], version = 4, exportSchema = false)
+@Database(entities = [UserDto::class, CachedTutorEntity::class, CachedSessionEntity::class], version = 5, exportSchema = false)
 @TypeConverters(DataConverters::class)
 abstract class AuthDataBase : RoomDatabase() {
     abstract fun userDao(): AuthDaoInterface

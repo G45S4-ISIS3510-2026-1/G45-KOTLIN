@@ -63,7 +63,7 @@ fun BecomeTutorScheduleScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isOnline by NetworkMonitor.isOnline.collectAsState()
-    val days = listOf("LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM")
+    val days = listOf("LUN", "MAR", "MIE", "JUE", "VIE", "SAB")
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {

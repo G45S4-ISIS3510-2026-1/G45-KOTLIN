@@ -59,7 +59,9 @@ class ProfileListsFireStoreManager {
     suspend fun getUserDto(userId: String): FirestoreUserSummaryDto? {
         return try {
             val snapshot = db.collection("users").document(userId).get().await()
+            Log.d("ProfileUserFireStoreBridge", "User: ${snapshot.data}")
             val user=snapshot.toObject(FirestoreUserSummaryDto::class.java)
+            Log.d("ProfileUserFireStoreBridge", "User: ${user}")
             user
         }catch(e: Exception){
             Log.d("ProfileUserFireStoreBridge", "Error getting user: ${e.message}")
