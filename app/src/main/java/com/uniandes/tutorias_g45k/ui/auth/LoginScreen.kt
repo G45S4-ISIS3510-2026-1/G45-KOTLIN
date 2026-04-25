@@ -65,20 +65,15 @@ fun LoginScreen(
         
         val auth = FirebaseAuth.getInstance()
         auth.startActivityForSignInWithProvider(context as ComponentActivity, provider.build())
-            .addOnSuccessListener {
-                viewModel.onLoginSuccess(onLoginSuccess)
-                Toast.makeText(context, "Bienvenido", Toast.LENGTH_SHORT).show()
-            }
             .addOnFailureListener { e ->
-                val message=e.message
-                viewModel.onLoginError(message ?: "Error desconocido")
+                val message = e.message
+                viewModel.onLoginError("Error al iniciar sesión,por favor reinicie la aplicación e intente denuevo" ?: "Error desconocido")
                 // También logueamos el error de forma personalizada
                 AnalyticsManager.logError("AUTH_SERVICE", "Login fallido: ${message}", e as? Exception)
                 Toast.makeText(context, "Error al iniciar sesión. Borre datos de la aplicación e intente denuevo", Toast.LENGTH_LONG).show()
             }
             .addOnCompleteListener {task->
                 if(task.isSuccessful){
-                    val user=task.result?.user
                     val isNewUser=task.result?.additionalUserInfo?.isNewUser
                     if (isNewUser==true){
                         viewModel.onNewLogin()
@@ -86,6 +81,9 @@ fun LoginScreen(
                         viewModel.onPreviousLogin()
                     }
                 }
+            }.addOnSuccessListener {
+                viewModel.onLoginSuccess(onLoginSuccess)
+                Toast.makeText(context, "Bienvenido", Toast.LENGTH_SHORT).show()
             }
 
     }

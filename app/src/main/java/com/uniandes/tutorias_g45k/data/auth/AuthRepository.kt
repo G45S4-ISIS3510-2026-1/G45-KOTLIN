@@ -11,6 +11,8 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.messaging.FirebaseMessaging
 import com.uniandes.tutorias_g45k.data.auth.AuthDataBase
 import com.uniandes.tutorias_g45k.data.auth.UserBackDto
+import com.uniandes.tutorias_g45k.data.catalog.TutorRepository
+import com.uniandes.tutorias_g45k.data.reservation.ReservationDetailCacheManager
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -26,6 +28,9 @@ class AuthRepository (context: Context) {
 
     private val searchHistoryManager= SearchHistoryManager.getInstance()
     private val recommendedUserRepository= RecommendedUserRepository
+    private val reservationCache= ReservationDetailCacheManager
+
+    private val tutorRepository= TutorRepository
 
     fun getCurrentUser(): UserDto? {
         return auth.currentUser?.toDto()
@@ -45,11 +50,14 @@ class AuthRepository (context: Context) {
         deleteLocalUser()
         recommendedUserRepository.clearCache()
         searchHistoryManager.clearHistory()
+        reservationCache.clearCache()
+        tutorRepository.clearCache()
+
         fcm.deleteToken()
         auth.signOut()
     }
 
-    suspend fun saveBackendUser(){
+    suspend fun saveBackendUser():Result<Boolean>{
         val currentToken=await(fcm.token)
         val newUser= UserBackDto(
             id = auth.currentUser?.uid,
@@ -58,7 +66,15 @@ class AuthRepository (context: Context) {
             profileImageUrl = auth.currentUser?.photoUrl?.toString(),
             fcmTokens = listOf(currentToken)
         )
-        apiService.registerUser(newUser)
+        val response=apiService.registerUser(newUser)
+        if (response.isSuccessful){
+            db.userDao().insert(newUser.toEntity())
+            return Result.success(true)
+        }else{
+            val user=FirebaseAuth.getInstance().currentUser
+            user?.delete()
+            return Result.failure(Exception(response.errorBody()?.string()))
+        }
     }
 
 

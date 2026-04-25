@@ -62,6 +62,51 @@ object AnalyticsManager {
         crashlytics.setCustomKey("last_visible_screen", screenName)
     }
 
+    fun logReservationAttempt(){
+        val bundle=Bundle().apply {
+            putString("description", "programar_reserva")
+        }
+        analytics.logEvent("reservation_intent", bundle)
+    }
+
+    fun logFilterSelection(selectedFilter: String, filterType: String){
+        val bundle=Bundle().apply {
+            putString("filter_type", filterType)
+            putString("selected_option", selectedFilter)
+        }
+        analytics.logEvent("filter_selection", bundle)
+    }
+
+    fun logOrderSelection(orderType:String){
+        val bundle=Bundle().apply {
+            putString("order_type", orderType)
+        }
+        analytics.logEvent("order_selection", bundle)
+    }
+
+    fun logReviewSubmit(reviewLength:Int){
+        val bundle=Bundle().apply {
+            putInt("review_length", reviewLength)
+        }
+        analytics.logEvent("review_submit", bundle)
+    }
+
+    fun logPqrsSubmit(pqrsLength:Int, type:String){
+        val bundle=Bundle().apply {
+            putInt("pqrs_length", pqrsLength)
+            putString("pqrs_type", type)
+        }
+        analytics.logEvent("pqrs_submit", bundle)
+    }
+
+    fun logScheduledSession(major:String, skill:String){
+        val bundle=Bundle().apply {
+            putString("major", major)
+            putString("skill", skill)
+        }
+        analytics.logEvent("scheduled_session", bundle)
+    }
+
     /**
      * Establece el servicio actual para contexto en reportes de error
      */

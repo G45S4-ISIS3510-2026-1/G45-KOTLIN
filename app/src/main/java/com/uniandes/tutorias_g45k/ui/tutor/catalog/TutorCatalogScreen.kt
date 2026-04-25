@@ -45,6 +45,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,8 +60,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.uniandes.tutorias_g45k.data.recommendation.TutorSummaryDto
+import com.uniandes.tutorias_g45k.ui.NoContentOrConnectionWidget
 import com.uniandes.tutorias_g45k.ui.theme.AppTheme
 import com.uniandes.tutorias_g45k.utilities.GoogleAnalyticsService
+import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,6 +77,7 @@ fun CatalogoContent(
     onOnlyFavoritesChange: (Boolean) -> Unit = {},
     onTutorClick: (TutorSummaryDto) -> Unit
 ) {
+    val connected by NetworkMonitor.isOnline.collectAsState()
     LaunchedEffect(Unit){
         GoogleAnalyticsService.logScreenAccess("TutorCatalog", screenClass="TutorCatalog")
     }
@@ -171,19 +176,9 @@ fun CatalogoContent(
                     )
                 }
 
-                if (uiState.error != null && uiState.visibleTutores.isEmpty()) {
+                if ((uiState.error != null) && uiState.visibleTutores.isEmpty()) {
                     item {
-                        Box(
-                            modifier = Modifier.fillMaxWidth().padding(24.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = uiState.error,
-                                color = MaterialTheme.colorScheme.error,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
+                        NoContentOrConnectionWidget(modifier=Modifier, size=100, text_style=MaterialTheme.typography.titleLarge, message= uiState.error, missingConnection = !connected)
                     }
                 } else if (uiState.visibleTutores.isEmpty() && !uiState.isLoading) {
                     item {

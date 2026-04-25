@@ -46,6 +46,11 @@ class LoginViewModel () : ViewModel() {
     fun onNewLogin(){
         viewModelScope.launch (Dispatchers.IO){
             authRepository.saveBackendUser()
+            authRepository.saveLocalUser()
+            val user = authRepository.getCurrentUser()
+            withContext(Dispatchers.Main){
+                _state.update { it.copy(isLoading = false, user = user) }
+            }
         }
     }
 

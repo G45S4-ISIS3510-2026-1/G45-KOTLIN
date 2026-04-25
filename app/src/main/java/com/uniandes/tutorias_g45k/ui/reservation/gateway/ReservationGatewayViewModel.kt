@@ -8,6 +8,7 @@ import com.uniandes.tutorias_g45k.data.reservation.ParticipantSummaryDto
 import com.uniandes.tutorias_g45k.data.reservation.ReservationRepository
 import com.uniandes.tutorias_g45k.data.reservation.SessionDto
 import com.uniandes.tutorias_g45k.data.reservation.SkillSummaryDto
+import com.uniandes.tutorias_g45k.utilities.AnalyticsManager
 import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -149,6 +150,7 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
                     try{
                         val response=reservationRep.createSession(session)
                         if (response.isSuccessful){
+                            AnalyticsManager.logScheduledSession(session.skill.label, session.skill.label)
                             withContext(Dispatchers.Main){
                                 onSuccess(response.body()?.id ?: "")
                             }
@@ -199,7 +201,11 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
         if (today.dayOfWeek.value in 1..5) {
             selectDate(tomorrow)
         }else{
-            selectDate(tomorrow.plusDays(1))
+            if (today.dayOfWeek.value==6){
+                selectDate(today.plusDays(2))
+            }else{
+                selectDate(today.plusDays(1))
+            }
         }
         if(!NetworkMonitor.isOnline.value){
             _sessionSelection.value = _sessionSelection.value.copy(error = "No hay conexión a internet. La pasarela de reservas solo está disponible en línea. Por favor revisa tu conexión y vuelve a intentarlo.")

@@ -71,6 +71,7 @@ import com.uniandes.tutorias_g45k.data.catalog.ReviewResponse
 import com.uniandes.tutorias_g45k.data.catalog.TutorResponse
 import com.uniandes.tutorias_g45k.ui.CommonErrorDialog
 import com.uniandes.tutorias_g45k.ui.theme.AppTheme
+import com.uniandes.tutorias_g45k.utilities.AnalyticsManager
 import com.uniandes.tutorias_g45k.utilities.GoogleAnalyticsService
 import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 
@@ -412,7 +413,8 @@ fun TutorDetailScreen(
             ) {
                 Button(
                     onClick = {if (connected){
-                        onBook()
+                        AnalyticsManager.logReservationAttempt()
+                        onBook();
                         }
                         else{
                             showConnectionError=true

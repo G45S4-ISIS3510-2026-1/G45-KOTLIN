@@ -9,6 +9,7 @@ data class HomeState(
     val sessionError: String? = null,
     val featuredTutors: List<TutorSummaryDto> = emptyList(),
     val isLoading: Boolean = false,
+    val isTutor: Boolean = false,
     val areSessionLoading: Boolean = false,
     val error: String? = null
 )

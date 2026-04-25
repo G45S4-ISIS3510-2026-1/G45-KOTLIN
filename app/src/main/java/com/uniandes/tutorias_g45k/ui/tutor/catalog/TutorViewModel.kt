@@ -12,6 +12,7 @@ import com.uniandes.tutorias_g45k.data.recommendation.TutorSummaryDto
 import com.uniandes.tutorias_g45k.data.reservation.ReservationRepository
 import com.uniandes.tutorias_g45k.data.reservation.SessionDto
 import com.uniandes.tutorias_g45k.data.user.UserRepository
+import com.uniandes.tutorias_g45k.utilities.AnalyticsManager
 import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -306,6 +307,7 @@ class TutorViewModel(
                 val result = repository.createReview(request)
                 result.onSuccess {
                     actualizarReseñas(tutorId)
+                    AnalyticsManager.logReviewSubmit(comment.length)
                     _uiState.update { it.copy(isLoading = false, reviewSuccess = true) }
                 }.onFailure { error ->
                     _uiState.update { it.copy(isLoading = false, error = "Error al crear reseña: ${error.message}") }
@@ -328,9 +330,11 @@ class TutorViewModel(
         var lista = tutores
         if (onlyFavs) {
             lista = lista.filter { tutor -> favIds.any { favId -> favId == tutor.id } }
+            AnalyticsManager.logFilterSelection("favoritos", "favorite")
         }
         if (facultad != "Todas") {
             lista = lista.filter { mapearFacultad(it.major) == facultad }
+            AnalyticsManager.logFilterSelection(facultad, "faculty")
         }
         if (text.isNotEmpty()) {
             lista = lista.filter { tutor ->
@@ -339,8 +343,11 @@ class TutorViewModel(
             }
         }
         return when (order) {
-            "Mejor Rating" -> lista.sortedByDescending { it.rating }
-            "Precio" -> lista.sortedBy { it.sessionPrice }
+            "Mejor Rating" -> {AnalyticsManager.logOrderSelection("rating");
+                lista.sortedByDescending { it.rating };
+            }
+            "Precio" -> {AnalyticsManager.logOrderSelection("price");
+                lista.sortedBy { it.sessionPrice };}
             else -> lista
         }
     }

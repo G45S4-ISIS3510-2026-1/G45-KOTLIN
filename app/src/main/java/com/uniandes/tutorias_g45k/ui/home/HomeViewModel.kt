@@ -47,7 +47,10 @@ class HomeViewModel : ViewModel() {
     fun loadHomeData() {
         _state.update{it.copy(userName = authRepository.getCurrentUser()?.displayName?:"Amigo", error = null, sessionError = null, isLoading = true, areSessionLoading = true)}
         viewModelScope.launch (Dispatchers.IO){
-            val userName=authRepository.getLocalUser() ?: authRepository.getCurrentUser()
+            val user=authRepository.getLocalUser() ?: authRepository.getCurrentUser()
+            if (user!=null){
+                _state.update { it.copy(isTutor = user.isTutoring) }
+            }
             try {
                 val sessionResult=reservationRepository.getUpcomingUserSessions(authRepository.getCurrentUser()?.uid ?: "")
                 withContext(Dispatchers.Main){
@@ -61,8 +64,7 @@ class HomeViewModel : ViewModel() {
                 withContext(Dispatchers.Main) {
                     if (response.isSuccess) {
                         _state.update { it.copy(
-                            featuredTutors = response.getOrNull() ?: emptyList(),
-                            userName = userName?.displayName ?: "Amigo"
+                            featuredTutors = response.getOrNull() ?: emptyList()
                         ) }
                     } else {
                         _state.update { it.copy(error = "Error al cargar tutores recomendados. Revise su conexión y arrastre para reintentarlo") }

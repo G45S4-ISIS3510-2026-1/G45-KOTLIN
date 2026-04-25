@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -171,12 +172,15 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSumma
                         Button(
                             onClick = { onBecomeTutor() },
                             modifier = Modifier.weight(1f).height(100.dp),
+                            enabled = !state.isTutor,
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.Star, null)
-                                Text("Ser Tutor", textAlign = androidx.compose.ui.text.style.TextAlign.Center, style = MaterialTheme.typography.labelMedium)
+                                Text(if (!state.isTutor) "Ser Tutor" else "Tutor Activo",
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.labelMedium)
                             }
                         }
                     }
@@ -194,7 +198,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSumma
                     onRefresh = viewModel::loadHomeData
                 ) {
                     LazyColumn(modifier=Modifier.heightIn(min=100.dp, max=200.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)){
+                        verticalArrangement = Arrangement.spacedBy(5.dp)){
                         if (state.isLoading) {
                             item {
                                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {

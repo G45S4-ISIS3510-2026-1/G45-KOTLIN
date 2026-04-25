@@ -91,6 +91,7 @@ fun SessionBanner(modifier: Modifier = Modifier,
                         )
                         Text(
                             text = session.skill.label,
+                            minLines = 2,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.titleMedium

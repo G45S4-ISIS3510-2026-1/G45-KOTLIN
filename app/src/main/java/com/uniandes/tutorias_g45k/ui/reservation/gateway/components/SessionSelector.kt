@@ -27,6 +27,7 @@ import com.uniandes.tutorias_g45k.ui.reservation.gateway.ReservationGatewayState
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -66,7 +67,7 @@ fun DaySelector(modifier: Modifier = Modifier,
                 selected:Boolean,
                 onClick:() -> Unit){
     val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-    val enabled = date >= LocalDate.now().plusDays(1)
+    val enabled = date >= LocalDate.now(ZoneId.of("America/Bogota")).plusDays(1)
     val borderWidth = if (selected) 4.dp else 0.dp
 
     Surface(modifier=modifier
