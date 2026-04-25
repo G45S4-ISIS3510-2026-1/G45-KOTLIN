@@ -5,6 +5,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,15 +38,16 @@ object GoogleAnalyticsService {
         }
     }
 
-    fun logEvent(eventType: String, metadata: Map<String, Any>, userId: String = "kotlin_user") {
+    fun logEvent(eventType: String, metadata: Map<String, Any>, userId: String? = null) {
         analytics.logEvent(eventType) {
             metadata.forEach { (k, v) -> param(k, v.toString()) }
         }
+        val resolvedUserId = userId ?: FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val metaJson = JSONObject(metadata.mapValues { it.value.toString() })
                 val body = JSONObject().apply {
-                    put("user_id", userId)
+                    put("user_id", resolvedUserId)
                     put("event_type", eventType)
                     put("metadata", metaJson)
                     put("timestamp", Instant.now().toString())
