@@ -145,7 +145,7 @@ fun ReservationSummary(
                 val twentyFourHoursFromNow = summaryState.date.minusHours(24)
                 return summaryState.status==Status.PENDING && todayTime.isBefore(twentyFourHoursFromNow)
             }
-            val isEnabled=enabled()
+            val isEnabled=enabled() && connected
             Surface(modifier=Modifier.align(Alignment.BottomCenter),
                 shape = RoundedCornerShape(topEnd = 50.dp, topStart = 50.dp),
             ){

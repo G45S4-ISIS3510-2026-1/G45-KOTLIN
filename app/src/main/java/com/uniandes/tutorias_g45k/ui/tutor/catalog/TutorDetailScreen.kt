@@ -67,9 +67,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.uniandes.tutorias_g45k.data.auth.AuthHolder
 import com.uniandes.tutorias_g45k.data.catalog.ReviewResponse
 import com.uniandes.tutorias_g45k.data.catalog.TutorResponse
 import com.uniandes.tutorias_g45k.ui.CommonErrorDialog
+import com.uniandes.tutorias_g45k.ui.LoadingDialog
 import com.uniandes.tutorias_g45k.ui.theme.AppTheme
 import com.uniandes.tutorias_g45k.utilities.AnalyticsManager
 import com.uniandes.tutorias_g45k.utilities.GoogleAnalyticsService
@@ -122,6 +124,8 @@ fun TutorDetailScreen(
             }
         )
     }
+
+    LoadingDialog(show=uiState.isLoading)
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -411,30 +415,34 @@ fun TutorDetailScreen(
                     .align(Alignment.BottomCenter)
                     .padding(24.dp)
             ) {
-                Button(
-                    onClick = {if (connected){
-                        AnalyticsManager.logReservationAttempt()
-                        onBook();
+                val currentId= AuthHolder.authRepo.getCurrentUserId()
+                if (currentId!=tutor.id){
+                    Button(
+                        onClick = {if (connected){
+                            AnalyticsManager.logReservationAttempt()
+                            onBook();
                         }
                         else{
                             showConnectionError=true
                         }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp),
-                    enabled = connected, //Bloqueo automatico si no tiene conexion,
-                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
-                    shape = RoundedCornerShape(24.dp)
-                ) {
-                    Text(
-                        text = if (connected) "Programar Sesión" else "Sin conexión",
-                        color = colorScheme.onPrimary,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Center
-                    )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(64.dp),
+                        enabled = connected, //Bloqueo automatico si no tiene conexion,
+                        colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
+                        shape = RoundedCornerShape(24.dp)
+                    ) {
+                        Text(
+                            text = if (connected) "Programar Sesión" else "Sin conexión",
+                            color = colorScheme.onPrimary,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
+
             }
 
             // Snackbar Host para los mensajes

@@ -44,7 +44,7 @@ import com.uniandes.tutorias_g45k.ui.reservation.gateway.components.SkillSelecto
 import com.uniandes.tutorias_g45k.ui.reservation.gateway.components.TutorBanner
 import com.uniandes.tutorias_g45k.ui.theme.AppTheme
 import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
-import com.uniandes.tutorias_g45k.utilities.getDaysOfCurrentWeek
+import com.uniandes.tutorias_g45k.utilities.getDaysOfCurrentReservationWeek
 import kotlinx.coroutines.launch
 
 @Composable
@@ -125,7 +125,7 @@ fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGate
                     state=selectionState,
                     onDateSelection = {viewModel.selectDate(it)},
                     onHourSelection = {viewModel.selectHour(it)},
-                    days= getDaysOfCurrentWeek(),
+                    days= getDaysOfCurrentReservationWeek(),
                     hours= selectionState.hours
 
                 ) }

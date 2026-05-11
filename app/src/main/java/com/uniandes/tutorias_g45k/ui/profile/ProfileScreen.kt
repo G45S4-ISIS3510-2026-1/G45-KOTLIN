@@ -80,9 +80,8 @@ fun ProfileScreen(modifier: Modifier =Modifier,
                             style=MaterialTheme.typography.headlineLarge
                         )
                     }
-                    /*TODO*/
                     if (uiState.isLoading){
-                        Box(contentAlignment = Alignment.Center){
+                        Box(modifier=Modifier.fillMaxWidth(), contentAlignment = Alignment.Center){
                             CircularProgressIndicator()
                         }
                     }else{

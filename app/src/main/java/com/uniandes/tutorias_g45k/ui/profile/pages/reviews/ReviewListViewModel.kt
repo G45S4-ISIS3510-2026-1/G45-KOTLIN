@@ -1,4 +1,4 @@
-package com.uniandes.tutorias_g45k.ui.profile.pages.reservations
+package com.uniandes.tutorias_g45k.ui.profile.pages.reviews
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -42,7 +42,7 @@ class ReviewListViewModel: ViewModel() {
                     sessionRepository.getUserSessions(authRepository.getCurrentUser()?.uid ?: "", tutor, dayRange)
                 }
                 .catch { it ->
-                    Log.e("ReservationListViewModel", "Error en stream", it)
+                    Log.e("ReviewListViewModel", "Error en stream", it)
                     _uiState.update { state ->
                         state.copy(
                             error = "Error recuperando sesiones, por favor revise su conexión a internet y refresque el listado",

@@ -10,6 +10,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 object ReservationRepository {
@@ -101,7 +102,7 @@ object ReservationRepository {
     }
 
     suspend fun getSessionsBetween(studentId: String, tutorId: String): Response<List<SessionDto>> {
-        return apiService.getSessionsBetween(studentId, tutorId)
+        return apiService.getSessionsBetween(tutorId, studentId)
     }
 
     suspend fun getTutorSkills(ids: List<String>): Response<List<SkillSummaryDto>> {
@@ -115,6 +116,17 @@ object ReservationRepository {
     suspend fun getUpcomingUserSessions(userId: String): Result<List<SessionDto>> {
         return try{
             val sessions=reservationsFireStoreManager.getUpcomingUserSessions(userId)
+            Log.d("ReservationRepository", "Sessions: $sessions")
+            Result.success(sessions)
+        }catch (e:Exception){
+            Log.d("ReservationRepository", "Error getting sessions: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getUserSessionsByDate(userId:String, date: LocalDate): Result<List<SessionDto>> {
+        return try{
+            val sessions=reservationsFireStoreManager.getUserSessionsByDate(userId, date)
             Log.d("ReservationRepository", "Sessions: $sessions")
             Result.success(sessions)
         }catch (e:Exception){

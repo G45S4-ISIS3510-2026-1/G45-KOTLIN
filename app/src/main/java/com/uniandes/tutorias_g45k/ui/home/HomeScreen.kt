@@ -85,7 +85,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSumma
 
         }
     ) { padding ->
-        PullToRefreshBox(isRefreshing = state.isLoading,
+        PullToRefreshBox(isRefreshing = state.isLoading && state.areSessionLoading,
             onRefresh = viewModel::loadHomeData) {
             LazyColumn(
                 modifier = Modifier

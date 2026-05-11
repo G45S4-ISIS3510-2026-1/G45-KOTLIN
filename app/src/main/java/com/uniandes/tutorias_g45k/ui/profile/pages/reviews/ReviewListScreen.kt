@@ -39,7 +39,7 @@ import com.uniandes.tutorias_g45k.utilities.GoogleAnalyticsService
 import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 
 @Composable
-fun ReservationListScreen(modifier: Modifier = Modifier, viewModel: ReservationListViewModel = viewModel(), onReservationClick:(String)->Unit, onBack:()->Unit={}){
+fun ReservationListScreen(modifier: Modifier = Modifier, viewModel: ReviewListViewModel = viewModel(), onReservationClick:(String)->Unit, onBack:()->Unit={}){
     val uiState by viewModel.uiState.collectAsState()
     val dayFilter by viewModel.dayFilter.collectAsState()
     val isTutor by viewModel.isTutor.collectAsState()

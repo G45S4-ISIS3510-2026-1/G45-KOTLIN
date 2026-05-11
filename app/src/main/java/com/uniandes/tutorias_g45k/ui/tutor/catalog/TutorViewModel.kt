@@ -286,6 +286,7 @@ class TutorViewModel(
                 error = null
             ) }
 
+            _uiState.update { it.copy(isLoading = true) }
             viewModelScope.launch {
                 val result = withContext(Dispatchers.IO) { repository.getTutorDetail(tutor.id) }
                 result.onSuccess { detailedTutor ->
@@ -298,9 +299,10 @@ class TutorViewModel(
                     }
                 }
                 actualizarReseñas(tutor.id)
+                _uiState.update { it.copy(isLoading = false) }
             }
         } else {
-            _uiState.update { it.copy(selectedTutor = null) }
+            _uiState.update { it.copy(selectedTutor = null, isLoading = false) }
         }
     }
 

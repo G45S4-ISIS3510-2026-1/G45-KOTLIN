@@ -1,5 +1,9 @@
 package com.uniandes.tutorias_g45k
 
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +29,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -68,6 +71,7 @@ import com.uniandes.tutorias_g45k.data.novelty.NoveltyDto
 import com.uniandes.tutorias_g45k.data.novelty.NoveltyType
 import com.uniandes.tutorias_g45k.data.recommendation.TutorSummaryDto
 import com.uniandes.tutorias_g45k.ui.MainNoveltyViewModel
+import com.uniandes.tutorias_g45k.ui.agenda.AgendaScreen
 import com.uniandes.tutorias_g45k.ui.auth.LoginScreen
 import com.uniandes.tutorias_g45k.ui.home.HomeScreen
 import com.uniandes.tutorias_g45k.ui.novelties.NoveltyScreen
@@ -100,6 +104,44 @@ enum class AppDestinations(
     NOVELTIES("Novedades", Icons.Default.Notifications),
     PROFILE("Perfil", Icons.Default.AccountCircle),
 }
+private fun processNotificationIntent(intent: Intent?, navController: NavHostController, shared: TutorViewModel, isLogged:Boolean=true) {
+    //Retrive intent data
+    val type = intent?.getStringExtra("type")
+    val entityId = intent?.getStringExtra("entity_id")
+
+    if (type != null && entityId != null && isLogged) {
+        when (type) {
+            "tutor" -> {
+                shared.onTutorSelected(TutorSummaryDto(
+                    id = entityId,
+                    name ="Tutor",
+                    major = "Carrera",
+                    rating = 0.0,
+                    sessionPrice = 0
+                ))
+                navController.navigate(Routes.tutorDetail){
+                    popUpTo(Routes.home){
+                        inclusive=false
+                    }
+                    launchSingleTop=true
+                }
+            }
+            "session" -> {
+                navController.navigate(Routes.reservationSummary+"/$entityId"){
+                    popUpTo(Routes.home){
+                        inclusive=false
+                    }
+                    launchSingleTop=true
+                }
+            }
+            else -> {}
+        }
+        intent.replaceExtras(Bundle())
+        intent.data = null
+    }else{
+        navController.navigate(Routes.home)
+    }
+}
 
 
 @Composable
@@ -108,8 +150,10 @@ fun MainScreen(modifier: Modifier = Modifier,
                sharedViewModel: TutorViewModel = viewModel(),
                noveltyViewModel: MainNoveltyViewModel = viewModel(),
                navController: NavHostController= rememberNavController(),
-               onChangePreference:()->Unit={}
+               onChangePreference:()->Unit={},
+               intent: Intent?=null
 ){
+
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry?.destination
     val context=LocalContext.current
@@ -132,6 +176,11 @@ fun MainScreen(modifier: Modifier = Modifier,
     LaunchedEffect(currentDestination) {
         currentDestination?.route?.let { route ->
             AnalyticsManager.logScreenView(route)
+        }
+    }
+    LaunchedEffect(intent) {
+        intent?.let {
+            processNotificationIntent(it, navController, sharedViewModel, isLogged)
         }
     }
 
@@ -252,7 +301,9 @@ fun MainScreen(modifier: Modifier = Modifier,
                 )
             }
             composable(Routes.editPrice){TutorPriceEditScreen( onSubmit = {navController.navigate(Routes.profile)}, onBack = {navController.popBackStack()})}
-            composable(Routes.agenda) { PendingPage(modifier=Modifier.fillMaxSize())}
+            composable(Routes.agenda) {
+                AgendaScreen(Modifier.fillMaxSize(), onSessionClick = {id->navController.navigate(Routes.reservationSummary+"/${id}")})
+            }
             composable(Routes.novelties) { NoveltyScreen(modifier=Modifier.fillMaxSize(), onNoveltyClick = {novelty->onNoveltyClick(novelty)})}
             composable(Routes.profile) {
                 ProfileScreen(modifier=Modifier.fillMaxSize(), dynamicTheme = isDynamic, onChangePreference = onChangePreference,
@@ -260,6 +311,8 @@ fun MainScreen(modifier: Modifier = Modifier,
                     onSignOut = {
                     scope.launch(Dispatchers.IO) {
                         authRepository.signOut();
+                        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                        notificationManager.cancelAll()
                     }
                     navController.navigate(route= Routes.home){
                         popUpTo(Routes.home) {

@@ -15,7 +15,9 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Date
 
@@ -142,6 +144,29 @@ class ReservationsFireStoreManager {
         awaitClose {
             Log.d("ReservationFireStoreBridge", "Cerrando SnapshotListener")
             registration.remove()
+        }
+    }
+
+    suspend fun getUserSessionsByDate(userId:String, date: LocalDate):List<SessionDto>{
+        return try {
+            var query:Query = db.collection("sessions")
+            query=query.where(
+                Filter.or(
+                    Filter.equalTo("student.id", userId),
+                    Filter.equalTo("tutor.id", userId)
+                )
+            )
+            val startOfDay = date.atStartOfDay()
+            val startTimeStamp = Timestamp(startOfDay.toEpochSecond(ZoneOffset.of("-05:00")), startOfDay.nano)
+            query = query.whereGreaterThanOrEqualTo("scheduledAt", startTimeStamp)
+            val endOfDay = date.plusDays(1).atStartOfDay()
+            val endTimeStamp = Timestamp(endOfDay.toEpochSecond(ZoneOffset.of("-05:00")), endOfDay.nano)
+            query = query.whereLessThanOrEqualTo("scheduledAt", endTimeStamp)
+                .orderBy("scheduledAt", Query.Direction.DESCENDING)
+            val snapshot = query.get().await()
+            snapshot.documents.mapNotNull { mapSnapshotToSession(it) }
+        }catch (e: Exception){
+            throw e
         }
     }
 
