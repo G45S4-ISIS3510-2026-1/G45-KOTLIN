@@ -1,6 +1,7 @@
 package com.uniandes.tutorias_g45k.ui.agenda
 
 import com.uniandes.tutorias_g45k.data.auth.AuthHolder
+import com.uniandes.tutorias_g45k.data.reservation.AvailabilityDto
 import com.uniandes.tutorias_g45k.data.reservation.SessionDto
 import java.time.LocalDate
 
@@ -9,6 +10,12 @@ data class AgendaViewState (
     val selectedWeek: List<LocalDate> = emptyList(),
     val selectedDay: LocalDate = LocalDate.now(),
     val sessions: List<SessionDto> = emptyList(),
-    val currentUserId: String?= AuthHolder.authRepo.getCurrentUserId()
-
-    )
+    val currentUserId: String?= AuthHolder.authRepo.getCurrentUserId(),
+    val availability: AvailabilityDto = AvailabilityDto(),
+    val isTutor: Boolean = false,
+    val error: String? = null,
+    val errorAvailability: String? = null,
+    val isLoadingAvailability: Boolean = false,
+    val selectedWeekDay:Int=0,
+    val hours:List<Int> = emptyList()
+)

@@ -19,14 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -55,7 +53,6 @@ import com.uniandes.tutorias_g45k.utilities.getDaysOfCertainWeek
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -63,208 +60,43 @@ import java.util.Locale
 
 @Composable
 fun WeekDaySelector(modifier: Modifier =Modifier,
-                    weekDays:List<LocalDate> = getDaysOfCertainWeek(LocalDate.now()),
-                    onDaySelected: (LocalDate) -> Unit={},
-                    selectedDay: LocalDate = LocalDate.now(),
-                    onPreviousWeek: () -> Unit = {},
-                    onNextWeek: () -> Unit = {},
-                    isLoading: Boolean = false){
-    val monthName = selectedDay.month.getDisplayName(
-        TextStyle.FULL,
-        Locale.forLanguageTag("es-CO")
-    ).replaceFirstChar { it.uppercase() }
-
-    var showCalendar by remember { mutableStateOf(false) }
-
-    CalendarPicker(currentDay = selectedDay, onDateSelected = onDaySelected, showDialog = showCalendar, onDismiss = {showCalendar=false})
+                    onDaySelected: (Int) -> Unit={},
+                    selectedDay: Int = 0,){
+    val days= listOf(0,1,2,3,4,5)
 
     Column(modifier=modifier.fillMaxWidth(), verticalArrangement = Arrangement.SpaceEvenly, horizontalAlignment = Alignment.CenterHorizontally){
-        Row(modifier=Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start){
-            Text(
-                text = "$monthName, ${selectedDay.year}",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(8.dp)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Button(
-                modifier=Modifier.size(60.dp).padding(5.dp),
-                shape= CircleShape,
-                onClick={showCalendar=true}
-            ){
-                Icon(
-                    modifier=Modifier.requiredSize(45.dp).padding(5.dp),
-                    imageVector = Icons.Default.CalendarMonth,
-                    contentDescription = "Agenda calendar",
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround
         ){
-            Icon(
-                modifier=Modifier.requiredSize(25.dp)
-                    .padding(5.dp)
-                    .clickable(onClick=onPreviousWeek, enabled = !isLoading),
-                imageVector = Icons.Default.ArrowBackIosNew,
-                contentDescription = "Previous week",
-            )
-            AnimatedContent(
-                targetState = weekDays,
-                transitionSpec = {
-                    if (targetState.first().isAfter(initialState.first())) {
-                        (slideInHorizontally(animationSpec = tween(300)) { width -> width } + fadeIn()) togetherWith
-                                (slideOutHorizontally(animationSpec = tween(300)) { width -> -width } + fadeOut())
-                    } else {
-                        (slideInHorizontally(animationSpec = tween(300)) { width -> -width } + fadeIn()) togetherWith
-                                (slideOutHorizontally(animationSpec = tween(300)) { width -> width } + fadeOut())
-                    }
-                },
-                modifier = Modifier.weight(1f), // Para que tome el espacio entre botones
-                label = "WeekAnimation"
-            ) { animatedWeekDays ->
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround){
-                    animatedWeekDays.forEach { day ->
-                        DaySelector(
-                            date = day,
-                            selected = day == selectedDay,
-                            onClick = {onDaySelected(day)},
-                            enabled = !isLoading
-                        )
-                    }
-                }
-            }
-
-            Icon(
-                modifier=Modifier.requiredSize(25.dp)
-                    .padding(5.dp)
-                    .clickable(onClick=onNextWeek, enabled = !isLoading),
-                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                contentDescription = "Next week",
-            )
-        }
-
-    }
-
-
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CalendarPicker(currentDay: LocalDate = LocalDate.now(),
-                   onDateSelected: (LocalDate) -> Unit = {},
-                   showDialog: Boolean = true,
-                   onDismiss: () -> Unit = {}) {
-    val initial=when{
-        currentDay.dayOfWeek==DayOfWeek.SUNDAY -> currentDay.minusDays(1)
-        currentDay.dayOfWeek==DayOfWeek.SATURDAY -> currentDay.minusDays(2)
-        else -> currentDay
-    }
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = initial.toEpochDay() * 24 * 60 * 60 * 1000,
-        initialDisplayMode = DisplayMode.Picker,
-        selectableDates = object : SelectableDates {
-            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                val date = Instant.ofEpochMilli(utcTimeMillis)
-                    .atZone(ZoneOffset.UTC)
-                    .toLocalDate()
-
-                return date.dayOfWeek != DayOfWeek.SUNDAY
-            }
-            override fun isSelectableYear(year: Int): Boolean {
-                // Todos los años son seleccionables (o puedes restringirlos aquí también)
-                return true
-            }
-        }
-    )
-
-    if (showDialog) {
-        DatePickerDialog(
-            onDismissRequest = { onDismiss() },
-            confirmButton = {
-                TextButton(onClick = {
-                    onDateSelected(LocalDate.ofEpochDay(
-                    datePickerState.selectedDateMillis?.let {
-                        Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate().toEpochDay()
-                    } ?: currentDay.toEpochDay()
-                    ));
-                    onDismiss()
-                }
-                ) {
-                    Text("OK",
-                        style = MaterialTheme.typography.titleMedium)
-                }
-            },
-            colors = DatePickerDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            ),
-            dismissButton = {
-                TextButton(onClick = { onDismiss() }) {
-                    Text("Cancelar",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-            }
-        ) {
-            DatePicker(
-                state = datePickerState,
-                showModeToggle = false,
-                title = {
-                    Text(
-                        text = "Seleccione fecha",
-                        modifier = Modifier.padding(start = 24.dp, top = 16.dp),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                },
-                headline= {
-                    val dateText = datePickerState.selectedDateMillis?.let {
-                        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                        Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).format(formatter)
-                    } ?: ""
-                    Text(
-                        text = dateText,
-                        modifier = Modifier.padding(start = 24.dp, top = 16.dp),
-                        style = MaterialTheme.typography.headlineLarge
-                    )
-                },
-                colors = DatePickerDefaults.colors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    selectedDayContainerColor = MaterialTheme.colorScheme.primary,
-                    selectedDayContentColor = MaterialTheme.colorScheme.onPrimary,
-                    todayDateBorderColor = MaterialTheme.colorScheme.primary,
-                    subheadContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            days.forEach{
+                day->
+                DayBanner(
+                    day = day,
+                    selected = day == selectedDay,
+                    onClick = {onDaySelected(day)},
                 )
-            )
+            }
         }
     }
 }
 
-@Preview
-@Composable
-fun MyDatePickerPreview() {
-    AppTheme(useSensor = false, darkTheme = true) {
-        Surface(){
-            WeekDaySelector()
-        }
-    }
-}
 
 @Composable
-fun DaySelector(modifier: Modifier = Modifier,
-                date: LocalDate,
+fun DayBanner(modifier: Modifier = Modifier,
+                day: Int,
                 selected:Boolean,
-                onClick:() -> Unit,
-                enabled:Boolean=true){
+                onClick:() -> Unit){
     val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
     val borderWidth = if (selected) 2.dp else 0.dp
+
+    val weekDay=DayOfWeek.of(day+1).getDisplayName(TextStyle.SHORT, Locale.forLanguageTag("es-CO"))
 
     Surface(modifier=modifier
         .requiredHeight(100.dp)
         .widthIn(min = 50.dp)
-        .clickable(enabled = enabled, onClick = onClick),
+        .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         color = backgroundColor ,
         border = BorderStroke(width = borderWidth, color = MaterialTheme.colorScheme.onPrimary),
@@ -275,14 +107,19 @@ fun DaySelector(modifier: Modifier = Modifier,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("es", "CO")).uppercase(),
+                text = weekDay.uppercase(),
                 style=MaterialTheme.typography.bodyMedium,
             )
-            Spacer(modifier = modifier.height(8.dp))
-            Text(
-                text = date.dayOfMonth.toString(),
-                style=MaterialTheme.typography.headlineSmall,
-            )
+        }
+    }
+}
+
+@Composable
+@Preview
+fun WeekDaySelectorPreview() {
+    AppTheme(useSensor = false, darkTheme = true) {
+        Surface(){
+            WeekDaySelector()
         }
     }
 }

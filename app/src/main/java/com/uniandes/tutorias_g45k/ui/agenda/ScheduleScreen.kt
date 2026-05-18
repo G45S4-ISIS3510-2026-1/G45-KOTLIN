@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.uniandes.tutorias_g45k.data.reservation.SessionDto
 import com.uniandes.tutorias_g45k.ui.NoContentOrConnectionWidget
+import com.uniandes.tutorias_g45k.ui.agenda.components.CalendarDaySelector
 import com.uniandes.tutorias_g45k.ui.agenda.components.WeekDaySelector
 import com.uniandes.tutorias_g45k.ui.profile.pages.reservations.SessionBanner
 import com.uniandes.tutorias_g45k.ui.theme.AppTheme
@@ -40,11 +41,11 @@ fun ScheduleScreen(modifier: Modifier = Modifier,
                    onSessionClick: (String) -> Unit = {}
                    ) {
     val connected by NetworkMonitor.isOnline.collectAsState()
-    Column(modifier = modifier.fillMaxWidth(),
+    Column(modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center){
 
-        WeekDaySelector(modifier=Modifier.fillMaxWidth(),
+        CalendarDaySelector(modifier=Modifier.fillMaxWidth(),
             weekDays=weekDays,
             onDaySelected=onDaySelected,
             selectedDay=selectedDay,

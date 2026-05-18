@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.uniandes.tutorias_g45k.ui.theme.AppTheme
 import kotlinx.coroutines.launch
+import java.time.OffsetDateTime
+
 
 @Composable
 fun AgendaScreen(modifier: Modifier = Modifier, viewModel: AgendaViewModel = viewModel(), onSessionClick: (String) -> Unit = {} ) {
@@ -29,7 +31,10 @@ fun AgendaScreen(modifier: Modifier = Modifier, viewModel: AgendaViewModel = vie
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val coroutineScope = rememberCoroutineScope()
 
+
     val uiState by viewModel.uiState.collectAsState()
+
+
 
     Column(modifier = modifier.fillMaxSize().padding(20.dp)) {
         Text(text="Agenda",
@@ -75,16 +80,18 @@ fun AgendaScreen(modifier: Modifier = Modifier, viewModel: AgendaViewModel = vie
                     currentUserId =uiState.currentUserId,
                     onSessionClick = onSessionClick
                 )
-                1 -> AvailabilityScreen()
+                1 -> AvailabilityScreen(
+                    onSelectWeekDay = { viewModel.selectWeekDay(it) },
+                    selectedHours = uiState.hours,
+                    selectedWeekDay = uiState.selectedWeekDay,
+                    isTutor = uiState.isTutor
+                )
             }
         }
     }
 }
 
-@Composable
-fun AvailabilityScreen() {
-    Text(text = "Disponibilidad")
-}
+
 
 
 @Preview()

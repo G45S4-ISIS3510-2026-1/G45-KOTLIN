@@ -128,7 +128,7 @@ object ReservationRepository {
         return try{
             val sessions=reservationsFireStoreManager.getUserSessionsByDate(userId, date)
             Log.d("ReservationRepository", "Sessions: $sessions")
-            Result.success(sessions)
+            Result.success(sessions.sortedBy { it.status != Status.PENDING.status })
         }catch (e:Exception){
             Log.d("ReservationRepository", "Error getting sessions: ${e.message}")
             Result.failure(e)
