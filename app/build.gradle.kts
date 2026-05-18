@@ -49,6 +49,8 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.zxing.android.embedded)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.play.services.base)
+    implementation(libs.play.services.basement)
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.10.0"))

@@ -6,12 +6,27 @@ import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters
 
 
-fun getDaysOfCurrentWeek(): List<LocalDate> {
+fun getDaysOfCurrentReservationWeek(): List<LocalDate> {
     val today = LocalDate.now(ZoneId.of("America/Bogota"))
     val monday = if (today.dayOfWeek != DayOfWeek.SUNDAY && today.dayOfWeek != DayOfWeek.SATURDAY) today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)) else today.with(TemporalAdjusters.next(DayOfWeek.MONDAY))
     // Entresemana mas Sabado
     return (0..5).map { monday.plusDays(it.toLong()) }
 }
+
+fun getDaysOfCurrentCalendarWeek(): List<LocalDate> {
+    val today = LocalDate.now(ZoneId.of("America/Bogota"))
+    val monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    // Entresemana mas Sabado
+    return (0..5).map { monday.plusDays(it.toLong()) }
+}
+
+fun getDaysOfCertainWeek(date: LocalDate): List<LocalDate> {
+    val monday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    // Entresemana mas Sabado
+    return (0..5).map { monday.plusDays(it.toLong()) }
+}
+
+
 
 
 

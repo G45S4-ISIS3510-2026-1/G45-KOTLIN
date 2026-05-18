@@ -71,6 +71,17 @@ class NoveltyViewModel : ViewModel() {
         }
     }
 
+    fun discardAllNovelties() {
+        _noveltyState.update { it.copy(novelties = emptyList()) }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                noveltyRepo.markAllNoveltiesAsRead(currentUserId)
+            } catch (e: Exception) {
+                Log.e("NoveltyViewModel", "Error al descartar todas las notificaciones", e)
+            }
+        }
+    }
+
     fun reLoadNovelties() {
         val current = _dayFilter.value
         _dayFilter.value = current

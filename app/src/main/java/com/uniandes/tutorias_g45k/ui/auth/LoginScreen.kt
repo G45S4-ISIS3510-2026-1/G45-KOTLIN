@@ -168,11 +168,6 @@ fun LoginScreen(
                     ) {
                         Text(text = "Iniciar Sesion con Microsoft", fontWeight = FontWeight.Bold)
                     }
-                    
-                    // Botón de prueba para simular error (Borrar luego de testear)
-                    TextButton(onClick = { throw RuntimeException("Error de prueba para Santiago en AUTH") }) {
-                        Text("Simular Error en Auth", color = Color.Gray.copy(alpha = 0.5f))
-                    }
                 }
             }
         }

@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -44,6 +45,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -76,6 +79,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSumma
     val flingBehavior = rememberSnapFlingBehavior(snappingLayout)
 
     LaunchedEffect(Unit) {
+        viewModel.loadHomeData()
         AnalyticsManager.setCurrentService("HOME_SERVICE")
         GoogleAnalyticsService.logScreenAccess("HomeScreen")
     }
@@ -85,7 +89,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSumma
 
         }
     ) { padding ->
-        PullToRefreshBox(isRefreshing = state.isLoading,
+        PullToRefreshBox(isRefreshing = state.isLoading && state.areSessionLoading,
             onRefresh = viewModel::loadHomeData) {
             LazyColumn(
                 modifier = Modifier
@@ -160,7 +164,14 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSumma
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Button(
                             onClick = {onMoreClick()},
-                            modifier = Modifier.weight(1f).height(100.dp),
+                            modifier = Modifier.weight(1f).height(100.dp)
+                                .dropShadow(
+                                    shape = RoundedCornerShape(12.dp),
+                                    shadow = Shadow(
+                                        radius = 12.dp,                   // Blur amount
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f), // Dynamic theme color,                    // Shadow expand amount
+                                    )
+                                ),
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
                         ) {
@@ -171,7 +182,14 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSumma
                         }
                         Button(
                             onClick = { onBecomeTutor() },
-                            modifier = Modifier.weight(1f).height(100.dp),
+                            modifier = Modifier.weight(1f).height(100.dp)
+                                .dropShadow(
+                                    shape = RoundedCornerShape(12.dp),
+                                    shadow = Shadow(
+                                        radius = 12.dp,                   // Blur amount
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f), // Dynamic theme color,                    // Shadow expand amount
+                                    )
+                                ),
                             enabled = !state.isTutor,
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
@@ -246,13 +264,21 @@ fun TutorItem(tutor: TutorSummaryDto, onSelection: () -> Unit = {}) {
                 model = tutor.profileImageUrl,
                 contentDescription = "Foto de ${tutor.name}",
                 modifier = Modifier
-                    .size(50.dp)
-                    .clip(RoundedCornerShape(25.dp)),
+                    .size(60.dp)
+                    .dropShadow(
+                        shape = CircleShape,
+                        shadow = Shadow(
+                            radius = 16.dp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
+                        )
+                    )
+                    .clip(CircleShape),
                 contentScale = ContentScale.Crop,
                 placeholder = painterResource(R.drawable.profile_placeholder),
-                error=painterResource(R.drawable.profile_placeholder),
-                fallback=painterResource(R.drawable.profile_placeholder)
+                error = painterResource(R.drawable.profile_placeholder),
+                fallback = painterResource(R.drawable.profile_placeholder)
             )
+
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(tutor.name, fontWeight = FontWeight.Bold)

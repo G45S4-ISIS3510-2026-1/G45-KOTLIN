@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -50,7 +51,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -102,13 +105,6 @@ fun CatalogoContent(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        IconButton(onClick = {}) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
                         Text(
                             text = "Catálogo",
                             style = MaterialTheme.typography.displayMedium,
@@ -120,6 +116,13 @@ fun CatalogoContent(
                         IconButton(
                             onClick = { onOnlyFavoritesChange(!uiState.onlyFavorites) },
                             modifier = Modifier
+                                .dropShadow(
+                                    shape = RoundedCornerShape(12.dp),
+                                    shadow = Shadow(
+                                        radius = 10.dp,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
+                                    )
+                                )
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(if (uiState.onlyFavorites) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant)
                         ) {
@@ -268,7 +271,14 @@ fun TutorCard(tutor: TutorSummaryDto, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .dropShadow(
+                shape = RoundedCornerShape(16.dp),
+                shadow = Shadow(
+                    radius = 10.dp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
+                )
+            ),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {

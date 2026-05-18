@@ -56,7 +56,7 @@ fun NoveltyItem(modifier: Modifier = Modifier, novelty: NoveltyDto, onClick: (No
         daysDiff>0L -> "$daysDiff d"
         hoursDiff>0L -> "$hoursDiff h"
         minutesDiff>0L -> "$minutesDiff min"
-        else -> "Reciente"
+        else -> "Nueva"
     }
 
     if (novelty.type==NoveltyType.SESSION.label){
@@ -105,7 +105,7 @@ fun NoveltyItem(modifier: Modifier = Modifier, novelty: NoveltyDto, onClick: (No
 
                     }
                 }
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(0.8f))
                 Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center){
                     Text(
                         text = message,

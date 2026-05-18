@@ -67,4 +67,20 @@ class NoveltyFirestoreManager {
             throw e
         }
     }
+
+    suspend fun markAllNoveltiesAsRead(userId: String) {
+        Log.d("NoveltyFireStoreBridge", "Marking all novelties as read for user: $userId")
+        try{
+            val snap=db.collection("novelties").whereEqualTo("userId", userId).get().await()
+            val batch=db.batch()
+            snap.documents.forEach {
+                batch.update(it.reference, "isRead", true)
+            }
+            batch.commit().await()
+            Log.d("NoveltyFireStoreBridge", "All novelties marked as read for user: $userId")
+        }catch (e: Exception) {
+            Log.e("NoveltyFireStoreBridge", "Error marking all novelties as read: ${e.message}")
+            throw e
+        }
+    }
 }

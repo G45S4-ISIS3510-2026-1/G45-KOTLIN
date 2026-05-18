@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uniandes.tutorias_g45k.data.auth.AuthHolder
 import com.uniandes.tutorias_g45k.data.reservation.ReservationRepository
+import com.uniandes.tutorias_g45k.ui.reservation.summary.Status
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,8 +16,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ReviewListViewModel: ViewModel() {
-    private val _uiState = MutableStateFlow(ReviewListUiState())
+class ReservationListViewModel: ViewModel() {
+    private val _uiState = MutableStateFlow(ReservationListUiState())
     private val sessionRepository = ReservationRepository
     private val authRepository = AuthHolder.authRepo
 
@@ -42,7 +43,7 @@ class ReviewListViewModel: ViewModel() {
                     sessionRepository.getUserSessions(authRepository.getCurrentUser()?.uid ?: "", tutor, dayRange)
                 }
                 .catch { it ->
-                    Log.e("ReservationListViewModel", "Error en stream", it)
+                    Log.e("ReviewListViewModel", "Error en stream", it)
                     _uiState.update { state ->
                         state.copy(
                             error = "Error recuperando sesiones, por favor revise su conexión a internet y refresque el listado",
@@ -53,7 +54,11 @@ class ReviewListViewModel: ViewModel() {
                 }
                 .collect { list ->
                     Log.d("DEBUG_NOTI", "4. DATOS RECIBIDOS: ${list.size} elementos: $list")
+                    if (_dayFilter.value==0 || _dayFilter.value==null){
+                        _uiState.update { it.copy(sessions = list.sortedBy { it.status != Status.PENDING.status }, isLoading = false) }
+                    }else{
                     _uiState.update { it.copy(sessions = list, isLoading = false) }
+                    }
                 }
         }
     }

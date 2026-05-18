@@ -1,7 +1,7 @@
 package com.uniandes.tutorias_g45k.ui.reservation.gateway
 
 import com.uniandes.tutorias_g45k.data.reservation.SkillSummaryDto
-import com.uniandes.tutorias_g45k.utilities.getDaysOfCurrentWeek
+import com.uniandes.tutorias_g45k.utilities.getDaysOfCurrentReservationWeek
 import java.time.LocalDate
 
 
@@ -16,7 +16,7 @@ data class ReservationGatewayState (
     val tutorSkills: List<SkillSummaryDto> = emptyList(),
     val error:String = "",
     val hours:List<String> = emptyList(),
-    val dates:List<LocalDate> = getDaysOfCurrentWeek()
+    val dates:List<LocalDate> = getDaysOfCurrentReservationWeek()
 )
 
 data class PaymentMethod (

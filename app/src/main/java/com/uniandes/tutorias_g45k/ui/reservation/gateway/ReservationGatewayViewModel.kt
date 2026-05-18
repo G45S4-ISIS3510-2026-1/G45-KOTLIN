@@ -162,6 +162,8 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
                             Log.d("ReservationGatewayViewModel", "Error creating session: $message")
                             if (message.contains("Unable") || message.contains("Invalid") || message.contains("timeout")){
                                 _sessionSelection.value = _sessionSelection.value.copy(error = "Error conectando con el servidor. Revisa tu conexión e intentalo nuevamente.")
+                            }else{
+                                _sessionSelection.value = _sessionSelection.value.copy(error = message)
                             }
 
                         }
@@ -172,13 +174,9 @@ class ReservationGatewayViewModel(savedStateHandle: SavedStateHandle):ViewModel(
                         _sessionSelection.value = _sessionSelection.value.copy(isLoading = false)
                     }
                 }
-            }else if (currentHour==null){
+            }else {
                 Log.d("ReservationGatewayViewModel", "No hour selected")
                 _sessionSelection.value = _sessionSelection.value.copy(error = "Selecciona una hora válida")
-            }else{
-                Log.d("ReservationGatewayViewModel", "No skill selected")
-                _sessionSelection.value = _sessionSelection.value.copy(error = "Selecciona una habilidad válida")
-
             }
         }else if (currentSkill==null){
             Log.d("ReservationGatewayViewModel", "No date/hour selected")

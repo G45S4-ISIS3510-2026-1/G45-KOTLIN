@@ -18,4 +18,13 @@ object NoveltyRepoFirestoreImp: NoveltyRepository {
             Result.failure(e)
         }
     }
+
+    override suspend fun markAllNoveltiesAsRead(userId: String): Result<Unit> {
+        return try {
+            firestoreManager.markAllNoveltiesAsRead(userId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

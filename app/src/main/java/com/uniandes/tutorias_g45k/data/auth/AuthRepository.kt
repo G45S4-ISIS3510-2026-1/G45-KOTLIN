@@ -51,6 +51,7 @@ class AuthRepository (context: Context) {
         return auth.currentUser?.uid
     }
 
+
     fun isUserLoggedIn(): Boolean {
         Log.d("AuthRepository", "isUserLoggedIn: ${auth.currentUser != null}")
         return auth.currentUser != null

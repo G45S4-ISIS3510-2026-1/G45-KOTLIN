@@ -1,4 +1,4 @@
-package com.uniandes.tutorias_g45k.ui.profile.pages.reviews
+package com.uniandes.tutorias_g45k.ui.profile.pages.reservations
 
 import com.uniandes.tutorias_g45k.data.reservation.SessionDto
 

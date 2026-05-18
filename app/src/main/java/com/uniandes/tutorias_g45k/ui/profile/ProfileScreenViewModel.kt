@@ -84,6 +84,8 @@ class ProfileScreenViewModel(): ViewModel()  {
         fetchProfile()
     }
 
+
+
     fun clearMissings(){
         _uiState.update { it.copy(clickedMissings = false) }
     }

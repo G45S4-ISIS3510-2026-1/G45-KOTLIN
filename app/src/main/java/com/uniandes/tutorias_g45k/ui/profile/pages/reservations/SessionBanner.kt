@@ -20,6 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -45,7 +47,15 @@ fun SessionBanner(modifier: Modifier = Modifier,
     val sessionLocalDateTime= ZonedDateTime.parse(session.scheduledAt).toLocalDateTime()
 
     Card(
-        modifier = modifier.requiredHeightIn(min = 150.dp, max = 200.dp).clickable(onClick = { onClick(session.id!!) }),
+        modifier = modifier.requiredHeightIn(min = 150.dp, max = 200.dp).clickable(onClick = { onClick(session.id!!) })
+            .padding(5.dp)
+            .dropShadow(
+                shape = RoundedCornerShape(16.dp),
+                shadow = Shadow(
+                    radius = 12.dp,                   // Blur amount
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f), // Dynamic theme color,
+                )
+            ),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Surface(modifier = Modifier.padding(15.dp).fillMaxWidth(), color = MaterialTheme.colorScheme.surfaceVariant) {

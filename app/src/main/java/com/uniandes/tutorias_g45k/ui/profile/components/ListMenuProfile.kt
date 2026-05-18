@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
@@ -38,7 +39,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,7 +59,14 @@ fun ListMenuProfile(modifier: Modifier = Modifier,
 ){
 
 
-    Surface(modifier=modifier,
+    Surface(modifier=modifier
+        .dropShadow(
+            shape = CircleShape,
+            shadow = Shadow(
+                radius = 10.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
+            )
+        ),
         color = MaterialTheme.colorScheme.surfaceVariant,
         shape = RoundedCornerShape(35.dp),
     ){
