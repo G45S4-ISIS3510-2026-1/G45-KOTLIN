@@ -23,6 +23,11 @@ object ReservationDetailCacheManager {
         lruCache.remove(id)
     }
 
+    fun trimTo(size: Int) {
+        lruCache.trimToSize(size)
+        Log.d("ReservationDetailCacheManager", "Cache trimmed to size: $size")
+    }
+
     fun clearCache() {
         lruCache.evictAll()
     }
