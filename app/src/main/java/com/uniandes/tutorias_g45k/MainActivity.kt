@@ -27,6 +27,7 @@ import com.uniandes.tutorias_g45k.data.local.ThemePreferenceManager
 import com.uniandes.tutorias_g45k.data.recommendation.RecommendationDatabase
 import com.uniandes.tutorias_g45k.ui.theme.AppTheme
 import com.uniandes.tutorias_g45k.utilities.LightSensorManager
+import com.uniandes.tutorias_g45k.utilities.MemoryPressureManager
 import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 import com.google.firebase.FirebaseApp
 import com.uniandes.tutorias_g45k.data.recommendation.TutorSummaryDto
@@ -82,6 +83,16 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         NetworkMonitor.stopMonitoring()
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        MemoryPressureManager.onTrimMemory(level)
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        MemoryPressureManager.onLowMemory()
     }
 
     override fun onNewIntent(intent: Intent) {

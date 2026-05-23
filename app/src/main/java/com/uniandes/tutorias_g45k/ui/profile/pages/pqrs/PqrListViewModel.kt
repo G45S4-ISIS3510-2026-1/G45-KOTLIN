@@ -25,7 +25,7 @@ class PqrListViewModel : ViewModel() {
 
     fun loadPqrs() {
         _uiState.update { it.copy(isLoading = true, error = "") }
-        // MULTITHREADING: Operación asíncrona enviada al hilo de I/O para no bloquear el Main Thread
+
         viewModelScope.launch(Dispatchers.IO) {
             val userId = authRepository.getCurrentUser()?.uid ?: ""
             if (userId.isBlank()) {
@@ -35,7 +35,6 @@ class PqrListViewModel : ViewModel() {
                 return@launch
             }
 
-            // Llamada suspendida simple en lugar de Flow, cumpliendo la filosofía de minimalismo
             val result = profileRepository.getPQRS(userId)
 
             withContext(Dispatchers.Main) {

@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -246,7 +247,15 @@ fun MainScreen(modifier: Modifier = Modifier,
                     AppDestinations.entries.forEach{
                         NavigationBarItem(
                             selected = currentDestination?.route == it.label,
-                            onClick = { navController.navigate(it.label) },
+                            onClick = {
+                                navController.navigate(it.label) {
+                                    launchSingleTop = true
+                                    restoreState = true
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                }
+                            },
                             icon = {
                                 if (it.label==AppDestinations.NOVELTIES.label){
                                     BadgedBox(badge={
