@@ -43,6 +43,7 @@ fun ProfileScreen(modifier: Modifier =Modifier,
                   viewModel: ProfileScreenViewModel = viewModel(),
                   onSignOut:()->Unit={},
                   onEditProfile:()->Unit,
+                  onEditAvailability:()->Unit,
                   onCheckReservations:()->Unit={},
                   onCheckPQRs:()->Unit=viewModel::setMissings,
                   onCheckFavorites:()->Unit=viewModel::setMissings,
@@ -58,7 +59,7 @@ fun ProfileScreen(modifier: Modifier =Modifier,
     LaunchedEffect(uiState.clickedMissings) {
         Log.d("ProfileScreen", "Clicked missings: ${uiState.clickedMissings}")
         if (uiState.clickedMissings) {
-            snackbarHostState.showSnackbar("Vista sin implementar, espere actualizaciones")
+            snackbarHostState.showSnackbar(uiState.error)
             viewModel.clearMissings()
         }
     }
@@ -95,7 +96,8 @@ fun ProfileScreen(modifier: Modifier =Modifier,
                     Spacer(modifier=Modifier.height(20.dp))
                     ListMenuProfile(
                         modifier = Modifier.fillMaxWidth(),
-                        onEditProfile = (if (uiState.user?.isTutoring ?: false) onEditProfile else viewModel::setMissings),
+                        onEditProfile = (if (uiState.user?.isTutoring ?: false) onEditProfile else {->viewModel.setMissings("Disponible solo como tutor")}),
+                        onEditAvailability = (if (uiState.user?.isTutoring ?: false) onEditAvailability else {->viewModel.setMissings("Disponible solo como tutor")}),
                         onCheckReservations = onCheckReservations,
                         onCheckPQRs = onCheckPQRs,
                         onCheckFavorites = onCheckFavorites,

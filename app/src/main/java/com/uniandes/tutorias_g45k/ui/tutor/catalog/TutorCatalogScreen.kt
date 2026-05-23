@@ -77,7 +77,7 @@ fun CatalogoContent(
     uiState: CatalogoUiState,
     onRetry: () -> Unit = {},
     onLoadNextPage: () -> Unit = {},
-    onSearchTextChange: (TextFieldValue) -> Unit,
+    onSearchTextChange: (String) -> Unit,
     onOrderChange: (String) -> Unit,
     onFacultadChange: (String) -> Unit,
     onOnlyFavoritesChange: (Boolean) -> Unit = {},
@@ -138,7 +138,7 @@ fun CatalogoContent(
 
                 item {
                     OutlinedTextField(
-                        value = uiState.searchTextValue,
+                        value = uiState.searchText,
                         onValueChange = onSearchTextChange,
                         placeholder = {
                             Text(

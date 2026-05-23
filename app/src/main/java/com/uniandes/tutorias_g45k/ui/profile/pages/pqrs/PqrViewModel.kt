@@ -53,7 +53,7 @@ class PqrViewModel(
         val userId = AuthHolder.authRepo.getCurrentUserId() ?: return
         viewModelScope.launch {
             reservationRepository.getUserSessions(userId).collect { sessions ->
-                _uiState.update { it.copy(sessions = sessions) }
+                _uiState.update { it.copy(sessions = sessions.filter{it.status!="Pendiente"}) }
             }
         }
     }

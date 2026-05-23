@@ -90,7 +90,7 @@ class ProfileScreenViewModel(): ViewModel()  {
         _uiState.update { it.copy(clickedMissings = false) }
     }
 
-    fun setMissings(){
-        _uiState.update { it.copy(clickedMissings = true) }
+    fun setMissings(error:String="Vista no disponible o en mantenimiento, intenta mas tarde"){
+        _uiState.update { it.copy(clickedMissings = true, error = error) }
     }
 }

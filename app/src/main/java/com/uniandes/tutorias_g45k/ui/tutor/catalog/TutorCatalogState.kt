@@ -7,7 +7,6 @@ import com.uniandes.tutorias_g45k.data.recommendation.TutorSummaryDto
 
 data class CatalogoUiState(
     val searchText: String = "",
-    val searchTextValue: TextFieldValue =TextFieldValue(""),
     val tutores: List<TutorSummaryDto> = emptyList(),
     val filtrados: List<TutorSummaryDto> = emptyList(),
     val visibleTutores: List<TutorSummaryDto> = emptyList(),

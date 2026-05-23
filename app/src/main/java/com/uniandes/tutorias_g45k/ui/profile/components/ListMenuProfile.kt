@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
@@ -43,6 +44,7 @@ import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.uniandes.tutorias_g45k.ui.theme.AppTheme
@@ -51,6 +53,7 @@ import com.uniandes.tutorias_g45k.ui.theme.AppTheme
 fun ListMenuProfile(modifier: Modifier = Modifier,
                     onCheckReservations:()->Unit={},
                     onEditProfile:()->Unit={},
+                    onEditAvailability:()->Unit={},
                     onCheckPQRs:()->Unit={},
                     onCheckFavorites:()->Unit={},
                     onChangePreference:()->Unit={},
@@ -73,13 +76,13 @@ fun ListMenuProfile(modifier: Modifier = Modifier,
         Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally){
             EditThemeOption(modifier = Modifier.fillMaxWidth(), onThemeChange = onChangePreference, dynamicTheme = dynamicTheme)
             HorizontalDivider(thickness = 10.dp, color = MaterialTheme.colorScheme.surface)
+            EditTutorSpecsOption(modifier = Modifier.fillMaxWidth(), onEditProfile = onEditProfile, onEditAvailability = onEditAvailability)
+            HorizontalDivider(thickness = 10.dp, color = MaterialTheme.colorScheme.surface)
             NavOption(modifier = Modifier.fillMaxWidth(), label = "Historial de Sesiones", onClick = onCheckReservations)
             HorizontalDivider(thickness = 10.dp, color = MaterialTheme.colorScheme.surface)
             NavOption(modifier = Modifier.fillMaxWidth(), label = "Reseñas", onClick = onCheckReviews)
             HorizontalDivider(thickness = 10.dp, color = MaterialTheme.colorScheme.surface)
             NavOption(modifier = Modifier.fillMaxWidth(), label = "Tutores Favoritos", onClick = onCheckFavorites)
-            HorizontalDivider(thickness = 10.dp, color = MaterialTheme.colorScheme.surface)
-            NavOption(modifier = Modifier.fillMaxWidth(), label = "Editar Datos de Perfil/Tutor", onClick = onEditProfile)
             HorizontalDivider(thickness = 10.dp, color = MaterialTheme.colorScheme.surface)
             NavOption(modifier = Modifier.fillMaxWidth(), label = "Peticiones, Quejas, y Reclamos", onClick = onCheckPQRs)
         }
@@ -142,6 +145,61 @@ fun EditThemeOption(modifier: Modifier = Modifier, onThemeChange:()->Unit, dynam
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        }
+                    }
+                }
+            }
+
+
+        }
+    }
+}
+
+@Composable
+fun EditTutorSpecsOption(modifier: Modifier = Modifier, onEditProfile: () -> Unit, onEditAvailability: () -> Unit){
+    var expanded by remember { mutableStateOf(false) }
+    val expandIcon = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore
+    Card(modifier = modifier.animateContentSize(),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+    ){
+        Surface(modifier = Modifier.padding(20.dp).fillMaxWidth(), color = Color.Transparent){
+            Column(modifier=Modifier.fillMaxWidth()){
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start){
+                    Column(modifier = Modifier, verticalArrangement = Arrangement.SpaceEvenly){
+                        Icon(
+                            imageVector = Icons.Default.ColorLens,
+                            contentDescription = "Expand Icon",
+                            modifier = Modifier.requiredSize(30.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column(modifier = Modifier, verticalArrangement = Arrangement.SpaceEvenly){
+                        Text(
+                            text = "Editar datos de Tutor",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    Column(modifier = Modifier, verticalArrangement = Arrangement.SpaceEvenly, horizontalAlignment = Alignment.CenterHorizontally){
+                        Icon(
+                            imageVector = expandIcon,
+                            contentDescription = "Expand Icon",
+                            modifier = Modifier.requiredSize(25.dp).clickable { expanded = !expanded },
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                if (expanded){
+                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceEvenly){
+                        Button(modifier=Modifier.fillMaxWidth(), onClick=onEditProfile){
+                            Text(text = "Editar Precio de Sesion", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.titleMedium, maxLines=1, overflow = TextOverflow.Ellipsis)
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Button(modifier=Modifier.fillMaxWidth(), onClick=onEditAvailability){
+                            Text(text = "Editar Horario", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.titleMedium, maxLines=1, overflow = TextOverflow.Ellipsis)
                         }
                     }
                 }

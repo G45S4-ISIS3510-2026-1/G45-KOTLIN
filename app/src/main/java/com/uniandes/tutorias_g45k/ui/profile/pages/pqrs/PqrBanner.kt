@@ -19,8 +19,8 @@ fun PqrBanner(
     pqr: FirestorePqrDto
 ) {
     val dateFormatter = remember { SimpleDateFormat("dd MMM yyyy", Locale("es", "ES")) }
-    val formattedDate = remember(pqr.createdAt) { 
-        dateFormatter.format(pqr.createdAt.toDate()) 
+    val formattedDate = remember(pqr.createdAt) {
+        dateFormatter.format(pqr.createdAt?.toDate() ?: Date())
     }
 
     Card(
@@ -37,23 +37,23 @@ fun PqrBanner(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = pqr.type.uppercase(),
+                    text = pqr.type?.uppercase() ?: "" ,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = pqr.status,
+                    text = pqr.status ?: "",
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (pqr.status.equals("resuelto", ignoreCase = true)) 
-                                MaterialTheme.colorScheme.tertiary 
-                            else 
-                                MaterialTheme.colorScheme.error
+                    color = if (pqr.status.equals("resuelto", ignoreCase = true))
+                        MaterialTheme.colorScheme.tertiary
+                    else
+                        MaterialTheme.colorScheme.error
                 )
             }
 
             Text(
-                text = pqr.topic,
+                text = pqr.topic ?: "",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
@@ -61,7 +61,7 @@ fun PqrBanner(
             )
 
             Text(
-                text = pqr.description,
+                text = pqr.description ?: "",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 2,
