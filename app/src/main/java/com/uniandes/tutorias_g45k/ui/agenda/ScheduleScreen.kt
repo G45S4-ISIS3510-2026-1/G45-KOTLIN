@@ -55,6 +55,20 @@ fun ScheduleScreen(modifier: Modifier = Modifier,
             )
 
         Spacer(modifier = Modifier.height(16.dp))
+        if (!connected){
+            Column(){
+                Text(
+                    text="Sin conexión",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Text(
+                    text="Actualmente no tiene conexión, por lo que las sesiones mostradas podrían estar desactualizadas. Por favor revice su conexión y refresque",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
         PullToRefreshBox(
             isRefreshing = isLoading,
             onRefresh = onRefresh
