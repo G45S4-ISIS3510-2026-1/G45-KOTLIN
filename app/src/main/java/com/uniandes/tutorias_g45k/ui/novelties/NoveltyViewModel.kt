@@ -40,11 +40,11 @@ class NoveltyViewModel : ViewModel() {
                     _noveltyState.update { it.copy(isLoading = true, error = null) }
                     noveltyRepo.getUnreadNovelties(currentUserId, dayRange)
                 }
-                .catch { it ->
-                    Log.e("NoveltyViewModel", "Error en stream", it)
+                .catch { error ->
+                    Log.e("NoveltyViewModel", "Error en stream", error)
                     _noveltyState.update { state ->
                         state.copy(
-                            error = "Error recuperando novedades, por favor revise su conexión a internet y refresque el listado",
+                            error = "Error recuperando novedades, por favor revise su conexion a internet y refresque el listado",
                             isLoading = false,
                             novelties = emptyList()
                         )
@@ -66,7 +66,7 @@ class NoveltyViewModel : ViewModel() {
             try {
                 noveltyRepo.markNoveltyAsRead(noveltyId)
             } catch (e: Exception) {
-                Log.e("NoveltyViewModel", "Error al descartar notificación", e)
+                Log.e("NoveltyViewModel", "Error al descartar notificacion", e)
             }
         }
     }
@@ -84,6 +84,7 @@ class NoveltyViewModel : ViewModel() {
 
     fun reLoadNovelties() {
         val current = _dayFilter.value
+        _dayFilter.value = null
         _dayFilter.value = current
     }
 }

@@ -308,6 +308,8 @@ fun MainScreen(modifier: Modifier = Modifier,
             composable(Routes.profile) {
                 ProfileScreen(modifier=Modifier.fillMaxSize(), dynamicTheme = isDynamic, onChangePreference = onChangePreference,
                     onCheckReservations = {navController.navigate(Routes.reservationList)},
+                    onCheckPQRs = {navController.navigate(Routes.pqrList)},
+                    onCheckReviews = {navController.navigate(Routes.reviewList)},
                     onSignOut = {
                     scope.launch(Dispatchers.IO) {
                         authRepository.signOut();
@@ -334,6 +336,35 @@ fun MainScreen(modifier: Modifier = Modifier,
                     Column(verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.CenterHorizontally){
                         ReservationListScreen (onReservationClick = {id->navController.navigate(Routes.reservationSummary+"/${id}")}, onBack = {navController.popBackStack()})
+                    }
+                }
+            }
+            composable(Routes.pqrList){
+                Surface(modifier=Modifier.fillMaxSize()){
+                    com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrListScreen(
+                        onBack = {navController.popBackStack()}
+                    )
+                }
+            }
+            composable(Routes.reviewList){
+                Surface(modifier=Modifier.fillMaxSize()){
+                    Column(verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.CenterHorizontally){
+                        com.uniandes.tutorias_g45k.ui.profile.pages.reviews.ReviewListScreen (
+                            onReviewClick = {review->navController.navigate(Routes.reviewDetail+"/${review.id}")}, 
+                            onBack = {navController.popBackStack()}
+                        )
+                    }
+                }
+            }
+            composable(Routes.reviewDetail+"/{reviewId}") { backStackEntry ->
+                val reviewId = backStackEntry.arguments?.getString("reviewId")
+                if (reviewId != null) {
+                    Surface(modifier=Modifier.fillMaxSize()){
+                        com.uniandes.tutorias_g45k.ui.profile.pages.reviews.ReviewDetailScreen(
+                            reviewId = reviewId, 
+                            onBack = {navController.popBackStack()}
+                        )
                     }
                 }
             }
