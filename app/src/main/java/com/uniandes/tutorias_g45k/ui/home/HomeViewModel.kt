@@ -77,6 +77,7 @@ class HomeViewModel : ViewModel() {
                     _state.update { it.copy(isLoading = false, areSessionLoading = false, error = e.message) }
                 }
             }
+            authRepository.closeTrace()
         }
     }
 }

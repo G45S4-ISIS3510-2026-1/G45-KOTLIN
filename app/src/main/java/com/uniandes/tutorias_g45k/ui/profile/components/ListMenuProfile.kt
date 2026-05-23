@@ -82,8 +82,6 @@ fun ListMenuProfile(modifier: Modifier = Modifier,
             HorizontalDivider(thickness = 10.dp, color = MaterialTheme.colorScheme.surface)
             NavOption(modifier = Modifier.fillMaxWidth(), label = "Reseñas", onClick = onCheckReviews)
             HorizontalDivider(thickness = 10.dp, color = MaterialTheme.colorScheme.surface)
-            NavOption(modifier = Modifier.fillMaxWidth(), label = "Tutores Favoritos", onClick = onCheckFavorites)
-            HorizontalDivider(thickness = 10.dp, color = MaterialTheme.colorScheme.surface)
             NavOption(modifier = Modifier.fillMaxWidth(), label = "Peticiones, Quejas, y Reclamos", onClick = onCheckPQRs)
         }
     }

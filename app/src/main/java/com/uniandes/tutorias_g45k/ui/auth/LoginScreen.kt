@@ -92,7 +92,8 @@ fun LoginScreen(
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        containerColor = Color.Transparent
     ) { innerPadding ->
         Box(
             modifier = Modifier

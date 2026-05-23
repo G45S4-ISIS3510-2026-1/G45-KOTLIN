@@ -9,6 +9,8 @@ import com.google.android.gms.tasks.Tasks.await
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.perf.metrics.Trace
 import com.uniandes.tutorias_g45k.data.auth.AuthDataBase
 import com.uniandes.tutorias_g45k.data.auth.UserBackDto
 import com.uniandes.tutorias_g45k.data.catalog.TutorRepository
@@ -25,6 +27,8 @@ class AuthRepository (context: Context) {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(AuthUserApiInterface::class.java)}
+
+    private var initTrace : Trace? = null
 
     private val searchHistoryManager= SearchHistoryManager.getInstance()
     private val recommendedUserRepository= RecommendedUserRepository
@@ -49,6 +53,20 @@ class AuthRepository (context: Context) {
 
     fun getCurrentUserId(): String? {
         return auth.currentUser?.uid
+    }
+
+    fun initTraceUp(isLogged:Boolean){
+        closeTrace()
+        Log.d("AuthRepository", "initTraceUp: $isLogged")
+        initTrace= FirebasePerformance.getInstance().newTrace("launch_fetching_latency")
+        initTrace?.start()
+        initTrace?.putAttribute("logging", isLogged.toString())
+    }
+
+    fun closeTrace(){
+        Log.d("AuthRepository", "closeTrace: ")
+        initTrace?.stop()
+        initTrace=null
     }
 
 

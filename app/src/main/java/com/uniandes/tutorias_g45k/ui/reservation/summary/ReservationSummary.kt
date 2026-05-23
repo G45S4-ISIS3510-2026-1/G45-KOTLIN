@@ -73,7 +73,7 @@ fun ReservationSummary(
         }
     }
 
-    Column(modifier=modifier.padding(10.dp)){
+    Column(modifier=modifier.padding(10.dp).fillMaxWidth()){
         Spacer(modifier=modifier.height(10.dp))
         Row(modifier=modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

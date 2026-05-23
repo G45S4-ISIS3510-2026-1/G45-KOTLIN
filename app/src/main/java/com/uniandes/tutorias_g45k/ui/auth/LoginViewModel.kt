@@ -28,6 +28,7 @@ class LoginViewModel () : ViewModel() {
     fun onLoginStarted() {
         if (!isOnline.value) {
             _state.update { it.copy(error = "No puedes iniciar sesión sin conexión.") }
+            authRepository.initTraceUp(true)
             return
         }
         _state.update { it.copy(isLoading = true, error = null) }

@@ -21,5 +21,7 @@ object Routes {
     val editPrice="edit_price"
     val editAvailability="edit_availability"
 
+    val favList="fav_list"
+
 
 }
