@@ -19,6 +19,10 @@ class PqrListViewModel : ViewModel() {
     private val profileRepository = ProfileRepoProvider.getRepository()
     private val authRepository = AuthHolder.authRepo
 
+    init {
+        loadPqrs()
+    }
+
     fun loadPqrs() {
         _uiState.update { it.copy(isLoading = true, error = "") }
 
@@ -47,9 +51,5 @@ class PqrListViewModel : ViewModel() {
                 }
             }
         }
-    }
-
-    init {
-        loadPqrs()
     }
 }
