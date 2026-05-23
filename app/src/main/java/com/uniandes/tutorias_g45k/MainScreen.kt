@@ -77,6 +77,7 @@ import com.uniandes.tutorias_g45k.ui.home.HomeScreen
 import com.uniandes.tutorias_g45k.ui.novelties.NoveltyScreen
 import com.uniandes.tutorias_g45k.ui.profile.ProfileScreen
 import com.uniandes.tutorias_g45k.ui.profile.pages.edit.TutorPriceEditScreen
+import com.uniandes.tutorias_g45k.ui.profile.pages.edit.TutorScheduleEditScreen
 import com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrListScreen
 import com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrScreen
 import com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrViewModel
@@ -216,7 +217,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                 ) {
                     Row(
                         modifier = Modifier
-                            .padding(vertical = 4.dp, horizontal = 16.dp),
+                            .padding(vertical = 20.dp, horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
@@ -332,16 +333,23 @@ fun MainScreen(modifier: Modifier = Modifier,
                     },
                     onEditProfile = {
                         navController.navigate(Routes.editPrice)
+                    },
+                    onEditAvailability = {
+                        navController.navigate(Routes.editAvailability)
                     }
                 )
 
 
             }
-            composable(Routes.pqrList) {
-                PqrListScreen(
-                    onBack = { navController.popBackStack() },
-                    onCreatePqr = { navController.navigate(Routes.pqrs) }
-                )
+            composable(Routes.editAvailability){
+                TutorScheduleEditScreen(onBack = {navController.popBackStack()}, onSuccess = {navController.navigate(Routes.profile)})
+            }
+            composable(Routes.pqrList){
+                Surface(modifier=Modifier.fillMaxSize()){
+                    com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrListScreen(
+                        onBack = {navController.popBackStack()}
+                    )
+                }
             }
             composable(Routes.pqrs) {
                 val pqrViewModel: PqrViewModel = viewModel(factory = PqrViewModelFactory(context))

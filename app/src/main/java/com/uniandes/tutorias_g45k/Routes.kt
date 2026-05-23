@@ -19,4 +19,7 @@ object Routes {
     val pqrList="pqr_list"
     val pqrs = "pqrs"
     val editPrice="edit_price"
+    val editAvailability="edit_availability"
+
+
 }

@@ -111,7 +111,7 @@ fun HoursSelector(modifier: Modifier = Modifier, hours:List<String>, selectedDat
     }else {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 100.dp),
-            modifier = Modifier.heightIn(min = 50.dp, max = 120.dp)
+            modifier = Modifier.heightIn(min = 100.dp, max = 200.dp)
         ) {
             items(horas.size) {
                 val enabled =
