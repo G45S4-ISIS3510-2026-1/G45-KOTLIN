@@ -1,11 +1,13 @@
 package com.uniandes.tutorias_g45k.ui.tutor.catalog
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.uniandes.tutorias_g45k.data.catalog.ReviewResponse
 import com.uniandes.tutorias_g45k.data.catalog.TutorResponse
 import com.uniandes.tutorias_g45k.data.recommendation.TutorSummaryDto
 
 data class CatalogoUiState(
     val searchText: String = "",
+    val searchTextValue: TextFieldValue =TextFieldValue(""),
     val tutores: List<TutorSummaryDto> = emptyList(),
     val filtrados: List<TutorSummaryDto> = emptyList(),
     val visibleTutores: List<TutorSummaryDto> = emptyList(),

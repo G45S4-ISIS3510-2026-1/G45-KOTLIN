@@ -58,6 +58,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -76,7 +77,7 @@ fun CatalogoContent(
     uiState: CatalogoUiState,
     onRetry: () -> Unit = {},
     onLoadNextPage: () -> Unit = {},
-    onSearchTextChange: (String) -> Unit,
+    onSearchTextChange: (TextFieldValue) -> Unit,
     onOrderChange: (String) -> Unit,
     onFacultadChange: (String) -> Unit,
     onOnlyFavoritesChange: (Boolean) -> Unit = {},
@@ -137,7 +138,7 @@ fun CatalogoContent(
 
                 item {
                     OutlinedTextField(
-                        value = uiState.searchText,
+                        value = uiState.searchTextValue,
                         onValueChange = onSearchTextChange,
                         placeholder = {
                             Text(

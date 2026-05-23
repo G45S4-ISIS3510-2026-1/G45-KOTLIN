@@ -211,7 +211,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                 ) {
                     Row(
                         modifier = Modifier
-                            .padding(vertical = 4.dp, horizontal = 16.dp),
+                            .padding(vertical = 20.dp, horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
