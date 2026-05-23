@@ -72,18 +72,17 @@ class ProfileListsFireStoreManager {
     }
     suspend fun getUserPqrs(userId: String, dayRange: Int? = null): List<FirestorePqrDto> {
         return try {
-            val query = db.collection("pqrs")
-                .whereEqualTo("authorId", userId)
+            var query: Query = db.collection("pqrs").whereEqualTo("authorId", userId)
             if (dayRange != null) {
                 val startOfDay = Instant.now().minus(Duration.ofDays(dayRange.toLong()))
                 val startTimeStamp = Timestamp(startOfDay.epochSecond, startOfDay.nano)
-                query.whereGreaterThanOrEqualTo("createdAt", startTimeStamp)
+                query = query.whereGreaterThanOrEqualTo("createdAt", startTimeStamp)
             }
-            query.orderBy("createdAt", Query.Direction.DESCENDING)
-            val pqrs= query.get().await().toObjects(FirestorePqrDto::class.java)
+            query = query.orderBy("createdAt", Query.Direction.DESCENDING)
+            val pqrs = query.get().await().toObjects(FirestorePqrDto::class.java)
             Log.d("ProfilePQRSFireStoreBridge", "PQRS: ${pqrs}")
             pqrs
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("ProfilePQRSFireStoreBridge", "Error getting pqrs: ${e.message}")
             throw e
         }

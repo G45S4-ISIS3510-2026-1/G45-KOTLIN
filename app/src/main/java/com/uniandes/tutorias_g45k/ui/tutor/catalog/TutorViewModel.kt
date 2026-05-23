@@ -1,7 +1,6 @@
 package com.uniandes.tutorias_g45k.ui.tutor.catalog
 
 import android.util.Log
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uniandes.tutorias_g45k.data.auth.AuthHolder
@@ -219,8 +218,8 @@ class TutorViewModel(
         }
     }
 
-    fun onSearchTextChange(texto: TextFieldValue) {
-        val text=texto.text
+    fun onSearchTextChange(text: String) {
+        _uiState.update { it.copy(searchText = text) }
         viewModelScope.launch {
             val state = _uiState.value
             val filtrados = withContext(Dispatchers.Default) {
@@ -228,8 +227,6 @@ class TutorViewModel(
             }
             _uiState.update { currentState ->
                 currentState.copy(
-                    searchText = text,
-                    searchTextValue = texto,
                     filtrados = filtrados,
                     visibleTutores = filtrados.take(PAGE_SIZE),
                     currentPage = 1
