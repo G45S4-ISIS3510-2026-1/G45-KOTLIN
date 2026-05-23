@@ -8,6 +8,7 @@ import com.uniandes.tutorias_g45k.data.profile.CreatePqrRequest
 import com.uniandes.tutorias_g45k.data.profile.ProfileRepoFirestoreImp
 import com.uniandes.tutorias_g45k.data.profile.ProfileRepository
 import com.uniandes.tutorias_g45k.data.reservation.ReservationRepository
+import com.uniandes.tutorias_g45k.ui.reservation.summary.Status
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,7 +54,7 @@ class PqrViewModel(
         val userId = AuthHolder.authRepo.getCurrentUserId() ?: return
         viewModelScope.launch {
             reservationRepository.getUserSessions(userId).collect { sessions ->
-                _uiState.update { it.copy(sessions = sessions) }
+                _uiState.update { it.copy(sessions = sessions.filter { it.status != Status.PENDING.status }) }
             }
         }
     }
