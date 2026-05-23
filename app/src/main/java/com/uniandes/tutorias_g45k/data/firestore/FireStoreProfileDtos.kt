@@ -16,13 +16,13 @@ data class FirestoreReviewDto (
 
 data class FirestorePqrDto (
     val id:String="",
-    val type:String="",
-    val description:String="",
-    val topic:String="",
-    val status:String="",
-    val authorId:String="",
-    val relatedIncident:String="",
-    val createdAt: Timestamp =Timestamp.now()
+    val type:String?="",
+    val description:String?="",
+    val topic:String?="",
+    val status:String?="",
+    val authorId:String?="",
+    val relatedIncident:String?="",
+    val createdAt: Timestamp? = Timestamp.now()
 )
 
 @IgnoreExtraProperties

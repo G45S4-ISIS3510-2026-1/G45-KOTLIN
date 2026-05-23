@@ -1,5 +1,7 @@
 package com.uniandes.tutorias_g45k.data.catalog
 
+import com.uniandes.tutorias_g45k.data.profile.CreatePqrRequest
+import com.uniandes.tutorias_g45k.data.profile.PqrResponse
 import com.uniandes.tutorias_g45k.data.recommendation.TutorSummaryDto
 import com.uniandes.tutorias_g45k.data.reservation.SkillSummaryDto
 import retrofit2.http.Body
@@ -48,4 +50,7 @@ interface ApiService {
         @Path("user_id") userId: String,
         @Query("is_tutoring") isTutoring: Boolean = true
     ): Any
+
+    @POST("pqrs/")
+    suspend fun createPqr(@Body request: CreatePqrRequest): PqrResponse
 }

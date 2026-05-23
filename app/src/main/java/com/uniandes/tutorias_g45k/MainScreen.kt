@@ -77,6 +77,11 @@ import com.uniandes.tutorias_g45k.ui.home.HomeScreen
 import com.uniandes.tutorias_g45k.ui.novelties.NoveltyScreen
 import com.uniandes.tutorias_g45k.ui.profile.ProfileScreen
 import com.uniandes.tutorias_g45k.ui.profile.pages.edit.TutorPriceEditScreen
+import com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrListScreen
+import com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrScreen
+import com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrViewModel
+import com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrViewModelFactory
+import com.uniandes.tutorias_g45k.ui.profile.pages.reviews.ReviewListScreen
 import com.uniandes.tutorias_g45k.ui.profile.pages.reservations.ReservationListScreen
 import com.uniandes.tutorias_g45k.ui.reservation.gateway.ReservationGateWay
 import com.uniandes.tutorias_g45k.ui.reservation.summary.ReservationSummary
@@ -310,6 +315,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                     onCheckReservations = {navController.navigate(Routes.reservationList)},
                     onCheckPQRs = {navController.navigate(Routes.pqrList)},
                     onCheckReviews = {navController.navigate(Routes.reviewList)},
+                    onStartPqr = { navController.navigate(Routes.pqrs) },
                     onSignOut = {
                     scope.launch(Dispatchers.IO) {
                         authRepository.signOut();
@@ -331,6 +337,16 @@ fun MainScreen(modifier: Modifier = Modifier,
 
 
             }
+            composable(Routes.pqrList) {
+                PqrListScreen(
+                    onBack = { navController.popBackStack() },
+                    onCreatePqr = { navController.navigate(Routes.pqrs) }
+                )
+            }
+            composable(Routes.pqrs) {
+                val pqrViewModel: PqrViewModel = viewModel(factory = PqrViewModelFactory(context))
+                PqrScreen(onBack = { navController.popBackStack() }, viewModel = pqrViewModel)
+            }
             composable(Routes.reservationList){
                 Surface(modifier=Modifier.fillMaxSize()){
                     Column(verticalArrangement = Arrangement.SpaceBetween,
@@ -339,18 +355,11 @@ fun MainScreen(modifier: Modifier = Modifier,
                     }
                 }
             }
-            composable(Routes.pqrList){
-                Surface(modifier=Modifier.fillMaxSize()){
-                    com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrListScreen(
-                        onBack = {navController.popBackStack()}
-                    )
-                }
-            }
             composable(Routes.reviewList){
                 Surface(modifier=Modifier.fillMaxSize()){
                     Column(verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.CenterHorizontally){
-                        com.uniandes.tutorias_g45k.ui.profile.pages.reviews.ReviewListScreen (
+                        ReviewListScreen (
                             onReviewClick = {review->navController.navigate(Routes.reviewDetail+"/${review.id}")}, 
                             onBack = {navController.popBackStack()}
                         )
@@ -491,4 +500,3 @@ fun MainScreenPreview(){
         MainScreen()
     }
 }
-

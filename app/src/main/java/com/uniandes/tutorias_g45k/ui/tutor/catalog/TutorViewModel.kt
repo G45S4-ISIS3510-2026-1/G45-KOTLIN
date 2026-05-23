@@ -219,6 +219,7 @@ class TutorViewModel(
     }
 
     fun onSearchTextChange(text: String) {
+        _uiState.update { it.copy(searchText = text) }
         viewModelScope.launch {
             val state = _uiState.value
             val filtrados = withContext(Dispatchers.Default) {
@@ -226,7 +227,6 @@ class TutorViewModel(
             }
             _uiState.update { currentState ->
                 currentState.copy(
-                    searchText = text,
                     filtrados = filtrados,
                     visibleTutores = filtrados.take(PAGE_SIZE),
                     currentPage = 1
