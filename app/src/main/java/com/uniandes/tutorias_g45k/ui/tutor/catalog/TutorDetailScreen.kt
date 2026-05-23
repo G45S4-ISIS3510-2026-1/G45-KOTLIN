@@ -275,6 +275,21 @@ fun TutorDetailScreen(
                     StatItem("NIVEL", "Pregrado", colorScheme.onBackground)
                 }
 
+                if (!connected){
+                    Column(){
+                        Text(
+                            text="Sin conexión",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Text(
+                            text="Los datos actuales son guardados y podrían no estar actualizados. Por favor revice su conexión y refresque",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
                 // 3. Especialidades
                 Column(modifier = Modifier.padding(horizontal = 24.dp)) {
                     Text(

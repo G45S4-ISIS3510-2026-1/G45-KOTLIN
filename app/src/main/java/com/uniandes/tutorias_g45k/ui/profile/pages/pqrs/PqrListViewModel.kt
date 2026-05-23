@@ -9,17 +9,16 @@ import com.uniandes.tutorias_g45k.data.reservation.ReservationRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import com.uniandes.tutorias_g45k.data.profile.ProfileRepoProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class PqrListViewModel(
-    private val profileRepository: ProfileRepository = ProfileRepoFirestoreImp,
-    private val reservationRepository: ReservationRepository = ReservationRepository
-) : ViewModel() {
-
+class PqrListViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(PqrListUiState())
     val uiState: StateFlow<PqrListUiState> = _uiState.asStateFlow()
 
@@ -69,20 +68,41 @@ class PqrListViewModel(
                         }
                     }.awaitAll()
                     _uiState.update { it.copy(displayItems = displayItems, isLoading = false, error = null) }
+    private val profileRepository = ProfileRepoProvider.getRepository()
+    private val authRepository = AuthHolder.authRepo
+
+    fun loadPqrs() {
+        _uiState.update { it.copy(isLoading = true, error = "") }
+        // MULTITHREADING: Operación asíncrona enviada al hilo de I/O para no bloquear el Main Thread
+        viewModelScope.launch(Dispatchers.IO) {
+            val userId = authRepository.getCurrentUser()?.uid ?: ""
+            if (userId.isBlank()) {
+                withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(isLoading = false, error = "Usuario no autenticado") }
                 }
-                .onFailure { error ->
-                    _uiState.update { it.copy(error = error.message, isLoading = false) }
+                return@launch
+            }
+
+            // Llamada suspendida simple en lugar de Flow, cumpliendo la filosofía de minimalismo
+            val result = profileRepository.getPQRS(userId)
+
+            withContext(Dispatchers.Main) {
+                if (result.isSuccess) {
+                    val pqrsList = result.getOrNull() ?: emptyList()
+                    _uiState.update { it.copy(pqrs = pqrsList, isLoading = false) }
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = result.exceptionOrNull()?.message ?: "Error cargando PQRs"
+                        )
+                    }
                 }
+            }
         }
     }
 
-    fun onSelectDayRange(range: Int?) {
-        _dayFilter.value = range
-        fetchPqrs()
-    }
-
-    fun onSelectStatus(status: String?) {
-        _statusFilter.value = status
-        fetchPqrs()
+    init {
+        loadPqrs()
     }
 }

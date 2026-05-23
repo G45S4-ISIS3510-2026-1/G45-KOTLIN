@@ -45,16 +45,7 @@ fun ScheduleScreen(modifier: Modifier = Modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center){
 
-        CalendarDaySelector(modifier=Modifier.fillMaxWidth(),
-            weekDays=weekDays,
-            onDaySelected=onDaySelected,
-            selectedDay=selectedDay,
-            onPreviousWeek=onPreviousWeek,
-            onNextWeek=onNextWeek,
-            isLoading=isLoading
-            )
 
-        Spacer(modifier = Modifier.height(16.dp))
         if (!connected){
             Column(){
                 Text(
@@ -69,6 +60,19 @@ fun ScheduleScreen(modifier: Modifier = Modifier,
                 )
             }
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CalendarDaySelector(modifier=Modifier.fillMaxWidth(),
+            weekDays=weekDays,
+            onDaySelected=onDaySelected,
+            selectedDay=selectedDay,
+            onPreviousWeek=onPreviousWeek,
+            onNextWeek=onNextWeek,
+            isLoading=isLoading
+            )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         PullToRefreshBox(
             isRefreshing = isLoading,
             onRefresh = onRefresh

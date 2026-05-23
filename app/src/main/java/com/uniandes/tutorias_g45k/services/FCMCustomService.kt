@@ -45,6 +45,7 @@ class FCMCustomService : FirebaseMessagingService() {
             //Define whether the notification guides towards a tutor, or a session
             val notificationType = when (type) {
                 NoveltyType.PRICE_CHANGE.label -> "tutor"
+                NoveltyType.NEW_REVIEW.label -> "tutor"
                 else -> "session"
             }
             runBlocking(Dispatchers.IO){
