@@ -35,7 +35,7 @@ import com.uniandes.tutorias_g45k.utilities.GoogleAnalyticsService
 import com.uniandes.tutorias_g45k.utilities.NetworkMonitor
 
 @Composable
-fun ReservationListScreen(modifier: Modifier = Modifier, viewModel: FavoriteListViewModel = viewModel(), onReservationClick:(String)->Unit, onBack:()->Unit={}){
+fun FavoriteListScreen(modifier: Modifier = Modifier, viewModel: FavoriteListViewModel = viewModel(), onReservationClick:(String)->Unit, onBack:()->Unit={}){
     val uiState by viewModel.uiState.collectAsState()
     val connected by NetworkMonitor.isOnline.collectAsState()
 
@@ -121,4 +121,3 @@ fun FilterButton(modifier: Modifier = Modifier, label:String, onClick: () -> Uni
         )
     }
 }
-

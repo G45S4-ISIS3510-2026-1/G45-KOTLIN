@@ -9,5 +9,6 @@ interface ProfileRepository {
     suspend fun getProfile(userId: String): Result<FirestoreUserSummaryDto>
     fun getReviews(userId: String, tutorReviews: Boolean = false, dayRange: Int? = null): Flow<List<FirestoreReviewDto>>
     fun getFavTutors(userId: String): Flow<List<FirestoreUserSummaryDto>>
-    suspend fun getPQRS(userId: String): Result<List<FirestorePqrDto>>
+    suspend fun getPQRS(userId: String, dayRange: Int? = null): Result<List<FirestorePqrDto>>
+    suspend fun createPqr(request: CreatePqrRequest): Result<PqrResponse>
 }

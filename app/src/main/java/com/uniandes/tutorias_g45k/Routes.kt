@@ -17,7 +17,6 @@ object Routes {
     val reviewList="review_list"
     val reviewDetail="review_detail"
     val pqrList="pqr_list"
-
+    val pqrs = "pqrs"
     val editPrice="edit_price"
-
 }
