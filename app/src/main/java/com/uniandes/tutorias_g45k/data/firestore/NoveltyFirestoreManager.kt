@@ -8,6 +8,7 @@ import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.tasks.await
 import java.time.Duration
 import java.time.Instant
@@ -15,7 +16,10 @@ import java.time.Instant
 class NoveltyFirestoreManager {
     private val db = FirebaseFirestore.getInstance()
 
-    //Devuelve el flujo en vivo de las notificaciones pendientes del usuario en la fecha indicada
+    // Profiling: listenToUnreadNovelties$1.invoke appeared 4x simultaneously alongside
+    // listenToUserSessions and listenToReviews. conflate() ensures that if Firestore
+    // delivers rapid successive snapshots while the collector is busy, only the latest
+    // is processed instead of queuing all intermediate states.
     fun listenToUnreadNovelties(userId: String, dayRange: Int? = null): Flow<List<NoveltyDto>> = callbackFlow {
         // Buscar todas las notificaciones pendientes
         var query: Query = db.collection("novelties")
@@ -55,7 +59,7 @@ class NoveltyFirestoreManager {
             Log.d("NoveltyFireStoreBridge", "Cerrando SnapshotListener")
             registration.remove()
         }
-    }
+    }.conflate()
 
     suspend fun markNoveltyAsRead(noveltyId: String) {
         Log.d("NoveltyFireStoreBridge", "Marking novelty as read: $noveltyId")

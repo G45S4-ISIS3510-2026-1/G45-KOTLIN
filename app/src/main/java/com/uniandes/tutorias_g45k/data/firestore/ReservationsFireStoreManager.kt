@@ -12,6 +12,7 @@ import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.tasks.await
 import java.time.Duration
 import java.time.Instant
@@ -102,6 +103,9 @@ class ReservationsFireStoreManager {
         }
     }
 
+    // Profiling: listenToUserSessions$1.invoke appeared 4x simultaneously alongside
+    // listenToReviews and listenToUnreadNovelties. conflate() ensures only the latest
+    // Firestore snapshot is delivered when the collector cannot keep up.
     fun listenToUserSessions(userId: String, tutor: Boolean = false, dayRange: Int? = null): Flow<List<SessionDto>> = callbackFlow {
         // Buscar todas las notificaciones pendientes
         var query: Query = db.collection("sessions")
@@ -145,7 +149,7 @@ class ReservationsFireStoreManager {
             Log.d("ReservationFireStoreBridge", "Cerrando SnapshotListener")
             registration.remove()
         }
-    }
+    }.conflate()
 
     suspend fun getUserSessionsByDate(userId:String, date: LocalDate):List<SessionDto>{
         return try {

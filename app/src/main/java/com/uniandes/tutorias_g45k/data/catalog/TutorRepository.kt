@@ -170,4 +170,11 @@ object TutorRepository {
         reviewsByTutorCache.evictAll()
         skillObjectCache.evictAll()
     }
+
+    fun trimCaches() {
+        tutorDetailCache.trimToSize(10)
+        skillsByMajorCache.trimToSize(8)
+        reviewsByTutorCache.trimToSize(10)
+        skillObjectCache.trimToSize(50)
+    }
 }
