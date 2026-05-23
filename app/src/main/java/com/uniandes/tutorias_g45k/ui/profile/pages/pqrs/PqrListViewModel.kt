@@ -45,6 +45,7 @@ class PqrListViewModel(
         val status = _statusFilter.value
         fetchJob?.cancel()
         fetchJob = viewModelScope.launch {
+        viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             profileRepository.getPQRS(userId, dayRange)
                 .onSuccess { pqrs ->
