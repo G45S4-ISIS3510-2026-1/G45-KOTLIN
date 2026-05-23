@@ -6,12 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.uniandes.tutorias_g45k.data.auth.AuthHolder
 import com.uniandes.tutorias_g45k.data.profile.ProfileRepoProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -28,11 +30,22 @@ class ReviewListViewModel: ViewModel() {
     private val _isTutor = MutableStateFlow(false)
     val isTutor: StateFlow<Boolean> = _isTutor.asStateFlow()
 
+    // Profiling: flatMapLatest$1.invoke appeared 4x in cpu-clock samples.
+    // reLoadReviews() used _dayFilter.value = null then _dayFilter.value = current,
+    // causing combine() to emit twice per call → 2 flatMapLatest restarts per reload,
+    // each cancelling and re-launching an inner coroutine. A dedicated SharedFlow
+    // trigger emits exactly once per manual refresh.
+    private val _refreshTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun listenReviews() {
         Log.d("ReviewListViewModel", "1. Entrando a listenReviews")
         viewModelScope.launch {
-            combine(_isTutor, _dayFilter) { tutor, dayRange ->
+            combine(
+                _isTutor,
+                _dayFilter,
+                _refreshTrigger.onStart { emit(Unit) }
+            ) { tutor, dayRange, _ ->
                 Pair(tutor, dayRange)
             }
             .flatMapLatest { (tutor, dayRange) ->
@@ -68,10 +81,7 @@ class ReviewListViewModel: ViewModel() {
 
     fun reLoadReviews() {
         _uiState.update { it.copy(error = "") }
-        val current = _dayFilter.value
-        // Forza actualización reasignando si es necesario, aunque StateFlow descarta repeticiones
-        _dayFilter.value = null
-        _dayFilter.value = current
+        _refreshTrigger.tryEmit(Unit)
     }
 
     init{

@@ -6,6 +6,7 @@ import com.uniandes.tutorias_g45k.data.auth.AuthHolder
 import com.uniandes.tutorias_g45k.data.profile.ProfileRepoFirestoreImp
 import com.uniandes.tutorias_g45k.data.profile.ProfileRepository
 import com.uniandes.tutorias_g45k.data.reservation.ReservationRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +29,12 @@ class PqrListViewModel(
     private val _statusFilter = MutableStateFlow<String?>(null)
     val statusFilter: StateFlow<String?> = _statusFilter.asStateFlow()
 
+    // Profiling: PqrListViewModel.<init> appeared 6x in cpu-clock samples,
+    // indicating the VM is reconstructed multiple times per session. Each
+    // construction fires fetchPqrs() in init{}. Without cancellation, prior
+    // fetches keep running concurrently alongside new ones.
+    private var fetchJob: Job? = null
+
     init {
         fetchPqrs()
     }
@@ -36,7 +43,8 @@ class PqrListViewModel(
         val userId = AuthHolder.authRepo.getCurrentUserId() ?: return
         val dayRange = _dayFilter.value
         val status = _statusFilter.value
-        viewModelScope.launch {
+        fetchJob?.cancel()
+        fetchJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             profileRepository.getPQRS(userId, dayRange)
                 .onSuccess { pqrs ->
