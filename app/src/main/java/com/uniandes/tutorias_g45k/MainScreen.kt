@@ -79,6 +79,7 @@ import com.uniandes.tutorias_g45k.ui.novelties.NoveltyScreen
 import com.uniandes.tutorias_g45k.ui.profile.ProfileScreen
 import com.uniandes.tutorias_g45k.ui.profile.pages.edit.TutorPriceEditScreen
 import com.uniandes.tutorias_g45k.ui.profile.pages.edit.TutorScheduleEditScreen
+import com.uniandes.tutorias_g45k.ui.profile.pages.favorites.FavoriteListScreen
 import com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrListScreen
 import com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrScreen
 import com.uniandes.tutorias_g45k.ui.profile.pages.pqrs.PqrViewModel
@@ -209,7 +210,7 @@ fun MainScreen(modifier: Modifier = Modifier,
         }
     }
 
-    Scaffold(modifier=modifier.fillMaxSize(),
+    Scaffold(modifier=modifier.fillMaxSize(), containerColor = Color.Transparent,
         topBar = {
             AnimatedVisibility(visible = !isOnline) {
                 Surface(
@@ -315,6 +316,9 @@ fun MainScreen(modifier: Modifier = Modifier,
                     }
                 )
             }
+            composable(Routes.favList){
+                FavoriteListScreen(modifier=Modifier.fillMaxWidth(), onReservationClick = {id->}, onBack = {navController.popBackStack()})
+            }
             composable(Routes.editPrice){TutorPriceEditScreen( onSubmit = {navController.navigate(Routes.profile)}, onBack = {navController.popBackStack()})}
             composable(Routes.agenda) {
                 AgendaScreen(Modifier.fillMaxSize(), onSessionClick = {id->navController.navigate(Routes.reservationSummary+"/${id}")})
@@ -365,11 +369,10 @@ fun MainScreen(modifier: Modifier = Modifier,
                 PqrScreen(onBack = { navController.popBackStack() }, viewModel = pqrViewModel)
             }
             composable(Routes.reservationList){
-                Surface(modifier=Modifier.fillMaxSize()){
                     Column(verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.CenterHorizontally){
                         ReservationListScreen (onReservationClick = {id->navController.navigate(Routes.reservationSummary+"/${id}")}, onBack = {navController.popBackStack()})
-                    }
+
                 }
             }
             composable(Routes.reviewList){
@@ -377,7 +380,7 @@ fun MainScreen(modifier: Modifier = Modifier,
                     Column(verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.CenterHorizontally){
                         ReviewListScreen (
-                            onReviewClick = {review->navController.navigate(Routes.reviewDetail+"/${review.id}")}, 
+                            onReviewClick = {review->navController.navigate(Routes.reviewDetail+"/${review.id}")},
                             onBack = {navController.popBackStack()}
                         )
                     }
@@ -416,23 +419,19 @@ fun MainScreen(modifier: Modifier = Modifier,
                 backStackEntry ->
                 val sessionId = backStackEntry.arguments?.getString("session_id")
                 if (sessionId != null) {
-                    Surface(modifier=modifier.padding(10.dp)){
                         ReservationSummary(onBack = {navController.popBackStack()})
-                    }
                 }
             }
             composable(Routes.reservationGateway+"/{tutor_id}") {
                 backStackEntry ->
                 val tutorId = backStackEntry.arguments?.getString("tutor_id")
                 if (tutorId != null) {
-                    Surface(modifier=modifier.padding(10.dp)){
                         ReservationGateWay(onBack = {navController.popBackStack()}, onConfirm = {sessionId->navController.navigate(Routes.reservationSummary+"/$sessionId"){
                             popUpTo(Routes.home){
                                 inclusive=false
                             }
                             launchSingleTop=true
                         } })
-                    }
                 }
 
             }

@@ -61,6 +61,8 @@ class MainActivity : ComponentActivity() {
                 themeManager.changeDynamicThemePreference(active)
             }
         }
+        val isLogged=AuthHolder.authRepo.isUserLoggedIn()
+        AuthHolder.authRepo.initTraceUp(!isLogged)
         setContent {
             val lux by lightSensorManager.luxValue.collectAsState()
             val isDynamic by themeManager.isDynamicThemeActive.collectAsState(initial = false)

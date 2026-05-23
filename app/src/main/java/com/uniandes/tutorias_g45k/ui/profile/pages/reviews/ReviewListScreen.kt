@@ -152,10 +152,10 @@ fun ReviewListScreen(
                         }
                     }else{
                         // MICRO-OPTIMIZACIÓN: Añadir key={ it.id } ayuda a Compose a evitar recomposiciones costosas.
-                        items(items = uiState.reviews, key = { it.id }) { review ->
+                        items(uiState.reviews.size) { index ->
                             ReviewBanner(
                                 modifier = Modifier.fillMaxWidth(),
-                                review = review,
+                                review = uiState.reviews[index],
                                 onClick = { clickedReview -> 
                                     com.uniandes.tutorias_g45k.data.local.ReviewLruCache.putReview(clickedReview)
                                     onReviewClick(clickedReview)

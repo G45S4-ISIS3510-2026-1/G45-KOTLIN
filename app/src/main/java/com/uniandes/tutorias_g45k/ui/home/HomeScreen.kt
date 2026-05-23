@@ -85,6 +85,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(), onTutorClick: (TutorSumma
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         bottomBar = {
 
         }

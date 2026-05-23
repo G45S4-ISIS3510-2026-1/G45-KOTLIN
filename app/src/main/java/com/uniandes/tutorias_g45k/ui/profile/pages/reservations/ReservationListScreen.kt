@@ -57,7 +57,7 @@ fun ReservationListScreen(modifier: Modifier = Modifier, viewModel: ReservationL
         listState.animateScrollToItem(0)
     }
 
-    Column(modifier=modifier.fillMaxHeight().padding(20.dp)){
+    Column(modifier=modifier.fillMaxSize().padding(20.dp)){
         Spacer(modifier=Modifier.height(30.dp))
         Row(modifier=Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

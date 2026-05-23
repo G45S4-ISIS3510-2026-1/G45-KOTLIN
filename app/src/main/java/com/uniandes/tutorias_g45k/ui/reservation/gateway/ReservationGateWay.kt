@@ -71,7 +71,7 @@ fun ReservationGateWay(modifier: Modifier = Modifier, viewModel: ReservationGate
         CommonErrorDialog(message = selectionState.error, onDismiss = {viewModel.clearError()})}
     }
 
-    Column(modifier=modifier){
+    Column(modifier=modifier.fillMaxSize().padding(10.dp)){
         Spacer(modifier=modifier.height(10.dp))
         Row(modifier=modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
