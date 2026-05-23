@@ -49,8 +49,8 @@ fun NoveltyItem(modifier: Modifier = Modifier, novelty: NoveltyDto, onClick: (No
     val now= Timestamp.now().toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
     val noveltyDate=novelty.createdAt.toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
     val daysDiff= ChronoUnit.DAYS.between(noveltyDate, now)
-    val hoursDiff= ChronoUnit.HOURS.between(noveltyDate, now)-daysDiff*24
-    val minutesDiff= ChronoUnit.MINUTES.between(noveltyDate, now)-hoursDiff*60
+    val hoursDiff = ChronoUnit.HOURS.between(noveltyDate, now) % 24
+    val minutesDiff = ChronoUnit.MINUTES.between(noveltyDate, now) % 60
 
     val message=when{
         daysDiff>0L -> "$daysDiff d"

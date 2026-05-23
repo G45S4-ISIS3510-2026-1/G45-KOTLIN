@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uniandes.tutorias_g45k.data.auth.AuthHolder
-import com.uniandes.tutorias_g45k.data.reservation.ReservationRepository
+import com.uniandes.tutorias_g45k.data.profile.ProfileRepoProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 class ReviewListViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(ReviewListUiState())
-    private val sessionRepository = ReservationRepository
+    private val profileRepository = ProfileRepoProvider.getRepository()
     private val authRepository = AuthHolder.authRepo
 
     val uiState = _uiState.asStateFlow()
@@ -28,33 +28,32 @@ class ReviewListViewModel: ViewModel() {
     private val _isTutor = MutableStateFlow(false)
     val isTutor: StateFlow<Boolean> = _isTutor.asStateFlow()
 
-
-
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun listenReservations() {
-        Log.d("DEBUG_NOTI", "1. Entrando a listenReservations")
-        viewModelScope.launch {combine(_isTutor, _dayFilter){
-                    tutor, dayRange-> Pair(tutor, dayRange)
+    private fun listenReviews() {
+        Log.d("ReviewListViewModel", "1. Entrando a listenReviews")
+        viewModelScope.launch {
+            combine(_isTutor, _dayFilter) { tutor, dayRange ->
+                Pair(tutor, dayRange)
+            }
+            .flatMapLatest { (tutor, dayRange) ->
+                Log.d("ReviewListViewModel", "2. Filtro cambiado a: $dayRange")
+                _uiState.update { it.copy(isLoading = true, error = "") }
+                profileRepository.getReviews(authRepository.getCurrentUser()?.uid ?: "", tutor, dayRange)
+            }
+            .catch { it ->
+                Log.e("ReviewListViewModel", "Error en stream", it)
+                _uiState.update { state ->
+                    state.copy(
+                        error = "Error recuperando reseñas, revise su conexión a internet.",
+                        isLoading = false,
+                        reviews = emptyList()
+                    )
                 }
-                .flatMapLatest { (tutor,dayRange) ->
-                    Log.d("DEBUG_NOTI", "2. Filtro cambiado a: $dayRange")
-                    _uiState.update { it.copy(isLoading = true, error = "") }
-                    sessionRepository.getUserSessions(authRepository.getCurrentUser()?.uid ?: "", tutor, dayRange)
-                }
-                .catch { it ->
-                    Log.e("ReviewListViewModel", "Error en stream", it)
-                    _uiState.update { state ->
-                        state.copy(
-                            error = "Error recuperando sesiones, por favor revise su conexión a internet y refresque el listado",
-                            isLoading = false,
-                            sessions = emptyList()
-                        )
-                    }
-                }
-                .collect { list ->
-                    Log.d("DEBUG_NOTI", "4. DATOS RECIBIDOS: ${list.size} elementos: $list")
-                    _uiState.update { it.copy(sessions = list, isLoading = false) }
-                }
+            }
+            .collect { list ->
+                Log.d("ReviewListViewModel", "4. DATOS RECIBIDOS: ${list.size} elementos")
+                _uiState.update { it.copy(reviews = list, isLoading = false, numReviews = list.size) }
+            }
         }
     }
 
@@ -64,17 +63,19 @@ class ReviewListViewModel: ViewModel() {
 
     fun onSelectTutor(isTutor:Boolean){
         _isTutor.value=isTutor
-        reLoadSessions()
+        reLoadReviews()
     }
 
-    fun reLoadSessions() {
+    fun reLoadReviews() {
         _uiState.update { it.copy(error = "") }
         val current = _dayFilter.value
+        // Forza actualización reasignando si es necesario, aunque StateFlow descarta repeticiones
+        _dayFilter.value = null
         _dayFilter.value = current
     }
 
     init{
-        listenReservations()
+        listenReviews()
     }
 
 }

@@ -14,6 +14,9 @@ object Routes {
     val becomeTutorSchedule="become_tutor_schedule"
     val becomeTutorPrice="become_tutor_price"
     val reservationList="reservation_list"
+    val reviewList="review_list"
+    val reviewDetail="review_detail"
+    val pqrList="pqr_list"
 
     val editPrice="edit_price"
 

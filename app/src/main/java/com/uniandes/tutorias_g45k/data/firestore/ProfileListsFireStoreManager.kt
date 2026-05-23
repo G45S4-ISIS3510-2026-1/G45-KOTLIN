@@ -41,8 +41,10 @@ class ProfileListsFireStoreManager {
             }
 
             if (snapshot != null) {
-                // Aquí usamos toObjects para mapear automáticamente
-                val reviews = snapshot.toObjects(FirestoreReviewDto::class.java)
+                // Aquí usamos mapeo manual para asegurar que el ID del documento se asigne al DTO
+                val reviews = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(FirestoreReviewDto::class.java)?.copy(id = doc.id)
+                }
 
                 // Emitir la nueva lista al Flow
                 trySend(reviews)

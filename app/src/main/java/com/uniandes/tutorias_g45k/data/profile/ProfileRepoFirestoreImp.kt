@@ -30,7 +30,7 @@ object ProfileRepoFirestoreImp: ProfileRepository {
         return firestoreManager.listenToFavTutors(userId)
     }
 
-    override fun getReviews(userId: String): Flow<List<FirestoreReviewDto>> {
-        return firestoreManager.listenToReviews(userId)
+    override fun getReviews(userId: String, tutorReviews: Boolean, dayRange: Int?): Flow<List<FirestoreReviewDto>> {
+        return firestoreManager.listenToReviews(userId, tutorReviews, dayRange)
     }
 }
