@@ -7,6 +7,7 @@ import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.tasks.await
 import java.time.Duration
 import java.time.Instant
@@ -14,6 +15,9 @@ import java.time.Instant
 class ProfileListsFireStoreManager {
     private val db = FirebaseFirestore.getInstance()
 
+    // Profiling: listenToReviews$1.invoke appeared 4x simultaneously alongside
+    // the other two Firestore listeners. conflate() drops intermediate snapshots
+    // when the collector is still processing a previous emission.
     fun listenToReviews(userId: String, tutorReviews:Boolean=false, dayRange: Int? = null): Flow<List<FirestoreReviewDto>> = callbackFlow {
         // Buscar todas las reseñas que escribio (tutor false) o recibio (tutor true)
         var query: Query = db.collection("reviews")
@@ -57,7 +61,7 @@ class ProfileListsFireStoreManager {
             Log.d("NoveltyFireStoreBridge", "Cerrando SnapshotListener")
             registration.remove()
         }
-    }
+    }.conflate()
     suspend fun getUserDto(userId: String): FirestoreUserSummaryDto? {
         return try {
             val snapshot = db.collection("users").document(userId).get().await()
